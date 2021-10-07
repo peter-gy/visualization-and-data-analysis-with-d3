@@ -1,0 +1,28 @@
+{
+  "name": "visualization-and-data-analysis-with-d3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "tailwind-watch": "npx tailwindcss -o lib/css/tailwind.min.css -w -m",
+    "copy-css": "cp lib/css/tailwind.min.css assignments/$CURR_A/lib/css",
+    "copy-watch": "watch 'npm run copy-css' assignments/$CURR_A --ignoreDirectoryPattern=/assignments/A[1-5]/lib/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peter-gy/visualization-and-data-analysis-with-d3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/peter-gy/visualization-and-data-analysis-with-d3/issues"
+  },
+  "homepage": "https://github.com/peter-gy/visualization-and-data-analysis-with-d3#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.3.7",
+    "postcss": "^8.3.9",
+    "tailwindcss": "^2.2.16",
+    "watch": "^1.0.2"
+  }
+}
