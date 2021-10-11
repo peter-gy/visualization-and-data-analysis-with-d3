@@ -6,11 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="lib/css/tailwind.min.css" />
     <link rel="stylesheet" href="assets/css/style.css" />
-    <script src="lib/js/d3.min.js"></script>
-    <script src="assets/js/main.js"></script>
-    <title>A1 - VIS</title>
+    <title>A1</title>
   </head>
   <body>
-    <div class="h-screen flex justify-center items-center bg-purple-500"></div>
+    <div class="h-screen flex flex-col justify-center items-center bg-purple-500 p-4">
+      <h1 class="mb-4 text-xl">States in the USA with the best GDP scores</h1>
+      <svg id="bar-chart" class="h-[55vh] w-[85vw] bg-white"></svg>
+    </div>
+    <script src="lib/js/d3.min.js"></script>
+    <script src="assets/js/main.js"></script>
   </body>
 </html>
