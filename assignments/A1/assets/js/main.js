@@ -141,8 +141,8 @@ function drawXAxisLabel(layout) {
         .attr("font-weight", "bold")
         .style("font-size", `${1.25 * layout[LayoutProps.fontSize]}px`)
         .attr("text-anchor", "middle")
-        .attr("x", layout[LayoutProps.width] / 2)
-        .attr("y", layout[LayoutProps.height] + 1.6 * layout[LayoutProps.margin])
+        .attr("x", layout[LayoutProps.width] / 2 + layout[LayoutProps.margin])
+        .attr("y", layout[LayoutProps.height] + 1.65 * layout[LayoutProps.margin])
 }
 
 function drawYAxisLabel(layout) {
@@ -153,7 +153,7 @@ function drawYAxisLabel(layout) {
         .attr("text-anchor", "middle")
         .attr("transform", "rotate(-90)")
         .attr("x", -(layout[LayoutProps.height] / 2) - layout[LayoutProps.margin])
-        .attr("y", 0.15 * layout[LayoutProps.margin])
+        .attr("y", 0.125 * layout[LayoutProps.margin])
 }
 
 function draw(data) {
