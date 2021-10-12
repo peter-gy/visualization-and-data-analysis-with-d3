@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script defer src="lib/js/alpine.min.js"></script>
+    <link rel="stylesheet" href="lib/css/tailwind.min.css"/>
+    <link rel="stylesheet" href="assets/css/style.css"/>
+    <title>Document</title>
+</head>
+<body class="bg-primary">
+<div x-data="{
+charts: [{
+            title: 'A1',
+            description: 'Introduction to D3 by creating a simple bar chart'
+        },
+        {
+            title: 'A2',
+            description: 'Unannounced'
+        },
+        {
+            title: 'A3',
+            description: 'Unannounced'
+        },
+        {
+            title: 'A4',
+            description: 'Unannounced'
+        },
+        {
+            title: 'A5',
+            description: 'Unannounced'
+        }]
+    }">
+    <div class="h-screen p-10 flex justify-center items-center">
+        <template x-for="chart in charts" :key="chart.title">
+            <div class="flex p-4 m-4 bg-white rounded-md">
+                <li x-text="chart.title"></li>
+            </div>
+        </template>
+    </div>
+</div>
+</body>
+</html>
