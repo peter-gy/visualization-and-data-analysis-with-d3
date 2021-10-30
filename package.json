@@ -11,7 +11,7 @@
     "deploy": "npm run predeploy && scp -r assignments/$CURR_A Almighty:~/public_html/VIS21W && ssh Almighty \"chmod -R 755 ~/public_html/VIS21W\"",
     "moodle-zip": "npm run predeploy && cd assignments && zip -r ../submissions/gyarmatip41_$CURR_A.zip $CURR_A/ && cd ..",
     "submit": "npm run deploy && npm run moodle-zip",
-    "format": "prettier --write './**/*.{js,html}' --config ./.prettierrc --ignore-path ./.prettierignore"
+    "format": "prettier --write './**/*.{js,html,css}' --config ./.prettierrc --ignore-path ./.prettierignore"
   },
   "repository": {
     "type": "git",
