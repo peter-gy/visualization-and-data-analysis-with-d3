@@ -3,11 +3,11 @@
  * @type {{padding: string, margin: string, width: string, fontSize: string, height: string}}
  */
 const LayoutProps = {
-    padding: "padding",
-    margin: "margin",
-    width: "width",
-    height: "height",
-    fontSize: "fontSize",
+    padding: 'padding',
+    margin: 'margin',
+    width: 'width',
+    height: 'height',
+    fontSize: 'fontSize'
 };
 
 /**
@@ -15,20 +15,20 @@ const LayoutProps = {
  * @type {{gdp: string, state: string}}
  */
 const DataProps = {
-    state: "State",
-    gdp: "GDP",
+    state: 'State',
+    gdp: 'GDP'
 };
 
 /**
  * The SVG Element serving as the canvas of the chart
  */
-const svgTag = d3.select("#bar-chart");
+const svgTag = d3.select('#bar-chart');
 
 /**
  * Path to the CSV file serving as the data source of the chart
  * @type {string}
  */
-const fileName = "assets/data/usa_nominal_gdp_top10_2021.csv";
+const fileName = 'assets/data/usa_nominal_gdp_top10_2021.csv';
 
 /**
  * Percentage of the screen height to be taken by the chart.
@@ -84,15 +84,12 @@ function calculateLayout() {
         [LayoutProps.margin]: margin,
         [LayoutProps.height]: height - 2 * margin,
         [LayoutProps.width]: width - 2 * margin,
-        [LayoutProps.fontSize]: width / 100,
+        [LayoutProps.fontSize]: width / 100
     };
 }
 
 function calculateXScale(range, data, layout) {
-    return d3.scaleBand()
-        .range(range)
-        .domain(data)
-        .padding(layout[LayoutProps.padding]);
+    return d3.scaleBand().range(range).domain(data).padding(layout[LayoutProps.padding]);
 }
 
 function assembleXScale(data, layout) {
@@ -102,13 +99,15 @@ function assembleXScale(data, layout) {
 }
 
 function drawXAxis(chart, xScale, layout) {
-    chart.append("g")
-        .attr("transform", `translate(0, ${layout[LayoutProps.height]})`)
+    chart
+        .append('g')
+        .attr('transform', `translate(0, ${layout[LayoutProps.height]})`)
         .call(d3.axisBottom(xScale));
 }
 
 function calculateYScale(range, data) {
-    return d3.scaleLinear()
+    return d3
+        .scaleLinear()
         .range(range)
         .domain([0, data[data.length - 1]]);
 }
@@ -120,48 +119,54 @@ function assembleYScale(data, layout) {
 }
 
 function drawYAxis(chart, yScale) {
-    chart.append("g")
-        .call(d3.axisLeft(yScale));
+    chart.append('g').call(d3.axisLeft(yScale));
 }
 
 function drawBars(chart, data, xScale, yScale, layout) {
-    chart.selectAll()
+    chart
+        .selectAll()
         .data(data)
         .enter()
-        .append("rect")
-        .attr("x", (d) => xScale(d[DataProps.state]))
-        .attr("y", (d) => yScale(d[DataProps.gdp]))
-        .attr("height", (d) => layout[LayoutProps.height] - yScale(d[DataProps.gdp]))
-        .attr("width", (_) => xScale.bandwidth());
+        .append('rect')
+        .attr('x', (d) => xScale(d[DataProps.state]))
+        .attr('y', (d) => yScale(d[DataProps.gdp]))
+        .attr('height', (d) => layout[LayoutProps.height] - yScale(d[DataProps.gdp]))
+        .attr('width', (_) => xScale.bandwidth());
 }
 
 function drawXAxisLabel(layout) {
-    svgTag.append("text")
-        .text("States")
-        .attr("font-weight", "bold")
-        .style("font-size", `${1.25 * layout[LayoutProps.fontSize]}px`)
-        .attr("text-anchor", "middle")
-        .attr("x", layout[LayoutProps.width] / 2 + layout[LayoutProps.margin])
-        .attr("y", layout[LayoutProps.height] + 1.65 * layout[LayoutProps.margin])
+    svgTag
+        .append('text')
+        .text('States')
+        .attr('font-weight', 'bold')
+        .style('font-size', `${1.25 * layout[LayoutProps.fontSize]}px`)
+        .attr('text-anchor', 'middle')
+        .attr('x', layout[LayoutProps.width] / 2 + layout[LayoutProps.margin])
+        .attr('y', layout[LayoutProps.height] + 1.65 * layout[LayoutProps.margin]);
 }
 
 function drawYAxisLabel(layout) {
-    svgTag.append("text")
-        .text("Nominal GDP (millions of $)")
-        .attr("font-weight", "bold")
-        .style("font-size", `${1.25 * layout[LayoutProps.fontSize]}px`)
-        .attr("text-anchor", "middle")
-        .attr("transform", "rotate(-90)")
-        .attr("x", -(layout[LayoutProps.height] / 2) - layout[LayoutProps.margin])
-        .attr("y", 0.125 * layout[LayoutProps.margin])
+    svgTag
+        .append('text')
+        .text('Nominal GDP (millions of $)')
+        .attr('font-weight', 'bold')
+        .style('font-size', `${1.25 * layout[LayoutProps.fontSize]}px`)
+        .attr('text-anchor', 'middle')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -(layout[LayoutProps.height] / 2) - layout[LayoutProps.margin])
+        .attr('y', 0.125 * layout[LayoutProps.margin]);
 }
 
 function draw(data) {
-    svgTag.selectAll("*").remove();
+    svgTag.selectAll('*').remove();
     const layout = calculateLayout();
 
-    const chart = svgTag.append("g")
-        .attr("transform", `translate(${layout[LayoutProps.margin]}, ${layout[LayoutProps.margin]})`);
+    const chart = svgTag
+        .append('g')
+        .attr(
+            'transform',
+            `translate(${layout[LayoutProps.margin]}, ${layout[LayoutProps.margin]})`
+        );
 
     const xScale = assembleXScale(data, layout);
     const yScale = assembleYScale(data, layout);
@@ -170,8 +175,7 @@ function draw(data) {
 
     drawXAxis(chart, xScale, layout);
     drawYAxis(chart, yScale);
-    d3.selectAll("text")
-        .style("font-size", `${layout[LayoutProps.fontSize]}px`);
+    d3.selectAll('text').style('font-size', `${layout[LayoutProps.fontSize]}px`);
 
     drawXAxisLabel(layout);
     drawYAxisLabel(layout);
@@ -180,7 +184,7 @@ function draw(data) {
 /**
  * Act as soon as the DOM is loaded
  */
-window.addEventListener("DOMContentLoaded", async () => {
+window.addEventListener('DOMContentLoaded', async () => {
     const data = await loadData(fileName);
     draw(data);
 
