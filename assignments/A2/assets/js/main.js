@@ -136,15 +136,41 @@ function drawLineChart(tag, data) {
         .append('g')
         .attr('transform', `translate(0, ${layout[LayoutProps.height]})`)
         .call(xAxis);
+    // Label the x-axis
+    chart
+        .append('text')
+        .text('Years')
+        .attr('font-weight', 'bold')
+        .style('font-size', `${1.25 * layout[LayoutProps.fontSize]}px`)
+        .attr('text-anchor', 'middle')
+        .attr('x', layout[LayoutProps.width] / 2)
+        .attr(
+            'y',
+            layout[LayoutProps.height] + 0.65 * layout[LayoutProps.margin]
+        );
 
     // Create the vertical scale and axis
     const yScale = d3
         .scaleLinear()
         .domain([0, d3.max(allValues(data))])
         .range([layout[LayoutProps.height], 0]);
-    const yAxis = d3.axisLeft(yScale);
+    const yAxis = d3
+        .axisLeft(yScale)
+        .ticks(8)
+        // Divide through 1M to be in sync with the axis label
+        .tickFormat((t) => t / 10 ** 6);
     // Append the y-axis
     chart.append('g').call(yAxis);
+    // Label the y-axis
+    chart
+        .append('text')
+        .text('Nominal GDP (Millions of current dollars)')
+        .attr('font-weight', 'bold')
+        .style('font-size', `${1.25 * layout[LayoutProps.fontSize]}px`)
+        .attr('text-anchor', 'middle')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -(layout[LayoutProps.height] / 2))
+        .attr('y', -0.75 * layout[LayoutProps.margin]);
 
     // Create the lines
     chart
@@ -158,6 +184,7 @@ function drawLineChart(tag, data) {
         .attr('d', (element) =>
             d3
                 .line()
+                .curve(d3.curveNatural)
                 // ``val`` is a single element of ``element[DataProps.values]``
                 .x((val, idx) => xScale(startYear + idx))
                 .y((val) => yScale(val))(element[DataProps.values])
