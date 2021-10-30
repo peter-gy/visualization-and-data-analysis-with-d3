@@ -23,7 +23,9 @@ const DataProps = {
  * Starting and ending year of the data
  */
 const [startYear, endYear] = [1997, 2020];
-const years = [...Array(1 + endYear - startYear).keys()].map((i) => i + startYear);
+const years = [...Array(1 + endYear - startYear).keys()].map(
+    (i) => i + startYear
+);
 
 /**
  * Path to the CSV file serving as the data source of the chart
@@ -62,15 +64,18 @@ const lineChartTag = d3.select('#line-chart');
 // Extracting dimensions from the Tailwind JIT class
 const lineChartHeightPct =
     +lineChartTag.node().className.baseVal.match(/h-\[([0-9]+)vh]/)[1] * 0.01;
-const lineChartWidthPct = +lineChartTag.node().className.baseVal.match(/w-\[([0-9]+)vw]/)[1] * 0.01;
+const lineChartWidthPct =
+    +lineChartTag.node().className.baseVal.match(/w-\[([0-9]+)vw]/)[1] * 0.01;
 
 /**
  * The SVG Element serving as the canvas of the brushable area
  */
 const brushTag = d3.select('#brushable-area');
 // Extracting dimensions from the Tailwind JIT class
-const brushHeightPct = +brushTag.node().className.baseVal.match(/h-\[([0-9]+)vh]/)[1] * 0.01;
-const brushWidthPct = +brushTag.node().className.baseVal.match(/w-\[([0-9]+)vw]/)[1] * 0.01;
+const brushHeightPct =
+    +brushTag.node().className.baseVal.match(/h-\[([0-9]+)vh]/)[1] * 0.01;
+const brushWidthPct =
+    +brushTag.node().className.baseVal.match(/w-\[([0-9]+)vw]/)[1] * 0.01;
 
 const paddingPct = 0.00025;
 const marginPct = 0.075;
@@ -100,14 +105,21 @@ function allValues(data) {
 
 function drawLineChart(tag, data) {
     tag.selectAll('*').remove();
-    const layout = calculateLayout(lineChartHeightPct, lineChartWidthPct, paddingPct, marginPct);
+    const layout = calculateLayout(
+        lineChartHeightPct,
+        lineChartWidthPct,
+        paddingPct,
+        marginPct
+    );
 
     // Create margins
     const chart = tag
         .append('g')
         .attr(
             'transform',
-            `translate(${layout[LayoutProps.margin]}, ${layout[LayoutProps.margin]})`
+            `translate(${layout[LayoutProps.margin]}, ${
+                layout[LayoutProps.margin]
+            })`
         );
 
     // Create the horizontal scale and axis
@@ -120,7 +132,10 @@ function drawLineChart(tag, data) {
         .ticks(years.length)
         .tickFormat((t) => `${t}`);
     // Append the x-axis
-    chart.append('g').attr('transform', `translate(0, ${layout[LayoutProps.height]})`).call(xAxis);
+    chart
+        .append('g')
+        .attr('transform', `translate(0, ${layout[LayoutProps.height]})`)
+        .call(xAxis);
 
     // Create the vertical scale and axis
     const yScale = d3

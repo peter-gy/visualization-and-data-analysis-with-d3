@@ -35,14 +35,16 @@ const fileName = 'assets/data/usa_nominal_gdp_top10_2021.csv';
  * Extracted from the tailwind JIT class.
  * @type {number}
  */
-const heightPercentage = +svgTag.node().className.baseVal.match(/h-\[([0-9]+)vh]/)[1] * 0.01;
+const heightPercentage =
+    +svgTag.node().className.baseVal.match(/h-\[([0-9]+)vh]/)[1] * 0.01;
 
 /**
  * Percentage of the screen width to be taken by the chart.
  * Extracted from the tailwind JIT class.
  * @type {number}
  */
-const widthPercentage = +svgTag.node().className.baseVal.match(/w-\[([0-9]+)vw]/)[1] * 0.01;
+const widthPercentage =
+    +svgTag.node().className.baseVal.match(/w-\[([0-9]+)vw]/)[1] * 0.01;
 
 /**
  * Percentage to be used in combination with the current SVG width
@@ -89,7 +91,11 @@ function calculateLayout() {
 }
 
 function calculateXScale(range, data, layout) {
-    return d3.scaleBand().range(range).domain(data).padding(layout[LayoutProps.padding]);
+    return d3
+        .scaleBand()
+        .range(range)
+        .domain(data)
+        .padding(layout[LayoutProps.padding]);
 }
 
 function assembleXScale(data, layout) {
@@ -114,7 +120,9 @@ function calculateYScale(range, data) {
 
 function assembleYScale(data, layout) {
     const range = [layout[LayoutProps.height], 0];
-    const yData = [0, ...data.map((d) => d[DataProps.gdp])].sort((a, b) => a - b);
+    const yData = [0, ...data.map((d) => d[DataProps.gdp])].sort(
+        (a, b) => a - b
+    );
     return calculateYScale(range, yData);
 }
 
@@ -130,7 +138,10 @@ function drawBars(chart, data, xScale, yScale, layout) {
         .append('rect')
         .attr('x', (d) => xScale(d[DataProps.state]))
         .attr('y', (d) => yScale(d[DataProps.gdp]))
-        .attr('height', (d) => layout[LayoutProps.height] - yScale(d[DataProps.gdp]))
+        .attr(
+            'height',
+            (d) => layout[LayoutProps.height] - yScale(d[DataProps.gdp])
+        )
         .attr('width', (_) => xScale.bandwidth());
 }
 
@@ -142,7 +153,10 @@ function drawXAxisLabel(layout) {
         .style('font-size', `${1.25 * layout[LayoutProps.fontSize]}px`)
         .attr('text-anchor', 'middle')
         .attr('x', layout[LayoutProps.width] / 2 + layout[LayoutProps.margin])
-        .attr('y', layout[LayoutProps.height] + 1.65 * layout[LayoutProps.margin]);
+        .attr(
+            'y',
+            layout[LayoutProps.height] + 1.65 * layout[LayoutProps.margin]
+        );
 }
 
 function drawYAxisLabel(layout) {
@@ -153,7 +167,10 @@ function drawYAxisLabel(layout) {
         .style('font-size', `${1.25 * layout[LayoutProps.fontSize]}px`)
         .attr('text-anchor', 'middle')
         .attr('transform', 'rotate(-90)')
-        .attr('x', -(layout[LayoutProps.height] / 2) - layout[LayoutProps.margin])
+        .attr(
+            'x',
+            -(layout[LayoutProps.height] / 2) - layout[LayoutProps.margin]
+        )
         .attr('y', 0.125 * layout[LayoutProps.margin]);
 }
 
@@ -165,7 +182,9 @@ function draw(data) {
         .append('g')
         .attr(
             'transform',
-            `translate(${layout[LayoutProps.margin]}, ${layout[LayoutProps.margin]})`
+            `translate(${layout[LayoutProps.margin]}, ${
+                layout[LayoutProps.margin]
+            })`
         );
 
     const xScale = assembleXScale(data, layout);
@@ -175,7 +194,10 @@ function draw(data) {
 
     drawXAxis(chart, xScale, layout);
     drawYAxis(chart, yScale);
-    d3.selectAll('text').style('font-size', `${layout[LayoutProps.fontSize]}px`);
+    d3.selectAll('text').style(
+        'font-size',
+        `${layout[LayoutProps.fontSize]}px`
+    );
 
     drawXAxisLabel(layout);
     drawYAxisLabel(layout);
