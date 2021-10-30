@@ -1,27 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="lib/css/tailwind.min.css" />
-    <link rel="stylesheet" href="assets/css/style.css" />
-    <title>A2</title>
-  </head>
-  <body>
-    <div class="h-screen flex flex-col justify-center items-center bg-[#2A6595] p-2">
-      <h1 class="mb-6 text-2xl text-white text-center font-bold">Yearly nominal GDP per state in the USA</h1>
-      <div class="p-2 bg-white rounded-2xl hover:shadow-xl">
-        <svg id="line-chart" class="m-2 h-[50vh] w-[85vw] bg-blue-900"></svg>
-        <svg id="brushable-area" class="m-2 h-[25vh] w-[85vw] bg-red-900"></svg>
-      </div>
-      <footer>
-        <div class="mt-4 p-2 flex justify-center">
-          <p class="text-white text-sm italic">Péter Ferenc Gyarmati - 11913446</p>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="lib/css/tailwind.min.css" />
+        <link rel="stylesheet" href="assets/css/style.css" />
+        <title>A2</title>
+    </head>
+    <body>
+        <div class="h-screen flex flex-col justify-center items-center bg-[#2A6595] p-2">
+            <h1 class="mb-6 text-2xl text-white text-center font-bold">
+                Yearly nominal GDP per state in the USA
+            </h1>
+            <div class="p-2 bg-white rounded-2xl hover:shadow-xl">
+                <div class="m-2 border-2">
+                    <svg id="line-chart" class="h-[50vh] w-[85vw]"></svg>
+                </div>
+                <div class="m-2 border-2">
+                    <svg id="brushable-area" class="h-[25vh] w-[85vw] bg-white"></svg>
+                </div>
+            </div>
+            <footer>
+                <div class="mt-4 p-2 flex justify-center">
+                    <p class="text-white text-sm italic">Péter Ferenc Gyarmati - 11913446</p>
+                </div>
+            </footer>
         </div>
-      </footer>
-    </div>
-    <script src="lib/js/d3.min.js"></script>
-    <script src="assets/js/main.js"></script>
-  </body>
+        <script src="lib/js/d3.min.js"></script>
+        <script src="assets/js/main.js"></script>
+    </body>
 </html>
