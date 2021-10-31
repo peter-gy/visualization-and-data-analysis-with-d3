@@ -183,9 +183,11 @@ function drawLines(
     yScale,
     onClick = () => {},
     onMouseover = () => {},
-    onMouseout = () => {}
+    onMouseout = () => {},
+    withClip = true
 ) {
-    tag.selectAll('.line')
+    const lines = tag
+        .selectAll('.line')
         .data(data)
         .join('path')
         .attr('class', 'line')
@@ -208,6 +210,8 @@ function drawLines(
         .on('click', onClick)
         .on('mouseover', onMouseover)
         .on('mouseout', onMouseout);
+
+    if (withClip) lines.attr('clip-path', 'url(#clip)');
 }
 
 function drawLineChart(tag, data) {
@@ -228,6 +232,16 @@ function drawLineChart(tag, data) {
                 layout[LayoutProps.margin]
             })`
         );
+
+    // Use a clipPath so that objects outside this area won't get rendered
+    tag.append('defs')
+        .append('svg:clipPath')
+        .attr('id', 'clip')
+        .append('svg:rect')
+        .attr('width', layout[LayoutProps.width])
+        .attr('height', layout[LayoutProps.height])
+        .attr('x', 0)
+        .attr('y', -5);
 
     // Create the horizontal scale and axis
     const xScale = createXScale(layout);
@@ -401,7 +415,16 @@ function drawBrushableArea(tag, data, lineChartProps) {
     appendXAxis(layout, xAxis, brushArea);
 
     // Create the lines
-    drawLines(data, brushArea, xScale, createYScale(layout, data));
+    drawLines(
+        data,
+        brushArea,
+        xScale,
+        createYScale(layout, data),
+        () => {},
+        () => {},
+        () => {},
+        false
+    );
 
     let idleTimeout;
     const idled = () => (idleTimeout = null);
