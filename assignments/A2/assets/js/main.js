@@ -33,6 +33,8 @@ const years = [...Array(1 + endYear - startYear).keys()].map(
  */
 const fileName = 'assets/data/usa_nominal_gdp_1997-2020.csv';
 
+const permanentlySelectedData = [];
+
 /**
  * Loads the contents of the CSV file based on the supplied ``fileName``
  * @param fileName
@@ -118,7 +120,8 @@ function createXAxis(xScale) {
 }
 
 function appendXAxis(layout, xAxis, tag) {
-    tag.append('g')
+    return tag
+        .append('g')
         .attr('transform', `translate(0, ${layout[LayoutProps.height]})`)
         .call(xAxis);
 }
@@ -141,7 +144,36 @@ function createYAxis(yScale) {
 }
 
 function appendYAxis(layout, yAxis, tag) {
-    tag.append('g').call(yAxis);
+    return tag.append('g').call(yAxis);
+}
+
+/**
+ * Returns the name of a state without any spaces.
+ * Used to assign IDs to the hover labels.
+ * @param stateName {string}
+ * @returns {string}
+ */
+function normalizeStateName(stateName) {
+    return stateName.replaceAll(' ', '');
+}
+
+/**
+ * Removes the label from the line extracted from ``event.target``
+ * and the highlighting.
+ * @param lineData {{State: string, Values: number[],}}
+ */
+function deactivateLine(lineData) {
+    d3.select(`#${normalizeStateName(lineData.State)}Label`).remove();
+    d3.select(`#${normalizeStateName(lineData[DataProps.state])}Line`)
+        .attr('stroke', '#2A6595')
+        .attr('stroke-width', 1.25);
+}
+
+function markLineAsPermanentlyActive(lineData) {
+    d3.select(`#${normalizeStateName(lineData[DataProps.state])}Line`).classed(
+        'permanently-active',
+        true
+    );
 }
 
 function drawLines(
@@ -156,8 +188,9 @@ function drawLines(
     tag.selectAll('.line')
         .data(data)
         .join('path')
+        .attr('class', 'line')
         .attr('fill', 'none')
-        .attr('stroke', '#888888')
+        .attr('stroke', '#2A6595')
         .attr('stroke-width', 1.25)
         // ``element`` is a single element of ``data``
         .attr('d', (element) =>
@@ -167,6 +200,10 @@ function drawLines(
                 // ``val`` is a single element of ``element[DataProps.values]``
                 .x((val, idx) => xScale(startYear + idx))
                 .y((val) => yScale(val))(element[DataProps.values])
+        )
+        .attr(
+            'id',
+            (element) => `${normalizeStateName(element[DataProps.state])}Line`
         )
         .on('click', onClick)
         .on('mouseover', onMouseover)
@@ -195,7 +232,7 @@ function drawLineChart(tag, data) {
     // Create the horizontal scale and axis
     const xScale = createXScale(layout);
     const xAxis = createXAxis(xScale);
-    appendXAxis(layout, xAxis, chart);
+    const xAxisTag = appendXAxis(layout, xAxis, chart);
     // Label the x-axis
     chart
         .append('text')
@@ -212,7 +249,7 @@ function drawLineChart(tag, data) {
     // Create the vertical scale and axis
     const yScale = createYScale(layout, data);
     const yAxis = createYAxis(yScale);
-    appendYAxis(layout, yAxis, chart);
+    const yAxisTag = appendYAxis(layout, yAxis, chart);
     // Label the y-axis
     chart
         .append('text')
@@ -224,25 +261,14 @@ function drawLineChart(tag, data) {
         .attr('x', -(layout[LayoutProps.height] / 2))
         .attr('y', -0.75 * layout[LayoutProps.margin]);
 
-    /**
-     * Returns the name of a state without any spaces.
-     * Used to assign IDs to the hover labels.
-     * @param stateName {string}
-     * @returns {string}
-     */
-    function normalizeStateName(stateName) {
-        return stateName.replaceAll(' ', '');
-    }
-
     // Define interactivity for the lines
 
     /**
      * Adds the state label next to the line extracted from ``event.target``
      * and highlights it.
-     * @param event
      * @param lineData {{State: string, Values: number[],}}
      */
-    function activateLine(event, lineData) {
+    function activateLine(lineData) {
         // Show the label
         chart
             .append('text')
@@ -251,28 +277,12 @@ function drawLineChart(tag, data) {
             .attr('text-anchor', 'right')
             .attr('x', xScale(startYear + lineData.Values.length - 0.9))
             .attr('y', yScale(lineData.Values[lineData.Values.length - 1]))
-            .attr('id', `${normalizeStateName(lineData.State)}Label`);
+            .attr('id', `${normalizeStateName(lineData.State)}Label`)
+            .classed('state-label', true);
         // Highlight the line by recoloring it and making it wider
-        d3.select(event.target)
+        d3.select(`#${normalizeStateName(lineData[DataProps.state])}Line`)
             .attr('stroke', 'orange')
             .attr('stroke-width', 2.5);
-    }
-
-    /**
-     * Removes the label from the line extracted from ``event.target``
-     * and the highlighting.
-     * @param event
-     * @param lineData {{State: string, Values: number[],}}
-     */
-    function deactivateLine(event, lineData) {
-        d3.select(`#${normalizeStateName(lineData.State)}Label`).remove();
-        d3.select(event.target)
-            .attr('stroke', '#888888')
-            .attr('stroke-width', 1.25);
-    }
-
-    function markLineAsPermanentlyActive(event) {
-        d3.select(event.target).attr('class', 'permanently-active');
     }
 
     /**
@@ -281,8 +291,9 @@ function drawLineChart(tag, data) {
      * @param lineData {{State: string, Values: number[],}}
      */
     function lineClick(event, lineData) {
-        markLineAsPermanentlyActive(event);
-        activateLine(event, lineData);
+        markLineAsPermanentlyActive(lineData);
+        activateLine(lineData);
+        permanentlySelectedData.push(lineData);
     }
 
     /**
@@ -291,7 +302,7 @@ function drawLineChart(tag, data) {
      * @param lineData {{State: string, Values: number[],}}
      */
     function lineMouseover(event, lineData) {
-        activateLine(event, lineData);
+        activateLine(lineData);
     }
 
     /**
@@ -304,7 +315,7 @@ function drawLineChart(tag, data) {
         if ([...event.target.classList].includes('permanently-active')) {
             return;
         }
-        deactivateLine(event, lineData);
+        deactivateLine(lineData);
     }
 
     // Create the lines
@@ -317,9 +328,28 @@ function drawLineChart(tag, data) {
         lineMouseover,
         lineMouseout
     );
+
+    permanentlySelectedData.forEach((data) => {
+        markLineAsPermanentlyActive(data);
+        activateLine(data);
+    });
+
+    return {
+        xScale,
+        xAxis,
+        xAxisTag,
+        yScale,
+        yAxis,
+        yAxisTag,
+        chart,
+        lineClick,
+        lineMouseover,
+        lineMouseout,
+        activateLine
+    };
 }
 
-function drawBrushableArea(tag, data) {
+function drawBrushableArea(tag, data, lineChartProps) {
     tag.selectAll('*').remove();
     const layout = calculateLayout(
         brushHeightPct,
@@ -327,6 +357,19 @@ function drawBrushableArea(tag, data) {
         paddingPct * 0.1,
         marginPct * 0.3
     );
+
+    // Access properties of the line chart to be used for the brushing
+    const {
+        xScale: lineChartXScale,
+        xAxis: lineChartXAxis,
+        xAxisTag: lineChartXAxisTag,
+        yScale: lineChartYScale,
+        chart: lineChart,
+        lineClick,
+        lineMouseover,
+        lineMouseout,
+        activateLine
+    } = lineChartProps;
 
     // Create margins
     const brushArea = tag
@@ -349,7 +392,7 @@ function drawBrushableArea(tag, data) {
             [x0, y0],
             [x1, y1]
         ])
-        .on('end', updateChart);
+        .on('end', updateLineChart);
     brushArea.attr('class', 'brush').call(brush);
 
     // Create the horizontal scale and axis
@@ -360,7 +403,49 @@ function drawBrushableArea(tag, data) {
     // Create the lines
     drawLines(data, brushArea, xScale, createYScale(layout, data));
 
-    function updateChart(event) {}
+    let idleTimeout;
+    const idled = () => (idleTimeout = null);
+
+    function updateLineChart(event) {
+        const extent = event.selection;
+        // If we have no selection, let's jump back to the initial domain
+        if (!extent) {
+            if (!idleTimeout) return (idleTimeout = setTimeout(idled, 350));
+            lineChartXAxis.ticks(endYear - startYear);
+            lineChartXScale.domain([startYear, endYear]);
+        } else {
+            // ``scale.invert`` scales the values back to the domain space
+            const [brushedStartYear, brushedEndYear] = extent.map(
+                xScale.invert
+            );
+            lineChartXScale.domain([brushedStartYear, brushedEndYear]);
+            // Show only integer-year ticks
+            const [low, high] = [
+                Math.floor(brushedStartYear),
+                Math.round(brushedEndYear)
+            ];
+            lineChartXAxis.ticks(1 + high - low);
+            // Remove the grey brush area as soon as the selection is ended
+            brushArea.select('.brush').call(brush.move, null);
+        }
+        lineChartXAxisTag.transition().duration(1000).call(lineChartXAxis);
+        // Remove the old lines and permanent labels
+        lineChart.selectAll('.line').remove();
+        lineChart.selectAll('.state-label').remove();
+        drawLines(
+            data,
+            lineChart,
+            lineChartXScale,
+            lineChartYScale,
+            lineClick,
+            lineMouseover,
+            lineMouseout
+        );
+        permanentlySelectedData.forEach((data) => {
+            markLineAsPermanentlyActive(data);
+            activateLine(data);
+        });
+    }
 }
 
 /**
@@ -368,12 +453,10 @@ function drawBrushableArea(tag, data) {
  */
 window.addEventListener('DOMContentLoaded', async () => {
     const data = transformData(await loadData(fileName));
-    drawLineChart(lineChartTag, data);
-    drawBrushableArea(brushTag, data);
+
+    drawBrushableArea(brushTag, data, drawLineChart(lineChartTag, data));
 
     // Add responsiveness by listening to window resizes
-    window.onresize = () => {
-        drawLineChart(lineChartTag, data);
-        drawBrushableArea(brushTag, data);
-    };
+    window.onresize = () =>
+        drawBrushableArea(brushTag, data, drawLineChart(lineChartTag, data));
 });
