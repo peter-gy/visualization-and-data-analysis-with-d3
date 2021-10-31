@@ -103,6 +103,76 @@ function allValues(data) {
     return data.map((obj) => obj[DataProps.values]).flat();
 }
 
+function createXScale(layout) {
+    return d3
+        .scaleLinear()
+        .domain([years[0], years[years.length - 1]])
+        .range([0, layout[LayoutProps.width]]);
+}
+
+function createXAxis(xScale) {
+    return d3
+        .axisBottom(xScale)
+        .ticks(years.length)
+        .tickFormat((t) => `${t}`);
+}
+
+function appendXAxis(layout, xAxis, tag) {
+    tag.append('g')
+        .attr('transform', `translate(0, ${layout[LayoutProps.height]})`)
+        .call(xAxis);
+}
+
+function createYScale(layout, data) {
+    return d3
+        .scaleLinear()
+        .domain([0, d3.max(allValues(data))])
+        .range([layout[LayoutProps.height], 0]);
+}
+
+function createYAxis(yScale) {
+    return (
+        d3
+            .axisLeft(yScale)
+            .ticks(8)
+            // Divide through 1M to be in sync with the axis label
+            .tickFormat((t) => `${t / 10 ** 6} M`)
+    );
+}
+
+function appendYAxis(layout, yAxis, tag) {
+    tag.append('g').call(yAxis);
+}
+
+function drawLines(
+    data,
+    tag,
+    xScale,
+    yScale,
+    onClick = () => {},
+    onMouseover = () => {},
+    onMouseout = () => {}
+) {
+    tag.selectAll('.line')
+        .data(data)
+        .join('path')
+        .attr('fill', 'none')
+        .attr('stroke', '#888888')
+        .attr('stroke-width', 1.25)
+        // ``element`` is a single element of ``data``
+        .attr('d', (element) =>
+            d3
+                .line()
+                .curve(d3.curveNatural)
+                // ``val`` is a single element of ``element[DataProps.values]``
+                .x((val, idx) => xScale(startYear + idx))
+                .y((val) => yScale(val))(element[DataProps.values])
+        )
+        .on('click', onClick)
+        .on('mouseover', onMouseover)
+        .on('mouseout', onMouseout);
+}
+
 function drawLineChart(tag, data) {
     tag.selectAll('*').remove();
     const layout = calculateLayout(
@@ -123,19 +193,9 @@ function drawLineChart(tag, data) {
         );
 
     // Create the horizontal scale and axis
-    const xScale = d3
-        .scaleLinear()
-        .domain([years[0], years[years.length - 1]])
-        .range([0, layout[LayoutProps.width]]);
-    const xAxis = d3
-        .axisBottom(xScale)
-        .ticks(years.length)
-        .tickFormat((t) => `${t}`);
-    // Append the x-axis
-    chart
-        .append('g')
-        .attr('transform', `translate(0, ${layout[LayoutProps.height]})`)
-        .call(xAxis);
+    const xScale = createXScale(layout);
+    const xAxis = createXAxis(xScale);
+    appendXAxis(layout, xAxis, chart);
     // Label the x-axis
     chart
         .append('text')
@@ -150,17 +210,9 @@ function drawLineChart(tag, data) {
         );
 
     // Create the vertical scale and axis
-    const yScale = d3
-        .scaleLinear()
-        .domain([0, d3.max(allValues(data))])
-        .range([layout[LayoutProps.height], 0]);
-    const yAxis = d3
-        .axisLeft(yScale)
-        .ticks(8)
-        // Divide through 1M to be in sync with the axis label
-        .tickFormat((t) => t / 10 ** 6);
-    // Append the y-axis
-    chart.append('g').call(yAxis);
+    const yScale = createYScale(layout, data);
+    const yAxis = createYAxis(yScale);
+    appendYAxis(layout, yAxis, chart);
     // Label the y-axis
     chart
         .append('text')
@@ -171,27 +223,6 @@ function drawLineChart(tag, data) {
         .attr('transform', 'rotate(-90)')
         .attr('x', -(layout[LayoutProps.height] / 2))
         .attr('y', -0.75 * layout[LayoutProps.margin]);
-
-    // Create the lines
-    chart
-        .selectAll('.line')
-        .data(data)
-        .join('path')
-        .attr('fill', 'none')
-        .attr('stroke', '#888888')
-        .attr('stroke-width', 1.25)
-        // ``element`` is a single element of ``data``
-        .attr('d', (element) =>
-            d3
-                .line()
-                .curve(d3.curveNatural)
-                // ``val`` is a single element of ``element[DataProps.values]``
-                .x((val, idx) => xScale(startYear + idx))
-                .y((val) => yScale(val))(element[DataProps.values])
-        )
-        .on('click', lineClick)
-        .on('mouseover', lineMouseover)
-        .on('mouseout', lineMouseout);
 
     /**
      * Returns the name of a state without any spaces.
@@ -275,6 +306,61 @@ function drawLineChart(tag, data) {
         }
         deactivateLine(event, lineData);
     }
+
+    // Create the lines
+    drawLines(
+        data,
+        chart,
+        xScale,
+        yScale,
+        lineClick,
+        lineMouseover,
+        lineMouseout
+    );
+}
+
+function drawBrushableArea(tag, data) {
+    tag.selectAll('*').remove();
+    const layout = calculateLayout(
+        brushHeightPct,
+        brushWidthPct,
+        paddingPct * 0.1,
+        marginPct * 0.3
+    );
+
+    // Create margins
+    const brushArea = tag
+        .append('g')
+        .attr(
+            'transform',
+            `translate(${layout[LayoutProps.margin]}, ${
+                layout[LayoutProps.margin]
+            })`
+        );
+
+    // Create the brushable region
+    const [[x0, y0], [x1, y1]] = [
+        [0, 0],
+        [layout[LayoutProps.width], layout[LayoutProps.height]]
+    ];
+    const brush = d3
+        .brushX()
+        .extent([
+            [x0, y0],
+            [x1, y1]
+        ])
+        .on('end', updateChart);
+    brushArea.attr('class', 'brush').call(brush);
+
+    // Create the horizontal scale and axis
+    const xScale = createXScale(layout);
+    const xAxis = createXAxis(xScale);
+    appendXAxis(layout, xAxis, brushArea);
+
+    // Create the lines
+    drawLines(data, brushArea, xScale, createYScale(layout, data));
+
+    function updateChart(event) {}
 }
 
 /**
@@ -283,9 +369,11 @@ function drawLineChart(tag, data) {
 window.addEventListener('DOMContentLoaded', async () => {
     const data = transformData(await loadData(fileName));
     drawLineChart(lineChartTag, data);
+    drawBrushableArea(brushTag, data);
 
     // Add responsiveness by listening to window resizes
     window.onresize = () => {
         drawLineChart(lineChartTag, data);
+        drawBrushableArea(brushTag, data);
     };
 });
