@@ -1,3 +1,6 @@
+// TODO:
+// - Use fixed ticks after brush
+
 /**
  * Layout-related property names
  * @type {{padding: string, margin: string, width: string, fontSize: string, height: string}}
@@ -176,6 +179,28 @@ function markLineAsPermanentlyActive(lineData) {
     );
 }
 
+/**
+ * Adds the state label next to the line extracted from ``event.target``
+ * and highlights it.
+ */
+function activateLine(tag, layout, xScale, yScale, lineData) {
+    const [lowYear, highYear] = xScale.domain();
+    const closestValue = lineData.Values[Math.round(highYear) - startYear];
+    // Show the label
+    tag.append('text')
+        .text(lineData.State)
+        .style('font-size', `${layout[LayoutProps.fontSize]}px`)
+        .attr('text-anchor', 'right')
+        .attr('x', xScale(highYear) + 5)
+        .attr('y', yScale(closestValue))
+        .attr('id', `${normalizeStateName(lineData.State)}Label`)
+        .classed('state-label', true);
+    // Highlight the line by recoloring it and making it wider
+    d3.select(`#${normalizeStateName(lineData[DataProps.state])}Line`)
+        .attr('stroke', 'orange')
+        .attr('stroke-width', 3.0);
+}
+
 function drawLines(
     data,
     tag,
@@ -193,7 +218,7 @@ function drawLines(
         .attr('class', 'line')
         .attr('fill', 'none')
         .attr('stroke', '#2A6595')
-        .attr('stroke-width', 1.25)
+        .attr('stroke-width', 1.5)
         // ``element`` is a single element of ``data``
         .attr('d', (element) =>
             d3
@@ -278,35 +303,13 @@ function drawLineChart(tag, data) {
     // Define interactivity for the lines
 
     /**
-     * Adds the state label next to the line extracted from ``event.target``
-     * and highlights it.
-     * @param lineData {{State: string, Values: number[],}}
-     */
-    function activateLine(lineData) {
-        // Show the label
-        chart
-            .append('text')
-            .text(lineData.State)
-            .style('font-size', `${layout[LayoutProps.fontSize]}px`)
-            .attr('text-anchor', 'right')
-            .attr('x', xScale(startYear + lineData.Values.length - 0.9))
-            .attr('y', yScale(lineData.Values[lineData.Values.length - 1]))
-            .attr('id', `${normalizeStateName(lineData.State)}Label`)
-            .classed('state-label', true);
-        // Highlight the line by recoloring it and making it wider
-        d3.select(`#${normalizeStateName(lineData[DataProps.state])}Line`)
-            .attr('stroke', 'orange')
-            .attr('stroke-width', 2.5);
-    }
-
-    /**
      * The function that gets invoked on ``click``.
      * @param event
      * @param lineData {{State: string, Values: number[],}}
      */
     function lineClick(event, lineData) {
         markLineAsPermanentlyActive(lineData);
-        activateLine(lineData);
+        activateLine(chart, layout, xScale, yScale, lineData);
         permanentlySelectedData.push(lineData);
     }
 
@@ -316,7 +319,7 @@ function drawLineChart(tag, data) {
      * @param lineData {{State: string, Values: number[],}}
      */
     function lineMouseover(event, lineData) {
-        activateLine(lineData);
+        activateLine(chart, layout, xScale, yScale, lineData);
     }
 
     /**
@@ -343,9 +346,9 @@ function drawLineChart(tag, data) {
         lineMouseout
     );
 
-    permanentlySelectedData.forEach((data) => {
-        markLineAsPermanentlyActive(data);
-        activateLine(data);
+    permanentlySelectedData.forEach((lineData) => {
+        markLineAsPermanentlyActive(lineData);
+        activateLine(chart, layout, xScale, yScale, lineData);
     });
 
     return {
@@ -358,8 +361,7 @@ function drawLineChart(tag, data) {
         chart,
         lineClick,
         lineMouseover,
-        lineMouseout,
-        activateLine
+        lineMouseout
     };
 }
 
@@ -381,8 +383,7 @@ function drawBrushableArea(tag, data, lineChartProps) {
         chart: lineChart,
         lineClick,
         lineMouseover,
-        lineMouseout,
-        activateLine
+        lineMouseout
     } = lineChartProps;
 
     // Create margins
@@ -464,9 +465,15 @@ function drawBrushableArea(tag, data, lineChartProps) {
             lineMouseover,
             lineMouseout
         );
-        permanentlySelectedData.forEach((data) => {
-            markLineAsPermanentlyActive(data);
-            activateLine(data);
+        permanentlySelectedData.forEach((lineData) => {
+            markLineAsPermanentlyActive(lineData);
+            activateLine(
+                lineChart,
+                layout,
+                lineChartXScale,
+                lineChartYScale,
+                lineData
+            );
         });
     }
 }
