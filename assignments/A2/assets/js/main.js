@@ -179,7 +179,7 @@ function drawLineChart(tag, data) {
         .join('path')
         .attr('fill', 'none')
         .attr('stroke', '#888888')
-        .attr('stroke-width', 0.75)
+        .attr('stroke-width', 1.25)
         // ``element`` is a single element of ``data``
         .attr('d', (element) =>
             d3
@@ -188,7 +188,93 @@ function drawLineChart(tag, data) {
                 // ``val`` is a single element of ``element[DataProps.values]``
                 .x((val, idx) => xScale(startYear + idx))
                 .y((val) => yScale(val))(element[DataProps.values])
-        );
+        )
+        .on('click', lineClick)
+        .on('mouseover', lineMouseover)
+        .on('mouseout', lineMouseout);
+
+    /**
+     * Returns the name of a state without any spaces.
+     * Used to assign IDs to the hover labels.
+     * @param stateName {string}
+     * @returns {string}
+     */
+    function normalizeStateName(stateName) {
+        return stateName.replaceAll(' ', '');
+    }
+
+    // Define interactivity for the lines
+
+    /**
+     * Adds the state label next to the line extracted from ``event.target``
+     * and highlights it.
+     * @param event
+     * @param lineData {{State: string, Values: number[],}}
+     */
+    function activateLine(event, lineData) {
+        // Show the label
+        chart
+            .append('text')
+            .text(lineData.State)
+            .style('font-size', `${layout[LayoutProps.fontSize]}px`)
+            .attr('text-anchor', 'right')
+            .attr('x', xScale(startYear + lineData.Values.length - 0.9))
+            .attr('y', yScale(lineData.Values[lineData.Values.length - 1]))
+            .attr('id', `${normalizeStateName(lineData.State)}Label`);
+        // Highlight the line by recoloring it and making it wider
+        d3.select(event.target)
+            .attr('stroke', 'orange')
+            .attr('stroke-width', 2.5);
+    }
+
+    /**
+     * Removes the label from the line extracted from ``event.target``
+     * and the highlighting.
+     * @param event
+     * @param lineData {{State: string, Values: number[],}}
+     */
+    function deactivateLine(event, lineData) {
+        d3.select(`#${normalizeStateName(lineData.State)}Label`).remove();
+        d3.select(event.target)
+            .attr('stroke', '#888888')
+            .attr('stroke-width', 1.25);
+    }
+
+    function markLineAsPermanentlyActive(event) {
+        d3.select(event.target).attr('class', 'permanently-active');
+    }
+
+    /**
+     * The function that gets invoked on ``click``.
+     * @param event
+     * @param lineData {{State: string, Values: number[],}}
+     */
+    function lineClick(event, lineData) {
+        markLineAsPermanentlyActive(event);
+        activateLine(event, lineData);
+    }
+
+    /**
+     * The function that gets invoked on ``mouseover``.
+     * @param event
+     * @param lineData {{State: string, Values: number[],}}
+     */
+    function lineMouseover(event, lineData) {
+        activateLine(event, lineData);
+    }
+
+    /**
+     * The function that gets invoked on ``mouseout``.
+     * @param event
+     * @param lineData {{State: string, Values: number[],}}
+     */
+    function lineMouseout(event, lineData) {
+        // Do not deactivate lines that are marked as 'permanently active'
+        if ([...event.target.classList].includes('permanently-active')) {
+            return;
+        }
+        deactivateLine(event, lineData);
+    }
 }
 
 /**
