@@ -122,11 +122,27 @@ function createXScale(layout) {
         .range([0, layout[LayoutProps.width]]);
 }
 
+/**
+ * Function to be used for the x-axis tick formatting.
+ * Maps date-like strings to real numbers.
+ * @param linYear {number} the year to be formatted - might be fractional.
+ * @returns {string}
+ */
+function dateFormatter(linYear) {
+    const integerPart = ~~linYear;
+    const fractionalPart = linYear - integerPart;
+    // Use the year as it is, if there is no fractional part
+    if (fractionalPart === 0) return `${linYear}`;
+    // Else map the fractional part to the closest month
+    const monthIdx = Math.floor(fractionalPart / (1 / 12)) - 1;
+    const monthNameFormat = new Intl.DateTimeFormat('en-US', { month: 'short' })
+        .format;
+    const monthName = monthNameFormat(new Date(integerPart, monthIdx));
+    return `${integerPart} ${monthName}`;
+}
+
 function createXAxis(xScale) {
-    return d3
-        .axisBottom(xScale)
-        .ticks(years.length)
-        .tickFormat((t) => `${t}`);
+    return d3.axisBottom(xScale).ticks(years.length).tickFormat(dateFormatter);
 }
 
 function appendXAxis(layout, xAxis, tag) {

@@ -7,7 +7,7 @@
     "tailwind-watch": "npx tailwindcss -o lib/css/tailwind.min.css -w -m",
     "copy-css": "cp lib/css/tailwind.min.css assignments/$CURR_A/lib/css",
     "copy-watch": "watch 'npm run copy-css' assignments/$CURR_A --ignoreDirectoryPattern=/assignments/A[1-5]/lib/",
-    "predeploy": "find . -name \".DS_Store\" -delete",
+    "predeploy": "npm run format && find . -name \".DS_Store\" -delete",
     "deploy": "npm run predeploy && scp -r assignments/$CURR_A Almighty:~/public_html/VIS21W && ssh Almighty \"chmod -R 755 ~/public_html/VIS21W\"",
     "moodle-zip": "npm run predeploy && cd assignments && zip -r ../submissions/gyarmatip41_$CURR_A.zip $CURR_A/ && cd ..",
     "submit": "npm run deploy && npm run moodle-zip",
