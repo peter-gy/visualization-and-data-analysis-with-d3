@@ -1,1 +1,3 @@
-/* Using inline styles with tailwind */
+#line-chart .line:hover {
+    cursor: pointer;
+}
