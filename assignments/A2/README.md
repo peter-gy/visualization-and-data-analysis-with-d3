@@ -1,6 +1,6 @@
 # Visualisation and Visual Data Analysis
 
-## A1: D3 assignment --- part 2
+## A2: D3 assignment --- part 2
 
 ### Student details
 
