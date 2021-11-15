@@ -1,12 +1,9 @@
-import { Coordinate } from '@models/coordinate';
 import { useAppData } from '@components/AppDataProvider/app-data-context';
 import { bivariateColorGenerator } from '@utils/color-utils';
 import { getStateDataValues } from '@utils/app-data-utils';
-import { ColorScheme } from '@models/color-scheme';
+import { ColorGenProps, ColorScheme } from '@models/color-scheme';
 
-export default function useBivariateColorGenerator(
-    colorScheme: ColorScheme
-): ({ x, y }: Coordinate) => string {
+export default function useBivariateColorGenerator(colorScheme: ColorScheme): ColorGenProps {
     const {
         state: { selectedYear, educationRates, personalIncome }
     } = useAppData();

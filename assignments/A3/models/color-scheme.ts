@@ -1,6 +1,14 @@
+import { Coordinate } from '@models/coordinate';
+import { ScaleQuantile } from 'd3-scale';
+
 export type ColorScheme = {
     name: string;
     colors: string[];
+};
+
+export type ColorGenProps = {
+    scales: { x: ScaleQuantile<number, never>; y: ScaleQuantile<number, never> };
+    gen: ({ x, y }: Coordinate) => string;
 };
 
 export const bivariateColorScheme: ColorScheme = {

@@ -30,7 +30,7 @@ export default function ChoroplethMap(): JSX.Element {
     const {
         state: { selectedYear, personalIncome, educationRates }
     } = useAppData();
-    const colorGen = useBivariateColorGenerator(colorScheme);
+    const { gen: colorGen } = useBivariateColorGenerator(colorScheme);
     useEffect(() => {
         // Do not start the rendering before the map dimensions are set
         if (!(mapWidth && mapHeight)) return;

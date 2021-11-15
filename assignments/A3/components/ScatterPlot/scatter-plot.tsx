@@ -6,6 +6,7 @@ import useWindowSize from '@hooks/useWindowSize';
 import { useAppData } from '@components/AppDataProvider/app-data-context';
 import { getStateDataValue, getStateDataValues } from '@utils/app-data-utils';
 import { Coordinate } from '@models/coordinate';
+import useBivariateColorGenerator from '@hooks/useBivariateColorGenerator';
 
 type ScatterPlotProps = {
     slug: string;
@@ -45,6 +46,12 @@ export default function ScatterPlot(): JSX.Element {
     // Id of the tooltip to be displayed on marker hover
     const tooltipId = `${slug}-tooltip`;
 
+    // Generate marker colors
+    const {
+        gen: colorGen,
+        scales: { x: cgXScale, y: cgYScale }
+    } = useBivariateColorGenerator(colorScheme);
+
     useEffect(() => {
         // Do not start the rendering before the plot dimensions are set
         if (!(plotWidth && plotHeight)) return;
@@ -52,8 +59,8 @@ export default function ScatterPlot(): JSX.Element {
         d3.select(`#${slug}`).selectAll('*').remove();
         d3.select(`#${tooltipId}`).remove();
 
-        const tooltip = d3
-            .select('body')
+        // tooltip
+        d3.select('body')
             .append('div')
             .attr('id', `${slug}-tooltip`)
             .attr('style', 'position: absolute; opacity: 0;');
@@ -103,9 +110,13 @@ export default function ScatterPlot(): JSX.Element {
             .style('font-weight', 'bold')
             .text('Mean Yearly Income');
 
+        const background = svg.append('g');
+        const d = d3.pairs(
+            d3.merge([[yScale.domain()[0]], colorScheme.colors, [yScale.domain()[1]]])
+        );
+
         // x-y markers
-        const markers = svg
-            .append('g')
+        svg.append('g')
             .selectAll('circle')
             .data(scatterData)
             .enter()
@@ -113,9 +124,10 @@ export default function ScatterPlot(): JSX.Element {
             .attr('cx', ({ coordinate: { x } }) => xScale(x))
             .attr('cy', ({ coordinate: { y } }) => yScale(y))
             .attr('r', 6)
-            .style('fill', '#2A6595')
+            .style('fill', ({ coordinate }) => colorGen(coordinate))
+            .style('stroke', '#000000')
             .style('opacity', 0.5)
-            .on('mouseover', (event, { state, coordinate }) => {
+            .on('mouseover', (event, { state }) => {
                 d3.select(`#${tooltipId}`)
                     .style('display', 'block')
                     .style('left', `${event.pageX - 30}px`)
