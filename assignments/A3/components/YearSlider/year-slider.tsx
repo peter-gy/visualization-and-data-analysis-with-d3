@@ -1,6 +1,6 @@
 import Slider from 'react-input-slider';
 import { useAppData } from '@components/AppDataProvider/app-data-context';
-import { startyYear, endYear } from '@models/state-data';
+import { startYear, endYear } from '@models/state-data';
 
 export default function YearSlider(): JSX.Element {
     const {
@@ -12,7 +12,7 @@ export default function YearSlider(): JSX.Element {
             axis="x"
             x={selectedYear}
             onChange={({ x, y }) => dispatch({ type: 'setSelectedYear', data: x })}
-            xmin={startyYear}
+            xmin={startYear}
             xmax={endYear + 1}
             styles={{
                 track: {
