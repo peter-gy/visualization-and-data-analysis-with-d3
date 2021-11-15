@@ -15,10 +15,10 @@ const Home: NextPage = () => {
                 <YearSlider />
             </div>
             <div className="flex justify-between items-center p-2">
-                <div className="m-1">
+                <div className="m-1 w-[49vw]">
                     <ScatterPlot />
                 </div>
-                <div className="m-1">
+                <div className="m-1 w-[49vw]">
                     <ChoroplethMap />
                 </div>
             </div>

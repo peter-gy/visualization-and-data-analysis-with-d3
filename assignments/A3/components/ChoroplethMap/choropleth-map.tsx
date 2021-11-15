@@ -25,10 +25,9 @@ const usaMapDefaultProps: ChoroplethMapProps = {
 export default function ChoroplethMap(): JSX.Element {
     const { slug, colorScheme, geoData } = usaMapDefaultProps;
     const { width, height } = useWindowSize();
-    const [mapWidth, mapHeight] = [0.48 * width!, 0.7 * height!];
+    const [mapWidth, mapHeight] = [0.475 * width!, 0.7 * height!];
     const {
-        state: { selectedYear, personalIncome, educationRates },
-        dispatch
+        state: { selectedYear, personalIncome, educationRates }
     } = useAppData();
     const colorGen = useBivariateColorGenerator(colorScheme);
     useEffect(() => {
@@ -76,8 +75,7 @@ export default function ChoroplethMap(): JSX.Element {
                 }
                 // Return a default color for features with unrecognized name
                 return '#333333';
-            })
-
+            });
     });
     return <div id={slug} className="bg-white" />;
 }
