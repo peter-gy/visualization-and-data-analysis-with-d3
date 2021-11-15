@@ -21,7 +21,7 @@ const usaMapDefaultProps: ChoroplethMapProps = {
 export default function ChoroplethMap(): JSX.Element {
     const { slug, colorScheme, geoData } = usaMapDefaultProps;
     const { width, height } = useWindowSize();
-    const [mapWidth, mapHeight] = [0.45 * width!, 0.7 * height!];
+    const [mapWidth, mapHeight] = [0.48 * width!, 0.7 * height!];
     useEffect(() => {
         // Do not start the rendering before the map dimensions are set
         if (!(mapWidth && mapHeight)) return;
