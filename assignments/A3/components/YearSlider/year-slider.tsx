@@ -13,7 +13,7 @@ export default function YearSlider(): JSX.Element {
             x={selectedYear}
             onChange={({ x, y }) => dispatch({ type: 'setSelectedYear', data: x })}
             xmin={startYear}
-            xmax={endYear + 1}
+            xmax={endYear}
             styles={{
                 track: {
                     width: '80vw'
