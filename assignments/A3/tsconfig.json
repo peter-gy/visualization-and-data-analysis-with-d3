@@ -20,7 +20,8 @@
             "@pages/*": ["pages/*"],
             "@hooks/*": ["hooks/*"],
             "@data/*": ["data/*"],
-            "@models/*": ["models/*"]
+            "@models/*": ["models/*"],
+            "@utils/*": ["utils/*"]
         },
         "incremental": true
     },
