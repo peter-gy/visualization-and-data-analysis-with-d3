@@ -6,8 +6,6 @@ import useWindowSize from '@hooks/useWindowSize';
 import { useAppData } from '@components/AppDataProvider/app-data-context';
 import { getStateDataValue, getStateDataValues } from '@utils/app-data-utils';
 import { Coordinate } from '@models/coordinate';
-import useBivariateColorGenerator from '@hooks/useBivariateColorGenerator';
-import { bivariateColorGenerator } from '@utils/color-utils';
 
 type ScatterPlotProps = {
     slug: string;
@@ -44,9 +42,6 @@ export default function ScatterPlot(): JSX.Element {
     const xValues = getStateDataValues(educationRates, selectedYear).sort();
     const yValues = getStateDataValues(personalIncome, selectedYear).sort();
 
-    // Generate marker colors
-    const { gen: colorGen } = useBivariateColorGenerator(colorScheme);
-
     // Id of the tooltip to be displayed on marker hover
     const tooltipId = `${slug}-tooltip`;
 
@@ -77,7 +72,7 @@ export default function ScatterPlot(): JSX.Element {
         const n = 3;
         const grid = d3.cross(d3.range(n), d3.range(n));
         const tileWidth = plotWidth / n;
-        const tileHeight = (plotWidth - 50) / n;
+        const tileHeight = (plotHeight - 50) / n;
         svg.append('g')
             .selectAll('rect')
             .data(grid)
@@ -85,8 +80,8 @@ export default function ScatterPlot(): JSX.Element {
             .append('rect')
             .attr('width', tileWidth)
             .attr('height', tileHeight)
-            .attr('x', ([i, j]) => i * tileWidth)
-            .attr('y', ([i, j]) => (n - 1 - j) * tileHeight)
+            .attr('x', ([i]) => i * tileWidth)
+            .attr('y', ([, j]) => (n - 1 - j) * tileHeight)
             .attr('fill', ([i, j]) => colorScheme.colors[i * n + j]);
 
         // x-axis
@@ -150,6 +145,30 @@ export default function ScatterPlot(): JSX.Element {
             .on('mouseout', () => {
                 d3.select(`#${tooltipId}`).style('display', 'none').style('opacity', 0);
             });
+
+        // Brush control
+        const brush = d3
+            .brush()
+            .extent([
+                [0, 0],
+                [plotWidth, plotHeight - 50]
+            ])
+            .on('start brush', (e) => {
+                const selection = e.selection;
+                const [x0, x1] = [xScale.invert(selection[0][0]), xScale.invert(selection[1][0])];
+                const [y0, y1] = [yScale.invert(selection[1][1]), yScale.invert(selection[0][1])];
+                const selectedStates = educationRates
+                    .filter(({ state }) => {
+                        const xVal = getStateDataValue(educationRates, state, selectedYear);
+                        const yVal = getStateDataValue(personalIncome, state, selectedYear);
+                        return xVal >= x0 && xVal <= x1 && yVal >= y0 && yVal <= y1;
+                    })
+                    .map(({ state }) => state);
+                console.log(selectedStates.sort());
+            });
+        //.on('end brush', () => dispatch({ type: 'setSelectedStates', data: brushSelection }));
+        // Add the brush area to the SVG tag
+        svg.append('g').attr('class', 'brush').call(brush);
     });
     return <div id={slug} className="bg-white flex justify-center items-center" />;
 }

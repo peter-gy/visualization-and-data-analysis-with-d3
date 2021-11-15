@@ -29,7 +29,7 @@ export default function ChoroplethMap(): JSX.Element {
     const [mapWidth, mapHeight] = [0.45 * width!, 0.45 * width!];
     const margin = 5;
     const {
-        state: { selectedYear, personalIncome, educationRates }
+        state: { selectedYear, personalIncome, educationRates, selectedStates }
     } = useAppData();
     const { gen: colorGen } = useBivariateColorGenerator(colorScheme);
     useEffect(() => {
@@ -65,6 +65,8 @@ export default function ChoroplethMap(): JSX.Element {
                 const {
                     properties: { name: stateName }
                 } = feature;
+                // Do not set a fill for unselected states
+                if (!selectedStates.includes(stateName)) return 'transparent';
                 // Generate a color dynamically only for valid state names
                 if (
                     stateDataExists(educationRates, stateName) &&

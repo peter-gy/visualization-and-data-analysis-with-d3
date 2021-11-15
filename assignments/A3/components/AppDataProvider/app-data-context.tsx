@@ -8,6 +8,7 @@ import { educationRatesData, personalIncomeData } from './default-app-data';
  */
 type Action =
     | { type: 'setSelectedYear'; data: number }
+    | { type: 'setSelectedStates'; data: string[] }
     | { type: 'selectState'; data: string }
     | { type: 'deselectState'; data: string };
 
@@ -36,6 +37,12 @@ function appDataReducer(state: State, action: Action): State {
             return {
                 ...state,
                 selectedYear: action.data
+            };
+        }
+        case 'setSelectedStates': {
+            return {
+                ...state,
+                selectedStates: [...action.data]
             };
         }
         case 'selectState': {
