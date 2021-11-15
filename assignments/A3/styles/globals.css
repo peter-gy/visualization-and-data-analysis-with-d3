@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.tick {
+    color: black;
+}
+
+.domain {
+    stroke: black;
+}

@@ -24,8 +24,9 @@ const usaMapDefaultProps: ChoroplethMapProps = {
 
 export default function ChoroplethMap(): JSX.Element {
     const { slug, colorScheme, geoData } = usaMapDefaultProps;
-    const { width, height } = useWindowSize();
-    const [mapWidth, mapHeight] = [0.475 * width!, 0.7 * height!];
+    const { width } = useWindowSize();
+    const [mapWidth, mapHeight] = [0.45 * width!, 0.45 * width!];
+    const margin = 5;
     const {
         state: { selectedYear, personalIncome, educationRates }
     } = useAppData();
@@ -40,8 +41,10 @@ export default function ChoroplethMap(): JSX.Element {
         const svg = d3
             .select(`#${slug}`)
             .append('svg')
-            .attr('width', `${mapWidth}px`)
-            .attr('height', `${mapHeight}px`);
+            .attr('width', `${mapWidth + 2 * margin}px`)
+            .attr('height', `${mapHeight + 2 * margin}px`)
+            .append('g')
+            .attr('transform', `translate(${margin}, ${margin})`);
 
         // Create the map projection
         const projection = d3.geoAlbersUsa().fitSize([mapWidth, mapHeight], geoData);
@@ -77,5 +80,5 @@ export default function ChoroplethMap(): JSX.Element {
                 return '#333333';
             });
     });
-    return <div id={slug} className="bg-white" />;
+    return <div id={slug} className="bg-white flex justify-center items-center" />;
 }
