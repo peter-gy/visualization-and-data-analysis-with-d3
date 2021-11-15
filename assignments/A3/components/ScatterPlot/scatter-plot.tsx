@@ -23,7 +23,8 @@ export default function ScatterPlot(): JSX.Element {
     const [plotWidth, plotHeight] = [0.35 * width!, 0.35 * width!];
     const margin = 50;
     const {
-        state: { selectedYear, personalIncome, educationRates }
+        state: { selectedYear, personalIncome, educationRates, selectedStates },
+        dispatch
     } = useAppData();
     // Make sure that we can actually 'zip' the data
     if (personalIncome.length !== educationRates.length)
@@ -153,8 +154,12 @@ export default function ScatterPlot(): JSX.Element {
                 [0, 0],
                 [plotWidth, plotHeight - 50]
             ])
-            .on('start brush', (e) => {
+            .on('end', (e) => {
                 const selection = e.selection;
+                if (!selection) {
+                    dispatch({ type: 'setSelectedStates', data: [] });
+                    return;
+                }
                 const [x0, x1] = [xScale.invert(selection[0][0]), xScale.invert(selection[1][0])];
                 const [y0, y1] = [yScale.invert(selection[1][1]), yScale.invert(selection[0][1])];
                 const selectedStates = educationRates
@@ -164,7 +169,7 @@ export default function ScatterPlot(): JSX.Element {
                         return xVal >= x0 && xVal <= x1 && yVal >= y0 && yVal <= y1;
                     })
                     .map(({ state }) => state);
-                console.log(selectedStates.sort());
+                dispatch({ type: 'setSelectedStates', data: selectedStates });
             });
         //.on('end brush', () => dispatch({ type: 'setSelectedStates', data: brushSelection }));
         // Add the brush area to the SVG tag
