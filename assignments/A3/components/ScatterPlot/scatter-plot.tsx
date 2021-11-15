@@ -7,6 +7,7 @@ import { useAppData } from '@components/AppDataProvider/app-data-context';
 import { getStateDataValue, getStateDataValues } from '@utils/app-data-utils';
 import { Coordinate } from '@models/coordinate';
 import useBivariateColorGenerator from '@hooks/useBivariateColorGenerator';
+import { bivariateColorGenerator } from '@utils/color-utils';
 
 type ScatterPlotProps = {
     slug: string;
@@ -43,14 +44,11 @@ export default function ScatterPlot(): JSX.Element {
     const xValues = getStateDataValues(educationRates, selectedYear).sort();
     const yValues = getStateDataValues(personalIncome, selectedYear).sort();
 
+    // Generate marker colors
+    const { gen: colorGen } = useBivariateColorGenerator(colorScheme);
+
     // Id of the tooltip to be displayed on marker hover
     const tooltipId = `${slug}-tooltip`;
-
-    // Generate marker colors
-    const {
-        gen: colorGen,
-        scales: { x: cgXScale, y: cgYScale }
-    } = useBivariateColorGenerator(colorScheme);
 
     useEffect(() => {
         // Do not start the rendering before the plot dimensions are set
@@ -62,8 +60,9 @@ export default function ScatterPlot(): JSX.Element {
         // tooltip
         d3.select('body')
             .append('div')
-            .attr('id', `${slug}-tooltip`)
-            .attr('style', 'position: absolute; opacity: 0;');
+            .attr('id', `${tooltipId}`)
+            .attr('style', 'position: absolute; opacity: 0;')
+            .attr('class', 'p-2 bg-primary rounded-md text-white text-xs');
 
         // Create the SVG element of the plot
         const svg = d3
@@ -74,12 +73,28 @@ export default function ScatterPlot(): JSX.Element {
             .append('g')
             .attr('transform', `translate(${margin}, ${margin})`);
 
+        // Background grid
+        const n = 3;
+        const grid = d3.cross(d3.range(n), d3.range(n));
+        const tileWidth = plotWidth / n;
+        const tileHeight = (plotWidth - 50) / n;
+        svg.append('g')
+            .selectAll('rect')
+            .data(grid)
+            .enter()
+            .append('rect')
+            .attr('width', tileWidth)
+            .attr('height', tileHeight)
+            .attr('x', ([i, j]) => i * tileWidth)
+            .attr('y', ([i, j]) => (n - 1 - j) * tileHeight)
+            .attr('fill', ([i, j]) => colorScheme.colors[i * n + j]);
+
         // x-axis
         const xScale = d3
             .scaleLinear()
-            .domain([0.9 * xValues[0], 1.1 * xValues[xValues.length - 1]])
+            .domain([0.95 * xValues[0], 1.05 * xValues[xValues.length - 1]])
             .range([0, plotWidth]);
-        const xAxis = d3.axisBottom(xScale);
+        const xAxis = d3.axisBottom(xScale).tickFormat((d) => `${d}%`);
         const gX = svg
             .append('g')
             .attr('transform', `translate(0, ${plotHeight - 50})`)
@@ -96,7 +111,7 @@ export default function ScatterPlot(): JSX.Element {
         // y-axis
         const yScale = d3
             .scaleLinear()
-            .domain([0.9 * yValues[0], 1.1 * yValues[yValues.length - 1]])
+            .domain([0.95 * yValues[0], 1.05 * yValues[yValues.length - 1]])
             .range([plotHeight - 50, 0]);
         const yAxis = d3.axisLeft(yScale).tickFormat(d3.format('$.2s'));
         const gY = svg.append('g').call(yAxis);
@@ -110,11 +125,6 @@ export default function ScatterPlot(): JSX.Element {
             .style('font-weight', 'bold')
             .text('Mean Yearly Income');
 
-        const background = svg.append('g');
-        const d = d3.pairs(
-            d3.merge([[yScale.domain()[0]], colorScheme.colors, [yScale.domain()[1]]])
-        );
-
         // x-y markers
         svg.append('g')
             .selectAll('circle')
@@ -123,19 +133,18 @@ export default function ScatterPlot(): JSX.Element {
             .append('circle')
             .attr('cx', ({ coordinate: { x } }) => xScale(x))
             .attr('cy', ({ coordinate: { y } }) => yScale(y))
-            .attr('r', 6)
-            .style('fill', ({ coordinate }) => colorGen(coordinate))
-            .style('stroke', '#000000')
-            .style('opacity', 0.5)
-            .on('mouseover', (event, { state }) => {
+            .attr('r', 4)
+            .style('fill', '#000000')
+            .style('stroke', '#ffffff')
+            .style('stroke-width', 1.5)
+            .style('opacity', 1.0)
+            .on('mouseover', (event, { state, coordinate: { x, y } }) => {
                 d3.select(`#${tooltipId}`)
                     .style('display', 'block')
-                    .style('left', `${event.pageX - 30}px`)
-                    .style('top', `${event.pageY - 30}px`)
-                    .transition()
-                    .duration(200)
+                    .style('left', `${event.pageX - 50}px`)
+                    .style('top', `${event.pageY - 55}px`)
                     .style('opacity', 1)
-                    .text(state)
+                    .text(`${state} (${x}%, $${y})`)
                     .style('font-size', '14px');
             })
             .on('mouseout', () => {

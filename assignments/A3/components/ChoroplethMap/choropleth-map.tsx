@@ -4,11 +4,12 @@ import { ColorScheme } from '@models/color-scheme';
 import { bivariateColorScheme } from '@models/color-scheme';
 import usStates from '@data/us-states-geo.json';
 import useWindowSize from '@hooks/useWindowSize';
-import useBivariateColorGenerator from '@hooks/useBivariateColorGenerator';
 import { ValueFn } from 'd3-selection';
 import { GeoFeature } from '@models/geo-feature';
 import { useAppData } from '@components/AppDataProvider/app-data-context';
 import { getStateDataValue, getStateDataValues, stateDataExists } from '@utils/app-data-utils';
+import { bivariateColorGenerator } from '@utils/color-utils';
+import useBivariateColorGenerator from '@hooks/useBivariateColorGenerator';
 
 type ChoroplethMapProps = {
     slug: string;

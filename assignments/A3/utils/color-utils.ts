@@ -8,14 +8,7 @@ export function bivariateColorGenerator(
 ): ColorGenProps {
     // Make sure that we'll get a square number
     const n = Math.floor(Math.sqrt(colorScheme.colors.length));
-    // Setup quantiles for the x and y values
-    const xQuantile = d3.scaleQuantile().domain(values.x).range(d3.range(n));
-    const yQuantile = d3.scaleQuantile().domain(values.y).range(d3.range(n));
-    return {
-        scales: {
-            x: xQuantile,
-            y: yQuantile
-        },
-        gen: ({ x, y }: Coordinate) => colorScheme.colors[xQuantile(x) * n + yQuantile(y)]
-    };
+    const xScale = d3.scaleQuantile().domain(values.x).range(d3.range(n));
+    const yScale = d3.scaleQuantile().domain(values.y).range(d3.range(n));
+    return { gen: ({ x, y }: Coordinate) => colorScheme.colors[n * xScale(x) + yScale(y)] };
 }
