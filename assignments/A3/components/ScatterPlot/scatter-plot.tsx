@@ -42,11 +42,21 @@ export default function ScatterPlot(): JSX.Element {
     const xValues = getStateDataValues(educationRates, selectedYear).sort();
     const yValues = getStateDataValues(personalIncome, selectedYear).sort();
 
+    // Id of the tooltip to be displayed on marker hover
+    const tooltipId = `${slug}-tooltip`;
+
     useEffect(() => {
         // Do not start the rendering before the plot dimensions are set
         if (!(plotWidth && plotHeight)) return;
         // Make sure that the only SVG tag inside the root div is the plot
         d3.select(`#${slug}`).selectAll('*').remove();
+        d3.select(`#${tooltipId}`).remove();
+
+        const tooltip = d3
+            .select('body')
+            .append('div')
+            .attr('id', `${slug}-tooltip`)
+            .attr('style', 'position: absolute; opacity: 0;');
 
         // Create the SVG element of the plot
         const svg = d3
@@ -60,7 +70,7 @@ export default function ScatterPlot(): JSX.Element {
         // x-axis
         const xScale = d3
             .scaleLinear()
-            .domain([0.9 * xValues[0], xValues[xValues.length - 1]])
+            .domain([0.9 * xValues[0], 1.1 * xValues[xValues.length - 1]])
             .range([0, plotWidth]);
         const xAxis = d3.axisBottom(xScale);
         const gX = svg
@@ -79,7 +89,7 @@ export default function ScatterPlot(): JSX.Element {
         // y-axis
         const yScale = d3
             .scaleLinear()
-            .domain([0.9 * yValues[0], yValues[yValues.length - 1]])
+            .domain([0.9 * yValues[0], 1.1 * yValues[yValues.length - 1]])
             .range([plotHeight - 50, 0]);
         const yAxis = d3.axisLeft(yScale).tickFormat(d3.format('$.2s'));
         const gY = svg.append('g').call(yAxis);
@@ -102,11 +112,22 @@ export default function ScatterPlot(): JSX.Element {
             .append('circle')
             .attr('cx', ({ coordinate: { x } }) => xScale(x))
             .attr('cy', ({ coordinate: { y } }) => yScale(y))
-            .attr('r', 5)
-            .style('fill', 'red')
+            .attr('r', 6)
+            .style('fill', '#2A6595')
             .style('opacity', 0.5)
-            .on('mouseover', (e, { state, coordinate }) => {
-                console.log(state, coordinate);
+            .on('mouseover', (event, { state, coordinate }) => {
+                d3.select(`#${tooltipId}`)
+                    .style('display', 'block')
+                    .style('left', `${event.pageX - 30}px`)
+                    .style('top', `${event.pageY - 30}px`)
+                    .transition()
+                    .duration(200)
+                    .style('opacity', 1)
+                    .text(state)
+                    .style('font-size', '14px');
+            })
+            .on('mouseout', () => {
+                d3.select(`#${tooltipId}`).style('display', 'none').style('opacity', 0);
             });
     });
     return <div id={slug} className="bg-white flex justify-center items-center" />;
