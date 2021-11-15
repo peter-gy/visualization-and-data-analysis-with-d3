@@ -19,7 +19,8 @@
             "@styles/*": ["styles/*"],
             "@pages/*": ["pages/*"],
             "@hooks/*": ["hooks/*"],
-            "@data/*": ["data/*"]
+            "@data/*": ["data/*"],
+            "@models/*": ["models/*"]
         },
         "incremental": true
     },
