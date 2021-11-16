@@ -66,7 +66,7 @@ export default function ChoroplethMap(): JSX.Element {
                     properties: { name: stateName }
                 } = feature;
                 // Gray out unselected states
-                if (!selectedStates.includes(stateName)) return '#e1e1e1';
+                if (!selectedStates.includes(stateName)) return '#fdfcfc';
                 // Generate a color dynamically only for valid state names
                 if (
                     stateDataExists(educationRates, stateName) &&

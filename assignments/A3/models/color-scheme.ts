@@ -15,13 +15,13 @@ export const bivariateColorScheme: ColorScheme = {
     name: 'GnBu',
     colors: [
         '#e8e8e8',
-        '#b5c0da',
-        '#6c83b5',
-        '#b8d6be',
-        '#90b2b3',
-        '#567994',
-        '#73ae80',
-        '#5a9178',
-        '#2a5a5b'
+        '#e4d9ac',
+        '#c8b35a',
+        '#cbb8d7',
+        '#c8ada0',
+        '#af8e53',
+        '#9972af',
+        '#976b82',
+        '#804d36'
     ]
 };
