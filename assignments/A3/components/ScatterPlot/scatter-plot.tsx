@@ -194,7 +194,7 @@ export default function ScatterPlot(): JSX.Element {
             .style('fill', ({ state }) => (selectedStates.includes(state) ? '#c5311d' : '#000000'))
             .style('stroke', '#ffffff')
             .style('stroke-width', ({ state }) => (selectedStates.includes(state) ? 2 : 1))
-            .style('opacity', 1.0)
+            .style('opacity', ({ state }) => (selectedStates.includes(state) ? 1.0 : 0.8))
             .on('mouseover', (event, { state, coordinate: { x, y } }) => {
                 d3.select(`#${tooltipId}`)
                     .style('display', 'block')
