@@ -17,6 +17,9 @@ export default function YearSlider(): JSX.Element {
             styles={{
                 track: {
                     width: '80vw'
+                },
+                active: {
+                    backgroundColor: '#73ae80'
                 }
             }}
         />

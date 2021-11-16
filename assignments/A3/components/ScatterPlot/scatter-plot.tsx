@@ -121,32 +121,6 @@ export default function ScatterPlot(): JSX.Element {
             .style('font-weight', 'bold')
             .text('Mean Yearly Income');
 
-        // x-y markers
-        svg.append('g')
-            .selectAll('circle')
-            .data(scatterData)
-            .enter()
-            .append('circle')
-            .attr('cx', ({ coordinate: { x } }) => xScale(x))
-            .attr('cy', ({ coordinate: { y } }) => yScale(y))
-            .attr('r', 4)
-            .style('fill', '#000000')
-            .style('stroke', '#ffffff')
-            .style('stroke-width', 1.5)
-            .style('opacity', 1.0)
-            .on('mouseover', (event, { state, coordinate: { x, y } }) => {
-                d3.select(`#${tooltipId}`)
-                    .style('display', 'block')
-                    .style('left', `${event.pageX - 50}px`)
-                    .style('top', `${event.pageY - 55}px`)
-                    .style('opacity', 1)
-                    .text(`${state} (${x}%, $${y})`)
-                    .style('font-size', '14px');
-            })
-            .on('mouseout', () => {
-                d3.select(`#${tooltipId}`).style('display', 'none').style('opacity', 0);
-            });
-
         // Brush control
         const brush = d3
             .brush()
@@ -174,6 +148,32 @@ export default function ScatterPlot(): JSX.Element {
         //.on('end brush', () => dispatch({ type: 'setSelectedStates', data: brushSelection }));
         // Add the brush area to the SVG tag
         svg.append('g').attr('class', 'brush').call(brush);
+
+        // x-y markers
+        svg.append('g')
+            .selectAll('circle')
+            .data(scatterData)
+            .enter()
+            .append('circle')
+            .attr('cx', ({ coordinate: { x } }) => xScale(x))
+            .attr('cy', ({ coordinate: { y } }) => yScale(y))
+            .attr('r', ({ state }) => (selectedStates.includes(state) ? 5 : 4))
+            .style('fill', ({ state }) => (selectedStates.includes(state) ? '#c5311d' : '#000000'))
+            .style('stroke', '#ffffff')
+            .style('stroke-width', ({ state }) => (selectedStates.includes(state) ? 2 : 1))
+            .style('opacity', 1.0)
+            .on('mouseover', (event, { state, coordinate: { x, y } }) => {
+                d3.select(`#${tooltipId}`)
+                    .style('display', 'block')
+                    .style('left', `${event.pageX - 50}px`)
+                    .style('top', `${event.pageY - 55}px`)
+                    .style('opacity', 1)
+                    .text(`${state} (${x}%, $${y})`)
+                    .style('font-size', '14px');
+            })
+            .on('mouseout', () => {
+                d3.select(`#${tooltipId}`).style('display', 'none').style('opacity', 0);
+            });
     });
     return <div id={slug} className="bg-white flex justify-center items-center" />;
 }

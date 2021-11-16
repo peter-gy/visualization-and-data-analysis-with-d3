@@ -7,8 +7,7 @@ import useWindowSize from '@hooks/useWindowSize';
 import { ValueFn } from 'd3-selection';
 import { GeoFeature } from '@models/geo-feature';
 import { useAppData } from '@components/AppDataProvider/app-data-context';
-import { getStateDataValue, getStateDataValues, stateDataExists } from '@utils/app-data-utils';
-import { bivariateColorGenerator } from '@utils/color-utils';
+import { getStateDataValue, stateDataExists } from '@utils/app-data-utils';
 import useBivariateColorGenerator from '@hooks/useBivariateColorGenerator';
 
 type ChoroplethMapProps = {
@@ -29,7 +28,8 @@ export default function ChoroplethMap(): JSX.Element {
     const [mapWidth, mapHeight] = [0.45 * width!, 0.45 * width!];
     const margin = 5;
     const {
-        state: { selectedYear, personalIncome, educationRates, selectedStates }
+        state: { selectedYear, personalIncome, educationRates, selectedStates },
+        dispatch
     } = useAppData();
     const { gen: colorGen } = useBivariateColorGenerator(colorScheme);
     useEffect(() => {
@@ -81,7 +81,24 @@ export default function ChoroplethMap(): JSX.Element {
                 }
                 // Return a default color for features with unrecognized name
                 return '#333333';
+            })
+            .on('click', (e, d) => {
+                // Quick cast to access the props in a typed way
+                const feature = d as GeoFeature;
+                const {
+                    properties: { name: stateName }
+                } = feature;
+                dispatch({
+                    type: selectedStates.includes(stateName) ? 'deselectState' : 'selectState',
+                    data: stateName
+                });
             });
     });
-    return <div id={slug} className="bg-white flex justify-center items-center" />;
+    return (
+        <div
+            id={slug}
+            onClick={() => dispatch({ type: 'setSelectedStates', data: [] })}
+            className="bg-white flex justify-center items-center"
+        />
+    );
 }
