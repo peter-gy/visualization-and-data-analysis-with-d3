@@ -8,7 +8,8 @@
         "export": "next export",
         "start": "next start",
         "lint": "next lint",
-        "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc --ignore-path ./.prettierignore"
+        "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc --ignore-path ./.prettierignore",
+        "deploy": "npm run build && npm run export && scp -r ./out/* Almighty:~/public_html/VIS21W/A3 && ssh Almighty \"chmod -R 755 ~/public_html/VIS21W/A3\""
     },
     "dependencies": {
         "d3": "^6.7.0",
