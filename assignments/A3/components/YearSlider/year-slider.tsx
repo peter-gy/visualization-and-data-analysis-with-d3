@@ -11,7 +11,7 @@ export default function YearSlider(): JSX.Element {
         <Slider
             axis="x"
             x={selectedYear}
-            onChange={({ x}) => dispatch({ type: 'setSelectedYear', data: x })}
+            onChange={({ x }) => dispatch({ type: 'setSelectedYear', data: x })}
             xmin={startYear}
             xmax={endYear}
             styles={{

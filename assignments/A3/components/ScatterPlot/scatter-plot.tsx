@@ -6,6 +6,7 @@ import useWindowSize from '@hooks/useWindowSize';
 import { useAppData } from '@components/AppDataProvider/app-data-context';
 import { getStateDataValue, getStateDataValues } from '@utils/app-data-utils';
 import { Coordinate } from '@models/coordinate';
+import useBivariateColorGenerator from '@hooks/useBivariateColorGenerator';
 
 type ScatterPlotProps = {
     slug: string;
@@ -46,6 +47,8 @@ export default function ScatterPlot(): JSX.Element {
     // Id of the tooltip to be displayed on marker hover
     const tooltipId = `${slug}-tooltip`;
 
+    const { scales: colorScales } = useBivariateColorGenerator(colorScheme);
+
     useEffect(() => {
         // Do not start the rendering before the plot dimensions are set
         if (!(plotWidth && plotHeight)) return;
@@ -60,6 +63,16 @@ export default function ScatterPlot(): JSX.Element {
             .attr('style', 'position: absolute; opacity: 0;')
             .attr('class', 'p-2 bg-primary rounded-md text-white text-xs');
 
+        const xScale = d3
+            .scaleLinear()
+            .domain([xValues[0], xValues[xValues.length - 1]])
+            .range([0, plotWidth]);
+
+        const yScale = d3
+            .scaleLinear()
+            .domain([yValues[0], yValues[yValues.length - 1]])
+            .range([plotHeight - 50, 0]);
+
         // Create the SVG element of the plot
         const svg = d3
             .select(`#${slug}`)
@@ -72,24 +85,48 @@ export default function ScatterPlot(): JSX.Element {
         // Background grid
         const n = 3;
         const grid = d3.cross(d3.range(n), d3.range(n));
-        const tileWidth = plotWidth / n;
-        const tileHeight = (plotHeight - 50) / n;
+
+        // Calculate the grid tile widths based on the color quantile scales
+        const tileWidths = d3
+            .range(n)
+            .map(colorScales.xScale.invertExtent)
+            .map((e) => xScale(e[1]) - xScale(e[0]));
+        const tileHeights = d3
+            .range(n)
+            .map(colorScales.yScale.invertExtent)
+            .map((e) => yScale(e[0]) - yScale(e[1]));
+
+        // get the total height of the grid to be used to calculate the y coordinates
+        const totalH = tileHeights.reduce((a, b) => a + b, 0);
+
+        // utility function to get the tile dimensions
+        function dim(i: number, j: number): [w: number, h: number] {
+            return [tileWidths[i], tileHeights[j]];
+        }
+
+        // utility function to get the tile coordinates
+        function coord(i: number, j: number): [x: number, y: number] {
+            // sum of the preceeding tiles' widths
+            const x = tileWidths.slice(0, i).reduce((acc, currW) => acc + currW, 0);
+            // totalH - sum of the preceeding tiles' heights + the current tile's height
+            // (0, 0) is the top left corner of the grid
+            const y = totalH - tileHeights.slice(0, j + 1).reduce((acc, currH) => acc + currH, 0);
+            return [x, y];
+        }
+
         svg.append('g')
             .selectAll('rect')
             .data(grid)
             .enter()
             .append('rect')
-            .attr('width', tileWidth)
-            .attr('height', tileHeight)
-            .attr('x', ([i]) => i * tileWidth)
-            .attr('y', ([, j]) => (n - 1 - j) * tileHeight)
-            .attr('fill', ([i, j]) => colorScheme.colors[i * n + j]);
+            .attr('fill', ([i, j]) => colorScheme.colors[j * n + i])
+            .attr('width', ([i, j]) => dim(i, j)[0])
+            .attr('height', ([i, j]) => dim(i, j)[1])
+            .attr('x', ([i, j]) => coord(i, j)[0])
+            .attr('y', ([i, j]) => coord(i, j)[1])
+            .attr('coord', ([i, j]) => `[${i};${j}]`);
 
         // x-axis
-        const xScale = d3
-            .scaleLinear()
-            .domain([0.95 * xValues[0], 1.05 * xValues[xValues.length - 1]])
-            .range([0, plotWidth]);
         const xAxis = d3.axisBottom(xScale).tickFormat((d) => `${d}%`);
         const gX = svg
             .append('g')
@@ -105,10 +142,6 @@ export default function ScatterPlot(): JSX.Element {
             .text('Educational Attainment Rate');
 
         // y-axis
-        const yScale = d3
-            .scaleLinear()
-            .domain([0.95 * yValues[0], 1.05 * yValues[yValues.length - 1]])
-            .range([plotHeight - 50, 0]);
         const yAxis = d3.axisLeft(yScale).tickFormat(d3.format('$.2s'));
         const gY = svg.append('g').call(yAxis);
         // y-axis label

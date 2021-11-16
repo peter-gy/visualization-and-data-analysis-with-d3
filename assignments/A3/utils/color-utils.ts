@@ -10,5 +10,8 @@ export function bivariateColorGenerator(
     const n = Math.floor(Math.sqrt(colorScheme.colors.length));
     const xScale = d3.scaleQuantile().domain(values.x).range(d3.range(n));
     const yScale = d3.scaleQuantile().domain(values.y).range(d3.range(n));
-    return { gen: ({ x, y }: Coordinate) => colorScheme.colors[n * xScale(x) + yScale(y)] };
+    return {
+        gen: ({ x, y }: Coordinate) => colorScheme.colors[xScale(x) + n * yScale(y)],
+        scales: { xScale, yScale }
+    };
 }
