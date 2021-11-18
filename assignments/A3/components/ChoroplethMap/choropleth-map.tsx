@@ -9,6 +9,7 @@ import { GeoFeature } from '@models/geo-feature';
 import { useAppData } from '@components/AppDataProvider/app-data-context';
 import { getStateDataValue, stateDataExists } from '@utils/app-data-utils';
 import useBivariateColorGenerator from '@hooks/useBivariateColorGenerator';
+import useMediaQuery from '@hooks/useMediaQuery';
 
 type ChoroplethMapProps = {
     slug: string;
@@ -25,7 +26,9 @@ const usaMapDefaultProps: ChoroplethMapProps = {
 export default function ChoroplethMap(): JSX.Element {
     const { slug, colorScheme, geoData } = usaMapDefaultProps;
     const { width } = useWindowSize();
-    const [mapWidth, mapHeight] = [0.45 * width!, 0.45 * width!];
+    const screenIsMinMd = useMediaQuery('(min-width: 768px)')
+    const multiplier = screenIsMinMd ? 0.35 : 0.6;
+    const [mapWidth, mapHeight] = [multiplier * width!, multiplier * width!];
     const margin = 5;
     const {
         state: { selectedYear, personalIncome, educationRates, selectedStates },

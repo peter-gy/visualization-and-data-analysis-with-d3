@@ -19,7 +19,7 @@ export default function YearSlider(): JSX.Element {
                     width: '80vw'
                 },
                 active: {
-                    backgroundColor: '#73ae80'
+                    backgroundColor: '#ffec84'
                 }
             }}
         />

@@ -7,6 +7,7 @@ import { useAppData } from '@components/AppDataProvider/app-data-context';
 import { getStateDataValue, getStateDataValues } from '@utils/app-data-utils';
 import { Coordinate } from '@models/coordinate';
 import useBivariateColorGenerator from '@hooks/useBivariateColorGenerator';
+import useMediaQuery from '@hooks/useMediaQuery';
 
 type ScatterPlotProps = {
     slug: string;
@@ -21,7 +22,9 @@ const usaScatterPlotDefaultProps: ScatterPlotProps = {
 export default function ScatterPlot(): JSX.Element {
     const { slug, colorScheme } = usaScatterPlotDefaultProps;
     const { width } = useWindowSize();
-    const [plotWidth, plotHeight] = [0.35 * width!, 0.35 * width!];
+    const screenIsMinMd = useMediaQuery('(min-width: 768px)')
+    const multiplier = screenIsMinMd ? 0.3 : 0.5;
+    const [plotWidth, plotHeight] = [multiplier * width!, multiplier * width!];
     const margin = 50;
     const {
         state: { selectedYear, personalIncome, educationRates, selectedStates },
@@ -44,16 +47,44 @@ export default function ScatterPlot(): JSX.Element {
     const xValues = getStateDataValues(educationRates, selectedYear).sort();
     const yValues = getStateDataValues(personalIncome, selectedYear).sort();
 
+    function getXScale(plotWidth: number, plotHeight: number) {
+        return d3
+            .scaleLinear()
+            .domain([xValues[0], xValues[xValues.length - 1]])
+            .range([0, plotWidth]);
+    }
+
+    function getYScale(plotWidth: number, plotHeight: number) {
+        return d3
+            .scaleLinear()
+            .domain([yValues[0], yValues[yValues.length - 1]])
+            .range([plotHeight - 50, 0]);
+    }
+
     // Id of the tooltip to be displayed on marker hover
     const tooltipId = `${slug}-tooltip`;
 
     const { scales: colorScales } = useBivariateColorGenerator(colorScheme);
 
     useEffect(() => {
+        if (!(plotWidth && plotHeight)) return;
+        d3.select(`#${slug}`).selectAll('*').remove();
+        d3.select(`#${slug}`)
+            .append('svg')
+            .attr('id', `${slug}-root`)
+            .attr('width', `${plotWidth + 2 * margin}px`)
+            .attr('height', `${plotHeight + 2 * margin}px`)
+            .append('g')
+            .attr('id', `${slug}-group`)
+            .attr('transform', `translate(${margin}, ${margin})`);
+    }, [plotWidth, plotHeight]);
+
+    useEffect(() => {
         // Do not start the rendering before the plot dimensions are set
         if (!(plotWidth && plotHeight)) return;
-        // Make sure that the only SVG tag inside the root div is the plot
-        d3.select(`#${slug}`).selectAll('*').remove();
+        ['background', 'gX', 'gY', 'markers']
+            .map((id) => d3.select(`#${id}`))
+            .forEach((node) => node.remove());
         d3.select(`#${tooltipId}`).remove();
 
         // tooltip
@@ -63,24 +94,11 @@ export default function ScatterPlot(): JSX.Element {
             .attr('style', 'position: absolute; opacity: 0;')
             .attr('class', 'p-2 bg-primary rounded-md text-white text-xs');
 
-        const xScale = d3
-            .scaleLinear()
-            .domain([xValues[0], xValues[xValues.length - 1]])
-            .range([0, plotWidth]);
-
-        const yScale = d3
-            .scaleLinear()
-            .domain([yValues[0], yValues[yValues.length - 1]])
-            .range([plotHeight - 50, 0]);
+        const xScale = getXScale(plotWidth, plotHeight);
+        const yScale = getYScale(plotWidth, plotHeight);
 
         // Create the SVG element of the plot
-        const svg = d3
-            .select(`#${slug}`)
-            .append('svg')
-            .attr('width', `${plotWidth + 2 * margin}px`)
-            .attr('height', `${plotHeight + 2 * margin}px`)
-            .append('g')
-            .attr('transform', `translate(${margin}, ${margin})`);
+        const svg = d3.select(`#${slug}-group`);
 
         // Background grid
         const n = 3;
@@ -115,6 +133,7 @@ export default function ScatterPlot(): JSX.Element {
         }
 
         svg.append('g')
+            .attr('id', 'background')
             .selectAll('rect')
             .data(grid)
             .enter()
@@ -130,6 +149,7 @@ export default function ScatterPlot(): JSX.Element {
         const xAxis = d3.axisBottom(xScale).tickFormat((d) => `${d}%`);
         const gX = svg
             .append('g')
+            .attr('id', 'gX')
             .attr('transform', `translate(0, ${plotHeight - 50})`)
             .call(xAxis);
         // x-axis label
@@ -143,7 +163,7 @@ export default function ScatterPlot(): JSX.Element {
 
         // y-axis
         const yAxis = d3.axisLeft(yScale).tickFormat(d3.format('$.2s'));
-        const gY = svg.append('g').call(yAxis);
+        const gY = svg.append('g').attr('id', 'gY').call(yAxis);
         // y-axis label
         gY.append('text')
             .attr('transform', 'rotate(-90)')
@@ -154,36 +174,9 @@ export default function ScatterPlot(): JSX.Element {
             .style('font-weight', 'bold')
             .text('Mean Yearly Income');
 
-        // Brush control
-        const brush = d3
-            .brush()
-            .extent([
-                [0, 0],
-                [plotWidth, plotHeight - 50]
-            ])
-            .on('end', (e) => {
-                const selection = e.selection;
-                if (!selection) {
-                    dispatch({ type: 'setSelectedStates', data: [] });
-                    return;
-                }
-                const [x0, x1] = [xScale.invert(selection[0][0]), xScale.invert(selection[1][0])];
-                const [y0, y1] = [yScale.invert(selection[1][1]), yScale.invert(selection[0][1])];
-                const selectedStates = educationRates
-                    .filter(({ state }) => {
-                        const xVal = getStateDataValue(educationRates, state, selectedYear);
-                        const yVal = getStateDataValue(personalIncome, state, selectedYear);
-                        return xVal >= x0 && xVal <= x1 && yVal >= y0 && yVal <= y1;
-                    })
-                    .map(({ state }) => state);
-                dispatch({ type: 'setSelectedStates', data: selectedStates });
-            });
-        //.on('end brush', () => dispatch({ type: 'setSelectedStates', data: brushSelection }));
-        // Add the brush area to the SVG tag
-        svg.append('g').attr('class', 'brush').call(brush);
-
         // x-y markers
         svg.append('g')
+            .attr('id', 'markers')
             .selectAll('circle')
             .data(scatterData)
             .enter()
@@ -208,5 +201,41 @@ export default function ScatterPlot(): JSX.Element {
                 d3.select(`#${tooltipId}`).style('display', 'none').style('opacity', 0);
             });
     });
+
+    useEffect(() => {
+        if (!(plotWidth && plotHeight)) return;
+        const xScale = getXScale(plotWidth, plotHeight);
+        const yScale = getYScale(plotWidth, plotHeight);
+        // Brush control
+        const brush = d3
+            .brush()
+            .extent([
+                [0, 0],
+                [plotWidth, plotHeight - 50]
+            ])
+            .on('start brush', (e) => {
+                const selection = e.selection;
+                if (!selection) {
+                    dispatch({ type: 'setSelectedStates', data: [] });
+                    return;
+                }
+                const [x0, x1] = [xScale.invert(selection[0][0]), xScale.invert(selection[1][0])];
+                const [y0, y1] = [yScale.invert(selection[1][1]), yScale.invert(selection[0][1])];
+                const selectedStates = educationRates
+                    .filter(({ state }) => {
+                        const xVal = getStateDataValue(educationRates, state, selectedYear);
+                        const yVal = getStateDataValue(personalIncome, state, selectedYear);
+                        return xVal >= x0 && xVal <= x1 && yVal >= y0 && yVal <= y1;
+                    })
+                    .map(({ state }) => state);
+                dispatch({ type: 'setSelectedStates', data: selectedStates });
+            });
+        // Add the brush area to the SVG tag
+        d3.select(`#${slug}-root`)
+            .append('g')
+            .attr('transform', `translate(${margin}, ${margin})`)
+            .attr('class', 'brush')
+            .call(brush);
+    }, [plotWidth, plotHeight]);
     return <div id={slug} className="bg-white flex justify-center items-center" />;
 }

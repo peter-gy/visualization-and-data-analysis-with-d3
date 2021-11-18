@@ -9,10 +9,10 @@ const Home: NextPage = () => {
         state: { selectedYear }
     } = useAppData();
     return (
-        <div className="bg-primary p-4 flex flex-col justify-start items-center h-[100vh] text-white text-xl text-center">
+        <div className="bg-primary p-2 flex flex-col justify-between items-center h-[100vh] text-white text-xl text-center">
             <h1 className="m-1">
-                <span className="block">
-                    Overview about the Educational Attainment Rate and the Mean Incomes relationship
+                <span className="block font-bold">
+                    Overview about the Educational Attainment Rate and the Mean Income&#39;s relationship
                     in
                 </span>
                 <span className="block italic">{selectedYear}</span>
@@ -20,13 +20,16 @@ const Home: NextPage = () => {
             <div className="m-1">
                 <YearSlider />
             </div>
-            <div className="m-1 flex justify-between items-center p-2">
-                <div className="bg-white m-1 w-[47.5vw] h-[47.5vw] flex justify-center items-center rounded-md">
+            <div className="bg-white mt-4 flex flex-col md:px-4 md md:flex-row justify-between items-center p-8 rounded-md">
+                <div className="bg-white w-[60vw] h-[60vw] md:w-[40vw] md:h-[40vw] flex justify-center items-center">
                     <ScatterPlot />
                 </div>
-                <div className="bg-white m-1 w-[47.5vw] h-[47.5vw] flex justify-center items-center rounded-md">
+                <div className="bg-white w-[60vw] h-[60vw] md:w-[40vw] md:h-[40vw] flex justify-center items-center">
                     <ChoroplethMap />
                 </div>
+            </div>
+            <div className='flex justify-center items-center p-4'>
+                <p className="text-white text-sm italic">Péter Ferenc Gyarmati - 11913446</p>
             </div>
         </div>
     );
