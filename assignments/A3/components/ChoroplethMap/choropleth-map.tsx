@@ -35,11 +35,20 @@ export default function ChoroplethMap(): JSX.Element {
         dispatch
     } = useAppData();
     const { gen: colorGen } = useBivariateColorGenerator(colorScheme);
+    const tooltipId = `${slug}-tooltip`;
     useEffect(() => {
         // Do not start the rendering before the map dimensions are set
         if (!(mapWidth && mapHeight)) return;
         // Make sure that the only SVG tag inside the root div is the map
         d3.select(`#${slug}`).selectAll('*').remove();
+        d3.select(`#${tooltipId}`).remove();
+
+        // tooltip
+        d3.select('body')
+            .append('div')
+            .attr('id', `${tooltipId}`)
+            .attr('style', 'position: absolute; opacity: 0;')
+            .attr('class', 'p-2 bg-primary rounded-md text-white text-xs');
 
         // Create the SVG element of the map
         const svg = d3
@@ -95,6 +104,22 @@ export default function ChoroplethMap(): JSX.Element {
                     type: selectedStates.includes(stateName) ? 'deselectState' : 'selectState',
                     data: stateName
                 });
+            })
+            .on('mouseover', (event, d) => {
+                const feature = d as GeoFeature;
+                const {
+                    properties: { name: stateName }
+                } = feature;
+                d3.select(`#${tooltipId}`)
+                    .style('display', 'block')
+                    .style('left', `${event.pageX - 50}px`)
+                    .style('top', `${event.pageY - 50}px`)
+                    .style('opacity', 1)
+                    .text(stateName)
+                    .style('font-size', '14px');
+            })
+            .on('mouseout', () => {
+                d3.select(`#${tooltipId}`).style('display', 'none').style('opacity', 0);
             });
     });
     return (
