@@ -85,12 +85,12 @@ export default function ScatterPlot(): JSX.Element {
         ['background', 'gX', 'gY', 'markers']
             .map((id) => d3.select(`#${id}`))
             .forEach((node) => node.remove());
-        d3.select(`#${slug}-${tooltipId}`).remove();
+        d3.select(`#${tooltipId}`).remove();
 
         // tooltip
         d3.select('body')
             .append('div')
-            .attr('id', `${slug}-${tooltipId}`)
+            .attr('id', `${tooltipId}`)
             .attr('style', 'position: absolute; opacity: 0;')
             .attr('class', 'p-2 bg-primary rounded-md text-white text-xs');
 
@@ -233,7 +233,7 @@ export default function ScatterPlot(): JSX.Element {
                 dispatch({ type: 'setSelectedStates', data: selectedStates });
             });
         // Add the brush area to the SVG tag
-        d3.select(`#${slug}-root`)
+        const brushGroup = d3.select(`#${slug}-root`)
             .append('g')
             .attr('transform', `translate(${margin}, ${margin})`)
             .attr('class', 'brush')
