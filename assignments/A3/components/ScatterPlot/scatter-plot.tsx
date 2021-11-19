@@ -22,7 +22,7 @@ const usaScatterPlotDefaultProps: ScatterPlotProps = {
 export default function ScatterPlot(): JSX.Element {
     const { slug, colorScheme } = usaScatterPlotDefaultProps;
     const { width } = useWindowSize();
-    const screenIsMinMd = useMediaQuery('(min-width: 768px)')
+    const screenIsMinMd = useMediaQuery('(min-width: 768px)');
     const multiplier = screenIsMinMd ? 0.3 : 0.5;
     const [plotWidth, plotHeight] = [multiplier * width!, multiplier * width!];
     const margin = 50;
@@ -175,7 +175,9 @@ export default function ScatterPlot(): JSX.Element {
             .text('Mean Yearly Income');
 
         // x-y markers
-        svg.append('g')
+        d3.select(`#${slug}-root`)
+            .append('g')
+            .attr('transform', `translate(${margin}, ${margin})`)
             .attr('id', 'markers')
             .selectAll('circle')
             .data(scatterData)

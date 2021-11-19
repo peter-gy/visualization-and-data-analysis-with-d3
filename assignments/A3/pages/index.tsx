@@ -12,8 +12,8 @@ const Home: NextPage = () => {
         <div className="bg-primary p-2 flex flex-col justify-between items-center h-[100vh] text-white text-xl text-center">
             <h1 className="m-1">
                 <span className="block font-bold">
-                    Overview about the Educational Attainment Rate and the Mean Income&#39;s relationship
-                    in
+                    Overview about the Educational Attainment Rate and the Mean Income&#39;s
+                    relationship in
                 </span>
                 <span className="block italic">{selectedYear}</span>
             </h1>
@@ -28,7 +28,7 @@ const Home: NextPage = () => {
                     <ChoroplethMap />
                 </div>
             </div>
-            <div className='flex justify-center items-center p-4'>
+            <div className="flex justify-center items-center p-4">
                 <p className="text-white text-sm italic">Péter Ferenc Gyarmati - 11913446</p>
             </div>
         </div>

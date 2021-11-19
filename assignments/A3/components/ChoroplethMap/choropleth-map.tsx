@@ -26,7 +26,7 @@ const usaMapDefaultProps: ChoroplethMapProps = {
 export default function ChoroplethMap(): JSX.Element {
     const { slug, colorScheme, geoData } = usaMapDefaultProps;
     const { width } = useWindowSize();
-    const screenIsMinMd = useMediaQuery('(min-width: 768px)')
+    const screenIsMinMd = useMediaQuery('(min-width: 768px)');
     const multiplier = screenIsMinMd ? 0.35 : 0.6;
     const [mapWidth, mapHeight] = [multiplier * width!, multiplier * width!];
     const margin = 5;
