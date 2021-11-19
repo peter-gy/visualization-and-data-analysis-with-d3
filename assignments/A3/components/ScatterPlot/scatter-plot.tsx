@@ -1,7 +1,5 @@
 import * as d3 from 'd3';
 import { useEffect } from 'react';
-import { ColorScheme } from '@models/color-scheme';
-import { bivariateColorScheme } from '@models/color-scheme';
 import useWindowSize from '@hooks/useWindowSize';
 import { useAppData } from '@components/AppDataProvider/app-data-context';
 import { getStateDataValue, getStateDataValues } from '@utils/app-data-utils';
@@ -11,23 +9,21 @@ import useMediaQuery from '@hooks/useMediaQuery';
 
 type ScatterPlotProps = {
     slug: string;
-    colorScheme: ColorScheme;
 };
 
 const usaScatterPlotDefaultProps: ScatterPlotProps = {
-    slug: 'usa-scatter',
-    colorScheme: bivariateColorScheme
+    slug: 'usa-scatter'
 };
 
 export default function ScatterPlot(): JSX.Element {
-    const { slug, colorScheme } = usaScatterPlotDefaultProps;
+    const { slug } = usaScatterPlotDefaultProps;
     const { width } = useWindowSize();
     const screenIsMinMd = useMediaQuery('(min-width: 768px)');
     const multiplier = screenIsMinMd ? 0.3 : 0.5;
     const [plotWidth, plotHeight] = [multiplier * width!, multiplier * width!];
     const margin = 50;
     const {
-        state: { selectedYear, personalIncome, educationRates, selectedStates },
+        state: { selectedYear, personalIncome, educationRates, selectedStates, colorScheme },
         dispatch
     } = useAppData();
     // Make sure that we can actually 'zip' the data
@@ -233,7 +229,7 @@ export default function ScatterPlot(): JSX.Element {
                 dispatch({ type: 'setSelectedStates', data: selectedStates });
             });
         // Add the brush area to the SVG tag
-        const brushGroup = d3.select(`#${slug}-root`)
+        d3.select(`#${slug}-root`)
             .append('g')
             .attr('transform', `translate(${margin}, ${margin})`)
             .attr('class', 'brush')

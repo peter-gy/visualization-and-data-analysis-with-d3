@@ -1,7 +1,5 @@
 import * as d3 from 'd3';
 import { useEffect } from 'react';
-import { ColorScheme } from '@models/color-scheme';
-import { bivariateColorScheme } from '@models/color-scheme';
 import usStates from '@data/us-states-geo.json';
 import useWindowSize from '@hooks/useWindowSize';
 import { ValueFn } from 'd3-selection';
@@ -13,27 +11,25 @@ import useMediaQuery from '@hooks/useMediaQuery';
 
 type ChoroplethMapProps = {
     slug: string;
-    colorScheme: ColorScheme;
     geoData: any;
 };
 
 const usaMapDefaultProps: ChoroplethMapProps = {
     slug: 'usa-choropleth',
-    colorScheme: bivariateColorScheme,
     geoData: usStates
 };
 
 export default function ChoroplethMap(): JSX.Element {
-    const { slug, colorScheme, geoData } = usaMapDefaultProps;
     const { width } = useWindowSize();
     const screenIsMinMd = useMediaQuery('(min-width: 768px)');
     const multiplier = screenIsMinMd ? 0.35 : 0.6;
     const [mapWidth, mapHeight] = [multiplier * width!, multiplier * width!];
     const margin = 5;
     const {
-        state: { selectedYear, personalIncome, educationRates, selectedStates },
+        state: { selectedYear, personalIncome, educationRates, selectedStates, colorScheme },
         dispatch
     } = useAppData();
+    const { slug, geoData } = usaMapDefaultProps;
     const { gen: colorGen } = useBivariateColorGenerator(colorScheme);
     const tooltipId = `${slug}-tooltip`;
     useEffect(() => {

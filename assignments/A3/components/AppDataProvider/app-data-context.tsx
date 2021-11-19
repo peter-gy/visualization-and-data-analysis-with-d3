@@ -2,6 +2,7 @@
 import { useReducer, createContext, useContext, ReactNode } from 'react';
 import { StateData } from '@models/state-data';
 import { educationRatesData, personalIncomeData } from './default-app-data';
+import { colorSchemes, ColorScheme } from '@models/color-scheme';
 
 /**
  * Possible actions to dispatch to the reducer
@@ -10,7 +11,8 @@ type Action =
     | { type: 'setSelectedYear'; data: number }
     | { type: 'setSelectedStates'; data: string[] }
     | { type: 'selectState'; data: string }
-    | { type: 'deselectState'; data: string };
+    | { type: 'deselectState'; data: string }
+    | { type: 'setColorScheme'; data: ColorScheme };
 
 /**
  * Dispatch callback signature
@@ -25,6 +27,7 @@ type State = {
     selectedStates: string[];
     educationRates: StateData[];
     personalIncome: StateData[];
+    colorScheme: ColorScheme;
 };
 
 type AppDataContextType = { state: State; dispatch: Dispatch };
@@ -57,6 +60,12 @@ function appDataReducer(state: State, action: Action): State {
                 selectedStates: state.selectedStates.filter((state) => state !== action.data)
             };
         }
+        case 'setColorScheme': {
+            return {
+                ...state,
+                colorScheme: action.data
+            };
+        }
         default: {
             throw new Error(`Unhandled action type`);
         }
@@ -70,7 +79,8 @@ function AppDataProvider({ children }: AppDataProviderProps): JSX.Element {
         selectedYear: 2006,
         selectedStates: [],
         educationRates: educationRatesData,
-        personalIncome: personalIncomeData
+        personalIncome: personalIncomeData,
+        colorScheme: colorSchemes[0]
     });
 
     return (
