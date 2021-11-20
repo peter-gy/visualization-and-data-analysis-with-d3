@@ -201,6 +201,7 @@ export default function ScatterPlot(): JSX.Element {
             .on('mouseout', () => {
                 d3.select(`#${tooltipId}`).style('display', 'none').style('opacity', 0);
             });
+        d3.select('#markers').raise();
     });
 
     useEffect(() => {
@@ -237,6 +238,7 @@ export default function ScatterPlot(): JSX.Element {
             .attr('transform', `translate(${margin}, ${margin})`)
             .attr('class', 'brush')
             .call(brush);
+        d3.select('#markers').raise();
     }, [plotWidth, plotHeight]);
     return <div id={slug} className="bg-white flex justify-center items-center" />;
 }
