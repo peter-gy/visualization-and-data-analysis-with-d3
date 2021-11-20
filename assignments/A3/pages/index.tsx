@@ -22,7 +22,7 @@ const Home: NextPage = () => {
             <div className="m-1">
                 <YearSlider />
             </div>
-            <div className="flex">
+            <div className="flex p-2">
                 {colorSchemes.map((scheme) => (
                     <div
                         key={scheme.name}
@@ -34,7 +34,7 @@ const Home: NextPage = () => {
                     />
                 ))}
             </div>
-            <div className="bg-white mt-4 flex flex-col md:px-4 md md:flex-row justify-between items-center p-8 rounded-md">
+            <div className="bg-white mt-4 flex flex-col md:px-4 md:py-3 xl:py-0 md:flex-row justify-between items-center py-6 px-8 rounded-md">
                 <div className="bg-white w-[60vw] h-[60vw] md:w-[40vw] md:h-[40vw] flex justify-center items-center">
                     <ScatterPlot />
                 </div>

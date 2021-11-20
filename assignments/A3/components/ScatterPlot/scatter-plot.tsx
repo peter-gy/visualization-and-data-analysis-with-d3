@@ -142,7 +142,10 @@ export default function ScatterPlot(): JSX.Element {
             .attr('coord', ([i, j]) => `[${i};${j}]`);
 
         // x-axis
-        const xAxis = d3.axisBottom(xScale).tickFormat((d) => `${d}%`);
+        const xAxis = d3
+            .axisBottom(xScale)
+            .tickFormat((d) => `${d}%`)
+            .ticks(8);
         const gX = svg
             .append('g')
             .attr('id', 'gX')
@@ -158,7 +161,7 @@ export default function ScatterPlot(): JSX.Element {
             .text('Educational Attainment Rate');
 
         // y-axis
-        const yAxis = d3.axisLeft(yScale).tickFormat(d3.format('$.2s'));
+        const yAxis = d3.axisLeft(yScale).tickFormat(d3.format('$.2s')).ticks(8);
         const gY = svg.append('g').attr('id', 'gY').call(yAxis);
         // y-axis label
         gY.append('text')
