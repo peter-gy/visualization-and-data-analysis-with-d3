@@ -182,6 +182,7 @@ export default function ScatterPlot(): JSX.Element {
             .data(scatterData)
             .enter()
             .append('circle')
+            .attr('class', 'cursor-pointer')
             .attr('cx', ({ coordinate: { x } }) => xScale(x))
             .attr('cy', ({ coordinate: { y } }) => yScale(y))
             .attr('r', ({ state }) => (selectedStates.includes(state) ? 5 : 4))
@@ -200,7 +201,13 @@ export default function ScatterPlot(): JSX.Element {
             })
             .on('mouseout', () => {
                 d3.select(`#${tooltipId}`).style('display', 'none').style('opacity', 0);
-            });
+            })
+            .on('click', (_, { state }) =>
+                dispatch({
+                    type: selectedStates.includes(state) ? 'deselectState' : 'selectState',
+                    data: state
+                })
+            );
         d3.select('#markers').raise();
     });
 
