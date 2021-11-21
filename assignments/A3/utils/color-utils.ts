@@ -1,3 +1,4 @@
+/* This generator was inspired by https://observablehq.com/@d3/bivariate-choropleth */
 import * as d3 from 'd3';
 import { ColorGenProps, ColorScheme } from '@models/color-scheme';
 import { Coordinate } from '@models/coordinate';

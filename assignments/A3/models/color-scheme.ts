@@ -11,6 +11,7 @@ export type ColorGenProps = {
     scales: { xScale: ScaleQuantile<number>; yScale: ScaleQuantile<number> };
 };
 
+/* Schemes taken from https://observablehq.com/@d3/bivariate-choropleth */
 export const colorSchemes: ColorScheme[] = [
     {
         name: 'RdBu',
