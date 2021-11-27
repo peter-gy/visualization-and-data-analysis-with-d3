@@ -213,6 +213,7 @@ export default function ScatterPlot(): JSX.Element {
 
     useEffect(() => {
         if (!(plotWidth && plotHeight)) return;
+        d3.select('.brush').remove();
         const xScale = getXScale(plotWidth, plotHeight);
         const yScale = getYScale(plotWidth, plotHeight);
         // Brush control
@@ -246,6 +247,6 @@ export default function ScatterPlot(): JSX.Element {
             .attr('class', 'brush')
             .call(brush);
         d3.select('#markers').raise();
-    }, [plotWidth, plotHeight]);
+    }, [plotWidth, plotHeight, selectedYear]);
     return <div id={slug} className="bg-white flex justify-center items-center" />;
 }

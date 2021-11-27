@@ -9,8 +9,14 @@ export function bivariateColorGenerator(
 ): ColorGenProps {
     // Make sure that we'll get a square number
     const n = Math.floor(Math.sqrt(colorScheme.colors.length));
-    const xScale = d3.scaleQuantile().domain([d3.min(values.x), d3.max(values.x)]).range(d3.range(n));
-    const yScale = d3.scaleQuantile().domain([d3.min(values.y), d3.max(values.y)]).range(d3.range(n));
+    const xScale = d3
+        .scaleQuantile()
+        .domain([d3.min(values.x), d3.max(values.x)])
+        .range(d3.range(n));
+    const yScale = d3
+        .scaleQuantile()
+        .domain([d3.min(values.y), d3.max(values.y)])
+        .range(d3.range(n));
     return {
         gen: ({ x, y }: Coordinate) => colorScheme.colors[xScale(x) + n * yScale(y)],
         scales: { xScale, yScale }
