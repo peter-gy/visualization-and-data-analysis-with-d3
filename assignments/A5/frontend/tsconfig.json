@@ -18,6 +18,7 @@
         "baseUrl": "./src",
         "paths": {
             "@components/*": ["components/*"],
+            "@features/*": ["features/*"],
             "@hooks/*": ["hooks/*"],
             "@redux/*": ["redux/*"],
             "@services/*": ["services/*"],

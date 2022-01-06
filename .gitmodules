@@ -1,0 +1,3 @@
+[submodule "assignments/A5/backend/owid-covid19-data-api"]
+	path = assignments/A5/backend/owid-covid19-data-api
+	url = https://github.com/peter-gy/owid-covid-19-data-api.git
