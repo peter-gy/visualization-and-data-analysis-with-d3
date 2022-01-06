@@ -20,7 +20,7 @@
             "@components/*": ["components/*"],
             "@features/*": ["features/*"],
             "@hooks/*": ["hooks/*"],
-            "@redux/*": ["redux/*"],
+            "@models/*": ["models/*"],
             "@services/*": ["services/*"],
             "@styles/*": ["styles/*"],
             "@utils/*": ["utils/*"]
