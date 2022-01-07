@@ -18,6 +18,8 @@
         "baseUrl": "./src",
         "paths": {
             "@components/*": ["components/*"],
+            "@contexts/*": ["contexts/*"],
+            "@data/*": ["data/*"],
             "@features/*": ["features/*"],
             "@hooks/*": ["hooks/*"],
             "@models/*": ["models/*"],
