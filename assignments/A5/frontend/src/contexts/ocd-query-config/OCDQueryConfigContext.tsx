@@ -51,7 +51,7 @@ type CovidDataProviderProps = {
     children: ReactNode;
 };
 
-function CovidDataProvider({ children }: CovidDataProviderProps): JSX.Element {
+function OCDQueryConfigProvider({ children }: CovidDataProviderProps): JSX.Element {
     const [state, dispatch] = useReducer(ocdQueryConfigReducer, {
         countryList: initialCountryList,
         timeRange: { start: new Date(2020, 0), end: new Date() }
@@ -83,4 +83,4 @@ function useOCDQueryConfig(): OCDQueryConfigContextType {
     return context;
 }
 
-export { CovidDataProvider, useOCDQueryConfig };
+export { OCDQueryConfigProvider, useOCDQueryConfig };

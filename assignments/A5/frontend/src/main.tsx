@@ -2,16 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import '@styles/index.css';
 import App from './App';
-import { CovidDataProvider } from '@contexts/ocd-query-config/OCDQueryConfigContext';
+import { OCDQueryConfigProvider } from '@contexts/ocd-query-config/OCDQueryConfigContext';
 import { CountrySelectionProvider } from '@contexts/country-selection/CountrySelectionContext';
 
 ReactDOM.render(
     <React.StrictMode>
-        <CovidDataProvider>
+        <OCDQueryConfigProvider>
             <CountrySelectionProvider>
                 <App />
             </CountrySelectionProvider>
-        </CovidDataProvider>
+        </OCDQueryConfigProvider>
     </React.StrictMode>,
     document.getElementById('root')
 );
