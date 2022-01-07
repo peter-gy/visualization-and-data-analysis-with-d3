@@ -21,7 +21,13 @@ type Dispatch = (action: Action) => void;
  * State model signature to be mutated from the UI
  */
 type State = {
+    /**
+     * All the countries which are supported by the dataset
+     */
     countryList: GeoLocation[];
+    /**
+     * The time range in which data should be displayed
+     */
     timeRange: TimeRange;
 };
 
@@ -32,7 +38,7 @@ type OCDQueryConfigContextType = {
 
 const OCDQueryConfigContext = createContext<OCDQueryConfigContextType | undefined>(undefined);
 
-function covidDataReducer(state: State, action: Action): State {
+function ocdQueryConfigReducer(state: State, action: Action): State {
     switch (action.type) {
         case 'SET_COUNTRY_LIST':
             return { ...state, countryList: action.data };
@@ -46,9 +52,9 @@ type CovidDataProviderProps = {
 };
 
 function CovidDataProvider({ children }: CovidDataProviderProps): JSX.Element {
-    const [state, dispatch] = useReducer(covidDataReducer, {
+    const [state, dispatch] = useReducer(ocdQueryConfigReducer, {
         countryList: initialCountryList,
-        timeRange: { start: new Date(2020, 1), end: new Date(2022, 1) }
+        timeRange: { start: new Date(2020, 0), end: new Date() }
     });
     const { data, isLoading } = useAllGeoLocations();
 
@@ -65,6 +71,10 @@ function CovidDataProvider({ children }: CovidDataProviderProps): JSX.Element {
     );
 }
 
+/**
+ * Exposes the base query configuration to be used to create data queries for the
+ * configured time period and for countries chosen from the stored countryList.
+ */
 function useOCDQueryConfig(): OCDQueryConfigContextType {
     const context = useContext(OCDQueryConfigContext);
     if (context === undefined) {
