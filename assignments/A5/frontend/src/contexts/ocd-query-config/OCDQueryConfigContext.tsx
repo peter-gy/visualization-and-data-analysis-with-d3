@@ -1,7 +1,7 @@
 import { useReducer, createContext, useContext, ReactNode, useEffect } from 'react';
 import { GeoLocation } from '@models/geo-location';
 import { useAllGeoLocations } from '@hooks/ocd-query-hooks';
-import { initialCountryList } from '@data/initial-data';
+import { initialCountryList, initialTimeRange } from '@data/initial-data';
 
 type TimeRange = { start: Date; end: Date };
 
@@ -26,7 +26,7 @@ type State = {
      */
     countryList: GeoLocation[];
     /**
-     * The time range in which data should be displayed
+     * The time range which can be configured by the user
      */
     timeRange: TimeRange;
 };
@@ -54,7 +54,7 @@ type CovidDataProviderProps = {
 function OCDQueryConfigProvider({ children }: CovidDataProviderProps): JSX.Element {
     const [state, dispatch] = useReducer(ocdQueryConfigReducer, {
         countryList: initialCountryList,
-        timeRange: { start: new Date(2020, 0), end: new Date() }
+        timeRange: initialTimeRange
     });
     const { data, isLoading } = useAllGeoLocations();
 

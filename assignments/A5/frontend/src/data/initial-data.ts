@@ -43,4 +43,6 @@ const initialCountryList: GeoLocation[] = [
     }
 ];
 
-export { initialCountryList };
+const initialTimeRange = { start: new Date(2020, 2), end: new Date() };
+
+export { initialCountryList, initialTimeRange };
