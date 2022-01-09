@@ -1,6 +1,7 @@
 import LeftDrawerLayout from '@components/LeftDrawerLayout';
 import { Helmet } from 'react-helmet';
 import DateRangePicker from '@components/DateRangePicker';
+import CountryPicker from '@components/CountryPicker';
 
 function App() {
     return (
@@ -19,8 +20,13 @@ function App() {
                     windowWidth >= 768 ? 0.5 * windowWidth : windowWidth
                 }
                 drawerContent={
-                    <div>
-                        <DateRangePicker />
+                    <div className="p-4 flex flex-col justify-center items-start">
+                        <div className="my-2">
+                            <DateRangePicker />
+                        </div>
+                        <div className="my-2">
+                            <CountryPicker />
+                        </div>
                     </div>
                 }
                 mainContent={

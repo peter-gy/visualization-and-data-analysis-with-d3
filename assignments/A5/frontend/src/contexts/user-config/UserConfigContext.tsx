@@ -9,6 +9,7 @@ type TimeRange = { start: Date; end: Date };
  */
 type Action =
     | { type: 'SET_SELECTED_COUNTRY'; data: GeoLocation }
+    | { type: 'SET_SELECTED_COUNTRIES'; data: GeoLocation[] }
     | { type: 'ADD_TO_SELECTED_COUNTRIES'; data: GeoLocation }
     | { type: 'REMOVE_FROM_SELECTED_COUNTRIES'; data: GeoLocation }
     | { type: 'SET_SELECTED_TIME_RANGE'; data: TimeRange };
@@ -49,6 +50,11 @@ function userConfigReducer(state: State, action: Action): State {
             return {
                 ...state,
                 selectedCountries: [...state.selectedCountries, action.data]
+            };
+        case 'SET_SELECTED_COUNTRIES':
+            return {
+                ...state,
+                selectedCountries: action.data
             };
         case 'REMOVE_FROM_SELECTED_COUNTRIES':
             return {

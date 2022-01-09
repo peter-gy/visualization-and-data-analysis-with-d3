@@ -35,7 +35,7 @@ function DateRangePicker() {
     }
 
     return (
-        <div className="p-4 flex justify-around items-center">
+        <div className="flex justify-around items-center">
             <DatePicker
                 label="Start Date"
                 minDate={minDate}

@@ -14,6 +14,7 @@
         "@mui/lab": "^5.0.0-alpha.63",
         "@mui/material": "^5.2.7",
         "dayjs": "^1.10.7",
+        "flag-icon-css": "^4.1.7",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
         "react-helmet": "^6.1.0"
