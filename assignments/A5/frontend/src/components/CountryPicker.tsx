@@ -53,18 +53,23 @@ function _CountryPicker({
         const {
             target: { value }
         } = event;
-        const uniqueItems = (value as GeoLocation[]).reduce((acc, item) => {
+        const items = value as GeoLocation[];
+        const uniqueItems = items.reduce((acc, item) => {
             if (!acc.some((i) => i.iso_code === item.iso_code)) {
                 acc.push(item);
             }
             return acc;
         }, [] as GeoLocation[]);
-        const newSelection = Array.from(uniqueItems).sort((c1, c2) =>
-            c1.location.localeCompare(c2.location)
-        );
-        setSelectedCountries(newSelection);
-        if (uniqueItems.length === newSelection.length) {
-            onSelectionChanged(newSelection);
+
+        if (uniqueItems.length === items.length) {
+            const sortedItems = Array.from(uniqueItems).sort((c1, c2) =>
+                c1.location.localeCompare(c2.location)
+            );
+            onSelectionChanged(sortedItems);
+            setSelectedCountries(sortedItems);
+        } else {
+            const duplicateItem = items[items.length - 1];
+            handleDelete(duplicateItem);
         }
     }
 
