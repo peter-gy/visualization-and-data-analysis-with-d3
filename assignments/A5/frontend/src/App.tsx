@@ -1,5 +1,6 @@
 import LeftDrawerLayout from '@components/LeftDrawerLayout';
 import { Helmet } from 'react-helmet';
+import DateRangePicker from '@components/DateRangePicker';
 
 function App() {
     return (
@@ -16,6 +17,11 @@ function App() {
                 title="Covid-19 Dashboard"
                 drawerWidth={(windowWidth) =>
                     windowWidth >= 768 ? 0.5 * windowWidth : windowWidth
+                }
+                drawerContent={
+                    <div>
+                        <DateRangePicker />
+                    </div>
                 }
                 mainContent={
                     <div className="bg-amber-100 h-screen flex justify-center items-center">
