@@ -19,7 +19,7 @@ function App() {
             <LeftDrawerLayout
                 title="Covid-19 Dashboard"
                 drawerWidth={(windowWidth) =>
-                    windowWidth >= 768 ? 0.25 * windowWidth : windowWidth
+                    windowWidth >= 768 ? 0.5 * windowWidth : windowWidth
                 }
                 drawerContent={<DrawerContent />}
                 mainContent={<MainGrid />}
