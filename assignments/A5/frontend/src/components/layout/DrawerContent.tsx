@@ -1,5 +1,5 @@
-import DateRangePicker from '@components/DateRangePicker';
-import CountryPicker from '@components/CountryPicker';
+import DateRangePicker from '@components/controls/DateRangePicker';
+import CountryPicker from '@components/controls/CountryPicker';
 
 function DrawerContent() {
     return (
