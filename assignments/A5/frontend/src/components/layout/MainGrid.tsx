@@ -1,8 +1,38 @@
 import useMuiAppBarHeight from '@hooks/useMuiAppBarHeight';
 import { useMediaQuery } from '@mui/material';
+import { ReactNode, RefObject, useEffect, useRef, useState } from 'react';
 
 function MainGrid() {
     const appBarHeight = useMuiAppBarHeight();
+    const matchesMdScreen = useMediaQuery('(min-width:768px)');
+    const gridItemVariant = matchesMdScreen ? 'half' : 'full';
+
+    // All grid items have the same size, hence we track only the first one
+    const trackedItemRef = useRef<HTMLDivElement>(null);
+    const [gridItemContentSize, setGridItemContentSize] = useState<{
+        width: number;
+        height: number;
+    }>({ width: 0, height: 0 });
+
+    function updateGridItemContentSize() {
+        if (trackedItemRef.current) {
+            const width = trackedItemRef.current.clientWidth;
+            const height = trackedItemRef.current.clientHeight;
+            setGridItemContentSize({ width, height });
+        }
+    }
+
+    // Initialize grid item content size
+    useEffect(() => {
+        updateGridItemContentSize();
+    }, [trackedItemRef.current]);
+
+    // Update grid item content size on window resize
+    useEffect(() => {
+        window.addEventListener('resize', updateGridItemContentSize);
+        return () => window.removeEventListener('resize', updateGridItemContentSize);
+    }, []);
+
     return (
         <div
             style={{
@@ -12,34 +42,72 @@ function MainGrid() {
             className="bg-amber-100 flex flex-col justify-start items-center overflow-scroll md:justify-center"
         >
             <div className="flex flex-col md:flex-row">
-                <GridItem name="Map" />
-                <GridItem name="Bars" />
+                <GridItem
+                    title="Map"
+                    variant={gridItemVariant}
+                    appBarHeight={appBarHeight}
+                    contentContainerRef={trackedItemRef}
+                    content={<p>{JSON.stringify(gridItemContentSize)}</p>}
+                />
+                <GridItem
+                    title="Bars"
+                    variant={gridItemVariant}
+                    appBarHeight={appBarHeight}
+                    content={<p>{JSON.stringify(gridItemContentSize)}</p>}
+                />
             </div>
             <div className="flex flex-col md:flex-row">
-                <GridItem name="Lollipop" />
-                <GridItem name="Heatmap" />
+                <GridItem
+                    title="Lollipop"
+                    variant={gridItemVariant}
+                    appBarHeight={appBarHeight}
+                    content={<p>{JSON.stringify(gridItemContentSize)}</p>}
+                />
+                <GridItem
+                    title="Heatmap"
+                    variant={gridItemVariant}
+                    appBarHeight={appBarHeight}
+                    content={<p>{JSON.stringify(gridItemContentSize)}</p>}
+                />
             </div>
         </div>
     );
 }
 
 type GridItemProps = {
-    name: string;
+    title: string;
+    appBarHeight: number;
+    content?: ReactNode;
+    variant?: 'full' | 'half';
+    contentContainerRef?: RefObject<HTMLDivElement>;
 };
 
-function GridItem({ name }: GridItemProps) {
-    const appBarHeight = useMuiAppBarHeight();
-    const matchesMdScreen = useMediaQuery('(min-width: 768px)');
+function GridItem({
+    title,
+    appBarHeight,
+    content = <div />,
+    variant = 'half',
+    contentContainerRef
+}: GridItemProps) {
+    const gridItemId = `grid-item-${title}`.toLowerCase();
     return (
         <div
             style={{
-                height: matchesMdScreen
-                    ? 'calc(50vh - ' + appBarHeight + 'px)'
-                    : 'calc(100vh - 1.5rem - ' + appBarHeight + 'px)'
+                height:
+                    variant === 'half'
+                        ? 'calc(50vh - ' + appBarHeight + 'px)'
+                        : 'calc(100vh - 1.5rem - ' + appBarHeight + 'px)'
             }}
-            className="m-2 bg-white rounded-lg shadow-lg p-4 w-[95vw] md:w-[47.5vw]"
+            className="m-2 bg-white rounded-lg shadow-lg p-2 w-[95vw] md:w-[47.5vw] flex flex-col justify-start items-center"
         >
-            <h1 className="text-2xl font-bold text-center">{name}</h1>
+            <h1 className="text-2xl font-bold text-center">{title}</h1>
+            <div
+                ref={contentContainerRef}
+                id={gridItemId}
+                className="grow flex justify-center items-center w-[100%]"
+            >
+                {content}
+            </div>
         </div>
     );
 }
