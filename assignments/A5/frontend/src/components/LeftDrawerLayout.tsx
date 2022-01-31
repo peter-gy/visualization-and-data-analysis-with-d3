@@ -29,8 +29,8 @@ type LeftDrawerLayoutProps = {
 };
 
 function LeftDrawerLayout({
-    mainContent = <></>,
-    drawerContent = <></>,
+    mainContent = <div />,
+    drawerContent = <div />,
     title = 'Drawer Layout',
     drawerWidth = (windowWidth) => windowWidth * 0.3,
     drawerProps = {}
