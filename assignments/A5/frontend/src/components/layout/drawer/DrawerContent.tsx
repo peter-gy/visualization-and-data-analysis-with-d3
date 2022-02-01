@@ -2,8 +2,14 @@ import DateRangePicker from '@components/controls/DateRangePicker';
 import CountryPicker from '@components/controls/CountryPicker';
 import ControlContainer from '@components/controls/ControlContainer';
 import ColorSchemePicker from '@components/controls/ColorSchemePicker';
+import UserConfigResetButton from '@components/controls/UserConfigResetButton';
 
 const controlComponentData = [
+    {
+        title: 'Reset To Defaults',
+        description: 'You can reset your configurations to the default values.',
+        ControlComponent: <UserConfigResetButton />
+    },
     {
         title: 'Date Range Picker',
         description:

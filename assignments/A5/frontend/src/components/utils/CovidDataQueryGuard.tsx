@@ -31,10 +31,12 @@ function CovidDataQueryGuard<T>({ data, isLoading, children }: CovidDataQueryGua
 }
 
 function CustomLoadingElement() {
-    return <div className='flex flex-col justify-center items-center'>
-        <p className='my-4'>Fetching the most recent COVID Data...</p>
-        <CircularProgress />
-    </div>
+    return (
+        <div className="flex flex-col justify-center items-center">
+            <p className="my-4">Fetching the most recent COVID Data...</p>
+            <CircularProgress />
+        </div>
+    );
 }
 
 function CustomErrorElement() {

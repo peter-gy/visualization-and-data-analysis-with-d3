@@ -14,7 +14,8 @@ type Action =
     | { type: 'ADD_TO_SELECTED_COUNTRIES'; data: GeoLocation }
     | { type: 'REMOVE_FROM_SELECTED_COUNTRIES'; data: GeoLocation }
     | { type: 'SET_SELECTED_TIME_RANGE'; data: TimeRange }
-    | { type: 'SET_COLOR_SCHEME'; data: ColorScheme };
+    | { type: 'SET_COLOR_SCHEME'; data: ColorScheme }
+    | { type: 'RESET_TO_DEFAULTS' };
 
 /**
  * Dispatch callback signature
@@ -84,6 +85,10 @@ function userConfigReducer(state: State, action: Action): State {
                 ...state,
                 colorScheme: action.data
             };
+        case 'RESET_TO_DEFAULTS':
+            return {
+                ...defaultState
+            };
     }
 }
 
@@ -91,13 +96,15 @@ type UserConfigProviderProps = {
     children: ReactNode;
 };
 
+const defaultState = {
+    selectedCountry: initialCountryList[0],
+    selectedCountries: initialCountryList,
+    selectedTimeRange: initialTimeRange,
+    colorScheme: colorSchemes[0]
+};
+
 function UserConfigProvider({ children }: UserConfigProviderProps): JSX.Element {
-    const [state, dispatch] = useReducer(userConfigReducer, {
-        selectedCountry: initialCountryList[0],
-        selectedCountries: initialCountryList,
-        selectedTimeRange: initialTimeRange,
-        colorScheme: colorSchemes[0]
-    });
+    const [state, dispatch] = useReducer(userConfigReducer, defaultState);
     return (
         <UserConfigContext.Provider value={{ state, dispatch }}>
             {children}

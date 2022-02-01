@@ -8,7 +8,11 @@ import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 import dayjs from 'dayjs';
 
 function App() {
-    const {state: {selectedTimeRange: {start: startDate, end: endDate}}}= useUserConfig();
+    const {
+        state: {
+            selectedTimeRange: { start: startDate, end: endDate }
+        }
+    } = useUserConfig();
     const formatDate = (date: Date) => dayjs(date).format('DD/MM/YYYY');
     return (
         <>
