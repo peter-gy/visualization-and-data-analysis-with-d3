@@ -52,11 +52,13 @@ function ChoroplethMapFragment({
     const mapWidth = width - 2 * margin;
     const mapHeight = height - 2 * margin;
 
-    useEffect(() => {
+    const cleanD3Elements = () => {
         // Make sure that the only SVG tag inside the root div is the map
         d3.select(`#${rootId}`).selectAll('*').remove();
         d3.select(`#${tooltipId}`).remove();
+    };
 
+    useEffect(() => {
         // tooltip
         d3.select('body')
             .append('div')
@@ -98,6 +100,9 @@ function ChoroplethMapFragment({
                 const featureProps = d.properties as WorldMapFeatureProps;
                 console.log(featureProps, 'mouseout');
             });
+
+        // Cleanup after unmount
+        return cleanD3Elements;
     }, [width, height, data, geoData]);
 
     return <div id={rootId} />;

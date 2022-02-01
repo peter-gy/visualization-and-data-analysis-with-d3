@@ -15,7 +15,11 @@ function CovidDataQueryGuard<T>({ data, isLoading, children }: CovidDataQueryGua
             isLoading={isLoading}
             errorMessage={data === undefined && !isLoading ? 'Error' : undefined}
             children={children}
-            LoadingElement={<CircularProgress />}
+            LoadingElement={
+                <div className="flex justify-center items-center h-screen">
+                    <CircularProgress />
+                </div>
+            }
             ErrorElement={<CustomErrorElement />}
         />
     );

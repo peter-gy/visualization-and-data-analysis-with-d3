@@ -11,8 +11,8 @@ import CovidDataQueryGuard from '@components/utils/CovidDataQueryGuard';
 
 function MainGrid() {
     const appBarHeight = useMuiAppBarHeight();
-    const matchesMdScreen = useMediaQuery('(min-width:768px)');
-    const gridItemVariant = matchesMdScreen ? 'half' : 'full';
+    const matchesLgScreen = useMediaQuery('(min-width:1024px)');
+    const gridItemVariant = matchesLgScreen ? 'half' : 'full';
 
     // All grid items have the same size, hence we track only the first one
     const trackedItemRef = useRef<HTMLDivElement>(null);
@@ -49,7 +49,7 @@ function MainGrid() {
                 marginTop: appBarHeight,
                 height: 'calc(100vh - ' + appBarHeight + 'px)'
             }}
-            className="bg-amber-100 flex flex-col justify-start items-center overflow-scroll snap-y snap-mandatory md:justify-center"
+            className="bg-amber-100 flex flex-col justify-start items-center overflow-scroll snap-y snap-mandatory lg:justify-center"
         >
             <CovidDataQueryGuard<typeof data>
                 data={data}
@@ -58,11 +58,10 @@ function MainGrid() {
                     const covidData = d as CovidDataItem[];
                     return (
                         <>
-                            <div className="flex flex-col md:flex-row">
+                            <div className="flex flex-col lg:flex-row">
                                 <GridItem
                                     className="snap-center"
                                     title="Map"
-                                    variant={gridItemVariant}
                                     appBarHeight={appBarHeight}
                                     contentContainerRef={trackedItemRef}
                                     content={
@@ -76,7 +75,6 @@ function MainGrid() {
                                 <GridItem
                                     className="snap-center"
                                     title="Bars"
-                                    variant={gridItemVariant}
                                     appBarHeight={appBarHeight}
                                     content={
                                         <BarChart
@@ -86,11 +84,10 @@ function MainGrid() {
                                     }
                                 />
                             </div>
-                            <div className="flex flex-col md:flex-row">
+                            <div className="flex flex-col lg:flex-row">
                                 <GridItem
                                     className="snap-center"
                                     title="Lollipop"
-                                    variant={gridItemVariant}
                                     appBarHeight={appBarHeight}
                                     content={
                                         <LollipopChart
@@ -102,7 +99,6 @@ function MainGrid() {
                                 <GridItem
                                     className="snap-center"
                                     title="Heatmap"
-                                    variant={gridItemVariant}
                                     appBarHeight={appBarHeight}
                                     content={
                                         <HeatMap
@@ -124,7 +120,6 @@ type GridItemProps = {
     title: string;
     appBarHeight: number;
     content?: ReactNode;
-    variant?: 'full' | 'half';
     contentContainerRef?: RefObject<HTMLDivElement>;
     className?: string;
 };
@@ -133,7 +128,6 @@ function GridItem({
     title,
     appBarHeight,
     content = <div />,
-    variant = 'half',
     contentContainerRef,
     className = ''
 }: GridItemProps) {
@@ -141,17 +135,14 @@ function GridItem({
     return (
         <div
             style={{
-                height:
-                    variant === 'half'
-                        ? 'calc(50vh - ' + appBarHeight + 'px)'
-                        : 'calc(100vh - 1.5rem - ' + appBarHeight + 'px)'
+                height: 'calc(50vh - ' + appBarHeight / 1.25 + 'px)'
             }}
             className={
-                'm-2 bg-white rounded-lg shadow-lg p-2 w-[95vw] md:w-[47.5vw] flex flex-col justify-start items-center ' +
+                'm-2 bg-white rounded-lg shadow-lg hover:shadow-2xl p-2 w-[95vw] lg:w-[47.5vw] flex flex-col justify-start items-center ' +
                 className
             }
         >
-            <h1 className="text-2xl font-bold text-center">{title}</h1>
+            <h1 className="text-xl font-bold text-center">{title}</h1>
             <div
                 ref={contentContainerRef}
                 id={gridItemId}
