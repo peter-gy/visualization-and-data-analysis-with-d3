@@ -73,15 +73,14 @@ function dataForAllCountriesByTimeRangeFetchProps(timeRange: {
     start: Date;
     end: Date;
 }): FetchProps {
-    // Return rows where the ISO code consists of 3 characters only (SQLite LIKE syntax)
-    // There are aggregate rows with OWID_ prefix which we want to ignore
-    const isoCodeRegexParam = '___';
     const dateIsAfterParam = dateToString(timeRange.start);
     const dateIsBeforeParam = dateToString(timeRange.end);
     return {
         url: API_URL,
         params: {
-            iso_code_regex: `${isoCodeRegexParam}`,
+            // Return rows where the ISO code consists of 3 characters only (SQLite LIKE syntax)
+            // There are aggregate rows with OWID_ prefix which we want to ignore
+            iso_code_like: '___',
             date_isBefore: `${dateIsBeforeParam}`,
             date_isAfter: `${dateIsAfterParam}`,
             ...buildSelectionParams([

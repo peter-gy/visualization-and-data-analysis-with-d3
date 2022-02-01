@@ -37,7 +37,7 @@ export const colorSchemes: ColorScheme[] = [
             inactive: '#3e3e3e',
             unavailable: '#000000',
             background: '#494949',
-            stroke: '#942351'
+            stroke: '#ff0069'
         }
     },
     {

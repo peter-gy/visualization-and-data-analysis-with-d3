@@ -65,8 +65,11 @@ function useCovidDataOfSelectedCountries() {
     const {
         state: { covidDataItems }
     } = useFetchedCovidData();
-    return covidDataItems.filter(({ geo_location: { iso_code } }) =>
-        selectedCountries.find(({ iso_code: selectedIsoCode }) => selectedIsoCode === iso_code)
+    return covidDataItems.filter(
+        ({ geo_location: { iso_code } }) =>
+            selectedCountries.find(
+                ({ iso_code: selectedIsoCode }) => selectedIsoCode === iso_code
+            ) !== undefined
     );
 }
 

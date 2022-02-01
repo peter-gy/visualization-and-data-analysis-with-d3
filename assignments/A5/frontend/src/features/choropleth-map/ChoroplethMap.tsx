@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 import { CovidDataItem } from '@models/covid-data-item';
 import { FeatureCollection } from 'geojson';
@@ -76,7 +76,6 @@ type ChoroplethMapFragmentProps = {
     colorScheme: ColorScheme;
     getCountrySelection: (featureProps: WorldMapFeatureProps) => undefined | GeoLocation;
     rootId?: string;
-    tooltipId?: string;
     margin?: number;
     onClick?: (featureProps: WorldMapFeatureProps) => void;
 };
@@ -89,17 +88,23 @@ function ChoroplethMapFragment({
     colorScheme,
     getCountrySelection,
     rootId = 'choropleth-map',
-    tooltipId = 'choropleth-map-tooltip',
     margin = 7.5,
     onClick = (featureProps) => console.log(featureProps, 'clicked')
 }: ChoroplethMapFragmentProps) {
+    const [tooltipProps, setTooltipProps] = useState<ChoroplethMapTooltipProps>({
+        visible: false,
+        xPos: 0,
+        yPos: 0,
+        featureProps: {} as WorldMapFeatureProps,
+        covidDataItem: undefined
+    });
+
     const mapWidth = width - 2 * margin;
     const mapHeight = height - 2 * margin;
 
     const cleanD3Elements = () => {
         // Make sure that the only SVG tag inside the root div is the map
         d3.select(`#${rootId}`).selectAll('*').remove();
-        d3.select(`#${tooltipId}`).remove();
     };
 
     // Constructs a unique ID for each country path element in the map to allow selection later
@@ -107,10 +112,30 @@ function ChoroplethMapFragment({
         return `${rootId}-country-${isoCode}`.toLowerCase();
     };
 
-    // Returns the actual svg element by id
+    // Returns the actual svg path element by isoCode
     const countryPathElement = (isoCode: IsoCode) => {
         return d3.select(`#${countryPathId(isoCode)}`);
     };
+
+    function showTooltip(event: MouseEvent, featureProps: WorldMapFeatureProps) {
+        // Show tooltip
+        setTooltipProps({
+            visible: true,
+            xPos: event.pageX - 50,
+            yPos: event.pageY - 50,
+            featureProps: featureProps,
+            covidDataItem: data.find(
+                ({ geo_location: { iso_code } }) => iso_code === featureProps.adm0_a3
+            )
+        });
+    }
+
+    function hideTooltip() {
+        setTooltipProps({
+            ...tooltipProps,
+            visible: false
+        });
+    }
 
     function featureFillDefault(featureProps: WorldMapFeatureProps) {
         const countrySelection = getCountrySelection(featureProps);
@@ -121,30 +146,32 @@ function ChoroplethMapFragment({
         }
     }
 
-    function handleFeatureClick(featureProps: WorldMapFeatureProps) {
+    function handleFeatureClick(event: MouseEvent, featureProps: WorldMapFeatureProps) {
         onClick(featureProps);
+        showTooltip(event, featureProps);
     }
 
-    function handleFeatureMouseover(featureProps: WorldMapFeatureProps) {
+    function handleMouseMove(event: MouseEvent, featureProps: WorldMapFeatureProps) {
+        showTooltip(event, featureProps);
+    }
+
+    function handleFeatureMouseover(event: MouseEvent, featureProps: WorldMapFeatureProps) {
+        // Set fill
         countryPathElement(featureProps.adm0_a3)
             .transition()
             .style('fill', colorScheme.palette.hovered);
+        showTooltip(event, featureProps);
     }
 
-    function handleFeatureMouseout(featureProps: WorldMapFeatureProps) {
+    function handleFeatureMouseout(event: MouseEvent, featureProps: WorldMapFeatureProps) {
+        // Reset fill
         countryPathElement(featureProps.adm0_a3)
             .transition()
             .style('fill', featureFillDefault(featureProps));
+        hideTooltip();
     }
 
     useEffect(() => {
-        // tooltip
-        d3.select('body')
-            .append('div')
-            .attr('id', `${tooltipId}`)
-            .attr('style', 'position: absolute; opacity: 0;')
-            .attr('class', 'p-2 bg-primary rounded-md text-white text-xs');
-
         // Create the SVG element of the map
         const svg = d3
             .select(`#${rootId}`)
@@ -174,17 +201,22 @@ function ChoroplethMapFragment({
             })
             // The actual SVG path that makes up the map
             .attr('d', d3.geoPath(projection) as ValueFn<any, any, any>)
+            .attr('class', 'hover:cursor-pointer')
             .on('click', (event, d) => {
                 const featureProps = d.properties as WorldMapFeatureProps;
-                handleFeatureClick(featureProps);
+                handleFeatureClick(event, featureProps);
             })
             .on('mouseover', (event, d) => {
                 const featureProps = d.properties as WorldMapFeatureProps;
-                handleFeatureMouseover(featureProps);
+                handleFeatureMouseover(event, featureProps);
+            })
+            .on('mousemove', (event, d) => {
+                const featureProps = d.properties as WorldMapFeatureProps;
+                handleMouseMove(event, featureProps);
             })
             .on('mouseout', (event, d) => {
                 const featureProps = d.properties as WorldMapFeatureProps;
-                handleFeatureMouseout(featureProps);
+                handleFeatureMouseout(event, featureProps);
             });
 
         // Cleanup after unmount
@@ -192,11 +224,40 @@ function ChoroplethMapFragment({
     }, [width, height, data, geoData]);
 
     return (
+        <>
+            <div
+                id={rootId}
+                style={{ backgroundColor: colorScheme.palette.background }}
+                className="rounded-b-lg"
+            />
+            <ChoroplethMapTooltip {...tooltipProps} />
+        </>
+    );
+}
+
+type ChoroplethMapTooltipProps = {
+    visible: boolean;
+    xPos: number;
+    yPos: number;
+    featureProps: WorldMapFeatureProps;
+    covidDataItem?: CovidDataItem;
+};
+
+function ChoroplethMapTooltip({
+    visible,
+    xPos,
+    yPos,
+    featureProps,
+    covidDataItem
+}: ChoroplethMapTooltipProps) {
+    return (
         <div
-            id={rootId}
-            style={{ backgroundColor: colorScheme.palette.background }}
-            className="rounded-b-lg"
-        />
+            style={{ left: xPos, top: yPos, display: visible ? 'block' : 'none' }}
+            className="p-2 absolute rounded-md text-white text-xs bg-blue-500"
+        >
+            {covidDataItem && <p>{covidDataItem.geo_location.location}</p>}
+            {!covidDataItem && <p>{featureProps.continent}</p>}
+        </div>
     );
 }
 
