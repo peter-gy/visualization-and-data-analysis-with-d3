@@ -38,6 +38,22 @@ function useCovidData(countries: GeoLocation[], timeRange: { start: Date; end: D
 }
 
 /**
+ * Business logic to retrieve covid data for all countries in a specific time range.
+ * @param timeRange the time range to retrieve data for
+ */
+function useCovidDataForAllCountries(timeRange: { start: Date; end: Date }) {
+    const fetchProps = getCovidDataQueryFetchProps('ALL_DATA_BY_TIME_RANGE', {
+        timeRange
+    });
+    const { url, params } = fetchProps;
+    const { data, isLoading, hasError } = useFetch(url, params);
+    return {
+        data: isLoading || hasError ? undefined : (data as any[]).map(parseCovidDataItem),
+        isLoading
+    };
+}
+
+/**
  * Convenience hook to retrieve the data for all selected countries in the selected time range.
  *
  * Uses `useUserConfig` and `useFetchedCovidData` under the hood.
@@ -82,4 +98,4 @@ function parseCovidDataItem(data: any): CovidDataItem {
     };
 }
 
-export { useCovidData, useAllGeoLocations, useCovidDataOfSelectedCountries };
+export { useCovidDataForAllCountries, useAllGeoLocations, useCovidDataOfSelectedCountries };

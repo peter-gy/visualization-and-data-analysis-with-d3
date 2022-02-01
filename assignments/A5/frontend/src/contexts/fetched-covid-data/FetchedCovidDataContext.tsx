@@ -1,8 +1,7 @@
 import { createContext, ReactNode, useContext, useEffect, useReducer } from 'react';
 import { CovidDataItem } from '@models/covid-data-item';
 import { State as UserConfigState, useUserConfig } from '@contexts/user-config/UserConfigContext';
-import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
-import { useCovidData } from '@hooks/ocd-query-hooks';
+import { useCovidDataForAllCountries } from '@hooks/ocd-query-hooks';
 import CovidDataQueryGuard from '@components/utils/CovidDataQueryGuard';
 
 /**
@@ -58,12 +57,8 @@ function FetchedCovidDataProvider({ children }: FetchedCovidDataProviderProps): 
     const [state, dispatch] = useReducer(fetchedCovidDataReducer, {
         covidDataItems: []
     });
-    const {
-        state: { countryList }
-    } = useOCDQueryConfig();
     const { state: userConfigState } = useUserConfig();
-
-    const { data, isLoading } = useCovidData(countryList, userConfigState.selectedTimeRange);
+    const { data, isLoading } = useCovidDataForAllCountries(userConfigState.selectedTimeRange);
 
     // Init provider data from remote source
     useEffect(() => {

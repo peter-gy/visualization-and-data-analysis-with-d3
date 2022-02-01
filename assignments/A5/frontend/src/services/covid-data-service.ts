@@ -1,7 +1,10 @@
 import { GeoLocation } from '@models/geo-location';
 import { dateToString } from '@utils/date-utils';
 
-type CovidDataQuery = 'ALL_GEO_LOCATION' | 'DATA_BY_COUNTRIES_AND_TIME_RANGE';
+type CovidDataQuery =
+    | 'ALL_GEO_LOCATION'
+    | 'DATA_BY_COUNTRIES_AND_TIME_RANGE'
+    | 'ALL_DATA_BY_TIME_RANGE';
 
 // data can be queried by pinging the /owid_covid_data endpoint
 const API_URL = `${import.meta.env.VITE_OCD_API_HOST}/owid_covid_data`;
@@ -66,16 +69,60 @@ function dataByCountriesAndTimeRangeFetchProps(
     };
 }
 
+function dataForAllCountriesByTimeRangeFetchProps(timeRange: {
+    start: Date;
+    end: Date;
+}): FetchProps {
+    // Return rows where the ISO code consists of 3 characters only (SQLite LIKE syntax)
+    // There are aggregate rows with OWID_ prefix which we want to ignore
+    const isoCodeRegexParam = '___';
+    const dateIsAfterParam = dateToString(timeRange.start);
+    const dateIsBeforeParam = dateToString(timeRange.end);
+    return {
+        url: API_URL,
+        params: {
+            iso_code_regex: `${isoCodeRegexParam}`,
+            date_isBefore: `${dateIsBeforeParam}`,
+            date_isAfter: `${dateIsAfterParam}`,
+            ...buildSelectionParams([
+                'iso_code',
+                'continent',
+                'location',
+                'date',
+                'total_cases',
+                'new_cases',
+                'positive_rate',
+                'people_vaccinated',
+                'population',
+                'median_age',
+                'gdp_per_capita',
+                'extreme_poverty',
+                'cardiovasc_death_rate',
+                'diabetes_prevalence',
+                'female_smokers',
+                'male_smokers',
+                'handwashing_facilities'
+            ])
+        }
+    };
+}
+
 export function getCovidDataQueryFetchProps(query: CovidDataQuery, params: any = null): FetchProps {
     switch (query) {
         case 'ALL_GEO_LOCATION':
             return geoLocationDataFetchProps;
         case 'DATA_BY_COUNTRIES_AND_TIME_RANGE':
-            const typedParams = params as {
+            const dataByCountriesAndTimeRangeParams = params as {
                 countries: GeoLocation[];
                 timeRange: { start: Date; end: Date };
             };
-            const { countries, timeRange } = typedParams;
+            const { countries, timeRange } = dataByCountriesAndTimeRangeParams;
             return dataByCountriesAndTimeRangeFetchProps(countries, timeRange);
+        case 'ALL_DATA_BY_TIME_RANGE':
+            const allDataByTimeRangeParams = params as {
+                timeRange: { start: Date; end: Date };
+            };
+            const { timeRange: allDataByTimeRangeTimeRange } = allDataByTimeRangeParams;
+            return dataForAllCountriesByTimeRangeFetchProps(allDataByTimeRangeTimeRange);
     }
 }
