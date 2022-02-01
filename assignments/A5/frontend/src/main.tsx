@@ -6,13 +6,16 @@ import { OCDQueryConfigProvider } from '@contexts/ocd-query-config/OCDQueryConfi
 import { UserConfigProvider } from '@contexts/user-config/UserConfigContext';
 import AdapterDayjs from '@mui/lab/AdapterDayjs';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { FetchedCovidDataProvider } from '@contexts/fetched-covid-data/FetchedCovidDataContext';
 
 ReactDOM.render(
     <React.StrictMode>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <OCDQueryConfigProvider>
                 <UserConfigProvider>
-                    <App />
+                    <FetchedCovidDataProvider>
+                        <App />
+                    </FetchedCovidDataProvider>
                 </UserConfigProvider>
             </OCDQueryConfigProvider>
         </LocalizationProvider>

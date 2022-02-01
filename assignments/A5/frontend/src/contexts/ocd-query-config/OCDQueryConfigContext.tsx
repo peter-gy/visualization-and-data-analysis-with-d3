@@ -2,6 +2,7 @@ import { useReducer, createContext, useContext, ReactNode, useEffect } from 'rea
 import { GeoLocation } from '@models/geo-location';
 import { useAllGeoLocations } from '@hooks/ocd-query-hooks';
 import { initialCountryList, initialTimeRange } from '@data/initial-data';
+import CovidDataQueryGuard from '@components/utils/CovidDataQueryGuard';
 
 type TimeRange = { start: Date; end: Date };
 
@@ -58,15 +59,20 @@ function OCDQueryConfigProvider({ children }: CovidDataProviderProps): JSX.Eleme
     });
     const { data, isLoading } = useAllGeoLocations();
 
-    // Init provider data from remote source to
+    // Init provider data from remote source to set the list of supported countries dynamically
     useEffect(() => {
         if (!isLoading && data !== undefined) {
             dispatch({ type: 'SET_COUNTRY_LIST', data });
         }
     }, [isLoading]);
+
     return (
         <OCDQueryConfigContext.Provider value={{ state, dispatch }}>
-            {children}
+            <CovidDataQueryGuard<typeof data>
+                data={data}
+                isLoading={isLoading}
+                children={children}
+            />
         </OCDQueryConfigContext.Provider>
     );
 }

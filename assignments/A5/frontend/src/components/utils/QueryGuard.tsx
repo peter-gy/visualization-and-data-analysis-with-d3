@@ -1,8 +1,10 @@
+import { ReactNode } from 'react';
+
 type QueryGuardProps<T> = {
     data: T;
     isLoading: boolean;
     errorMessage?: string;
-    children: ((data: T) => JSX.Element) | JSX.Element;
+    children: ((data: T) => JSX.Element) | JSX.Element | ReactNode;
     LoadingElement: JSX.Element;
     ErrorElement: ((errorMessage: string) => JSX.Element) | JSX.Element;
 };

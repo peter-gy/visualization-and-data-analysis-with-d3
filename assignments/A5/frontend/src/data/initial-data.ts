@@ -43,10 +43,10 @@ const initialCountryList: GeoLocation[] = [
     }
 ];
 
-const datasetStartDate = new Date(2020, 1);
+const startDate = new Date(2021, 0);
 const now = new Date();
 const initialTimeRange = {
-    start: datasetStartDate,
+    start: startDate,
     end: new Date(now.getFullYear(), now.getMonth() + 1)
 };
 

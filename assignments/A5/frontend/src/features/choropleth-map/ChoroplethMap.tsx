@@ -36,7 +36,7 @@ function ChoroplethMap({ width, height, covidData }: ChoroplethMapProps) {
             );
             // If the country is not in the pool, then shown an alert
             if (countryToSelect === undefined) {
-                alert(`No data is available for ${featureProps.name}`);
+                alert(`No data is available for ${JSON.stringify(featureProps)}`);
             } else {
                 dispatch({
                     type: 'ADD_TO_SELECTED_COUNTRIES',

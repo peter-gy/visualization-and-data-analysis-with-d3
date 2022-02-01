@@ -4,6 +4,7 @@ import { GeoLocation } from '@models/geo-location';
 import { CovidDataItem } from '@models/covid-data-item';
 import { dateFromString } from '@utils/date-utils';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
+import { useFetchedCovidData } from '@contexts/fetched-covid-data/FetchedCovidDataContext';
 
 /**
  * Business logic to retrieve location data for all the countries available in the data set.
@@ -38,26 +39,19 @@ function useCovidData(countries: GeoLocation[], timeRange: { start: Date; end: D
 
 /**
  * Convenience hook to retrieve the data for all selected countries in the selected time range.
+ *
+ * Uses `useUserConfig` and `useFetchedCovidData` under the hood.
  */
 function useCovidDataOfSelectedCountries() {
     const {
-        state: { selectedCountries, selectedTimeRange }
+        state: { selectedCountries }
     } = useUserConfig();
-    return useCovidData(selectedCountries, selectedTimeRange);
-}
-
-/**
- * Convenience hook to retrieve the data for the selected focus country in the selected time range.
- */
-function useCovidDataOfSelectedCountry() {
     const {
-        state: { selectedCountry, selectedTimeRange }
-    } = useUserConfig();
-    const { data, isLoading } = useCovidData([selectedCountry], selectedTimeRange);
-    return {
-        data: isLoading ? undefined : data,
-        isLoading
-    };
+        state: { covidDataItems }
+    } = useFetchedCovidData();
+    return covidDataItems.filter(({ geo_location: { iso_code } }) =>
+        selectedCountries.find(({ iso_code: selectedIsoCode }) => selectedIsoCode === iso_code)
+    );
 }
 
 function parseGeoLocation(data: any): GeoLocation {
@@ -88,4 +82,4 @@ function parseCovidDataItem(data: any): CovidDataItem {
     };
 }
 
-export { useAllGeoLocations, useCovidDataOfSelectedCountries, useCovidDataOfSelectedCountry };
+export { useCovidData, useAllGeoLocations, useCovidDataOfSelectedCountries };

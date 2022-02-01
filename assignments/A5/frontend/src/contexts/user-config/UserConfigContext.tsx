@@ -24,7 +24,7 @@ type Dispatch = (action: Action) => void;
 /**
  * State model signature to be mutated from the UI
  */
-type State = {
+export type State = {
     /**
      * Selection for charts which display data about multiple countries
      */
