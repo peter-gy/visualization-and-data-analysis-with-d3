@@ -126,11 +126,15 @@ function ChoroplethMapFragment({
     }
 
     function handleFeatureMouseover(featureProps: WorldMapFeatureProps) {
-        countryPathElement(featureProps.adm0_a3).style('fill', colorScheme.palette.hovered);
+        countryPathElement(featureProps.adm0_a3)
+            .transition()
+            .style('fill', colorScheme.palette.hovered);
     }
 
     function handleFeatureMouseout(featureProps: WorldMapFeatureProps) {
-        countryPathElement(featureProps.adm0_a3).style('fill', featureFillDefault(featureProps));
+        countryPathElement(featureProps.adm0_a3)
+            .transition()
+            .style('fill', featureFillDefault(featureProps));
     }
 
     useEffect(() => {

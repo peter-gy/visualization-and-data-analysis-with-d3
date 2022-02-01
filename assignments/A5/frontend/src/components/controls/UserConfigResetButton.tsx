@@ -5,7 +5,7 @@ import UndoIcon from '@mui/icons-material/UndoOutlined';
 function UserConfigResetButton() {
     const { dispatch } = useUserConfig();
     return (
-        <Button onClick={() => dispatch({ type: 'RESET_TO_DEFAULTS' })} variant='outlined'>
+        <Button onClick={() => dispatch({ type: 'RESET_TO_DEFAULTS' })} variant="outlined">
             Reset <UndoIcon />
         </Button>
     );
