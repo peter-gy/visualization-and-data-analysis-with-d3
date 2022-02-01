@@ -138,11 +138,11 @@ function GridItem({
                 height: 'calc(50vh - ' + appBarHeight / 1.25 + 'px)'
             }}
             className={
-                'm-2 bg-white rounded-lg shadow-lg hover:shadow-2xl p-2 w-[95vw] lg:w-[47.5vw] flex flex-col justify-start items-center ' +
+                'm-2 bg-white rounded-lg shadow-lg hover:shadow-2xl w-[95vw] lg:w-[47.5vw] flex flex-col justify-start items-center ' +
                 className
             }
         >
-            <h1 className="text-xl font-bold text-center">{title}</h1>
+            <h1 className="text-xl font-bold text-center my-2">{title}</h1>
             <div
                 ref={contentContainerRef}
                 id={gridItemId}

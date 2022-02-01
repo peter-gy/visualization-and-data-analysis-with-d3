@@ -15,7 +15,7 @@ function ColorSchemePicker() {
                         className={`w-[35px] h-[35px] sm:w-[55px] sm:h-[55px] mx-4 rounded-full border-2 border-black cursor-pointer ${
                             scheme.name === colorScheme.name ? 'border-dashed' : ''
                         }`}
-                        style={{ backgroundColor: scheme.palette.colorScale[5] }}
+                        style={{ backgroundColor: scheme.palette.scale[5] }}
                         onClick={() => dispatch({ type: 'SET_COLOR_SCHEME', data: scheme })}
                     />
                 </Tooltip>
