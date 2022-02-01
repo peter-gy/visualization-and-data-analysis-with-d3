@@ -1,7 +1,12 @@
+import * as d3 from 'd3';
+import { useEffect } from 'react';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 import { useCovidDataOfSelectedCountries } from '@hooks/ocd-query-hooks';
 import CovidDataQueryGuard from '@components/utils/CovidDataQueryGuard';
 import { CovidDataItem } from '@models/covid-data-item';
+import { FeatureCollection } from 'geojson';
+import worldGeoMap, { WorldMapFeatureProps } from '@data/world-geo-map';
+import { ValueFn } from 'd3';
 
 type ChoroplethMapProps = {
     width: number;
@@ -11,12 +16,21 @@ type ChoroplethMapProps = {
 function ChoroplethMap({ width, height }: ChoroplethMapProps) {
     const { dispatch } = useUserConfig();
     const { data, isLoading } = useCovidDataOfSelectedCountries();
+
+    function handleFeatureClick(featureProps: WorldMapFeatureProps) {}
+
     return (
         <CovidDataQueryGuard<typeof data>
             data={data}
             isLoading={isLoading}
             children={(d) => (
-                <ChoroplethMapFragment width={width} height={height} data={d as CovidDataItem[]} />
+                <ChoroplethMapFragment
+                    width={width}
+                    height={height}
+                    data={d as CovidDataItem[]}
+                    geoData={worldGeoMap}
+                    onClick={handleFeatureClick}
+                />
             )}
         />
     );
@@ -26,10 +40,75 @@ type ChoroplethMapFragmentProps = {
     width: number;
     height: number;
     data: CovidDataItem[];
+    geoData: FeatureCollection;
+    rootId?: string;
+    tooltipId?: string;
+    margin?: number;
+    onClick?: (featureProps: WorldMapFeatureProps) => void;
 };
 
-function ChoroplethMapFragment({ width, height, data }: ChoroplethMapFragmentProps) {
-    return <p>{JSON.stringify(data[0].geo_location, null, 1)}</p>
+function ChoroplethMapFragment({
+    width,
+    height,
+    data,
+    geoData,
+    rootId = 'choropleth-map',
+    tooltipId = 'choropleth-map-tooltip',
+    margin = 7.5,
+    onClick = (featureProps) => console.log(featureProps, 'clicked')
+}: ChoroplethMapFragmentProps) {
+    const mapWidth = width - 2 * margin;
+    const mapHeight = height - 2 * margin;
+
+    useEffect(() => {
+        // Make sure that the only SVG tag inside the root div is the map
+        d3.select(`#${rootId}`).selectAll('*').remove();
+        d3.select(`#${tooltipId}`).remove();
+
+        // tooltip
+        d3.select('body')
+            .append('div')
+            .attr('id', `${tooltipId}`)
+            .attr('style', 'position: absolute; opacity: 0;')
+            .attr('class', 'p-2 bg-primary rounded-md text-white text-xs');
+
+        // Create the SVG element of the map
+        const svg = d3
+            .select(`#${rootId}`)
+            .append('svg')
+            .attr('width', `${width}px`)
+            .attr('height', `${height}px`)
+            .append('g')
+            .attr('transform', `translate(${margin}, ${margin})`);
+
+        // Create the map projection
+        const projection = d3.geoNaturalEarth1().fitSize([mapWidth, mapHeight], geoData);
+
+        // Create the map from the geoData features
+        svg.selectAll('path')
+            .data(geoData.features)
+            .enter()
+            .append('path')
+            .attr('stroke', '#5d5d5d')
+            // The actual SVG path that makes up the map
+            .attr('d', d3.geoPath(projection) as ValueFn<any, any, any>)
+            // Handle click
+            .on('click', (event, d) => {
+                const featureProps = d.properties as WorldMapFeatureProps;
+                onClick(featureProps);
+            })
+            // Handle tooltips
+            .on('mouseover', (event, d) => {
+                const featureProps = d.properties as WorldMapFeatureProps;
+                console.log(featureProps, 'mouseover');
+            })
+            .on('mouseout', (event, d) => {
+                const featureProps = d.properties as WorldMapFeatureProps;
+                console.log(featureProps, 'mouseout');
+            });
+    }, [width, height, data, geoData]);
+
+    return <div id={rootId} />;
 }
 
 export default ChoroplethMap;
