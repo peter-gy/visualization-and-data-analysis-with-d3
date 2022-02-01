@@ -47,7 +47,7 @@ const startDate = new Date(2021, 0);
 const now = new Date();
 const initialTimeRange = {
     start: startDate,
-    end: new Date(now.getFullYear(), now.getMonth() + 1)
+    end: new Date(now.getFullYear(), now.getMonth())
 };
 
 export { initialCountryList, initialTimeRange };

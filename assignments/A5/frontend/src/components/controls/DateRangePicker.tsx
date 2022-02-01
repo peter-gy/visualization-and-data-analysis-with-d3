@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { initialTimeRange } from '@data/initial-data';
 import { DatePicker } from '@mui/lab';
-import { TextField } from '@mui/material';
+import { Button, TextField } from '@mui/material';
 import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
 import * as dayjs from 'dayjs';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
@@ -15,6 +15,8 @@ type _DateRangePickerProps = {
     onSelectionChange?: (dateRange: DateRange) => void;
 };
 
+const inputFormat = 'DD/MM/YYYY';
+
 function _DateRangePicker({
     initialDateRange,
     queryBoundaryDateRange,
@@ -22,6 +24,11 @@ function _DateRangePicker({
 }: _DateRangePickerProps) {
     // State to be mutated by the DatePicker
     const [dateRange, setDateRange] = useState(initialDateRange);
+
+    useEffect(() => {
+        // Update the DatePicker with the initial date range
+        setDateRange(initialDateRange);
+    }, [initialDateRange]);
 
     // Use DayJS to pass values to the MUI DatePicker
     const [minDate, maxDate] = [
@@ -33,7 +40,7 @@ function _DateRangePicker({
         return (
             dateRange.start.isValid() &&
             dateRange.end.isValid() &&
-            dateRange.start.isBefore(dateRange.end)
+            dateRange.start.isBefore(dateRange.end.add(1, 'day'))
         );
     }
 
@@ -41,47 +48,61 @@ function _DateRangePicker({
     function updateDateRange(dateRange: DateRange) {
         if (dateRangeIsValid(dateRange)) {
             setDateRange(dateRange);
+        }
+    }
+
+    function handleSubmitDateRange() {
+        if (dateRangeIsValid(dateRange)) {
             onSelectionChange(dateRange);
         }
     }
 
     return (
-        <div className="flex flex-row justify-around items-center">
-            <div className="mr-1">
-                <DatePicker
-                    label="Start Date"
-                    minDate={minDate}
-                    maxDate={dateRange.end}
-                    value={dateRange.start}
-                    openTo="year"
-                    onChange={(newValue) => {
-                        if (newValue) {
-                            updateDateRange({
-                                ...dateRange,
-                                start: newValue
-                            });
-                        }
-                    }}
-                    renderInput={(params) => <TextField {...params} />}
-                />
+        <div className="flex flex-col justify-start items-start">
+            <div className="flex flex-row justify-around items-center">
+                <div className="mr-1">
+                    <DatePicker
+                        inputFormat={inputFormat}
+                        label={`Start Date (${inputFormat})`}
+                        minDate={minDate}
+                        maxDate={dateRange.end}
+                        value={dateRange.start}
+                        openTo="year"
+                        onChange={(newValue) => {
+                            if (newValue) {
+                                updateDateRange({
+                                    ...dateRange,
+                                    start: newValue
+                                });
+                            }
+                        }}
+                        renderInput={(params) => <TextField {...params} />}
+                    />
+                </div>
+                <div className="ml-1">
+                    <DatePicker
+                        inputFormat={inputFormat}
+                        label={`End Date (${inputFormat})`}
+                        minDate={dateRange.start}
+                        maxDate={maxDate}
+                        value={dateRange.end}
+                        openTo="year"
+                        onChange={(newValue) => {
+                            if (newValue) {
+                                updateDateRange({
+                                    ...dateRange,
+                                    end: newValue
+                                });
+                            }
+                        }}
+                        renderInput={(params) => <TextField {...params} />}
+                    />
+                </div>
             </div>
-            <div className="ml-1">
-                <DatePicker
-                    label="End Date"
-                    minDate={dateRange.start}
-                    maxDate={maxDate}
-                    value={dateRange.end}
-                    openTo="year"
-                    onChange={(newValue) => {
-                        if (newValue) {
-                            updateDateRange({
-                                ...dateRange,
-                                end: newValue
-                            });
-                        }
-                    }}
-                    renderInput={(params) => <TextField {...params} />}
-                />
+            <div className="mt-2">
+                <Button variant="outlined" onClick={handleSubmitDateRange}>
+                    Submit
+                </Button>
             </div>
         </div>
     );
