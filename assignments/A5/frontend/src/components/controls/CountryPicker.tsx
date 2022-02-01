@@ -40,7 +40,7 @@ type _CountryPickerProps = {
     onSelectionChanged?: (countries: GeoLocation[]) => void;
 };
 
-function _CountryPicker({
+function CountryPickerFragment({
     countryPool,
     initialSelectedCountries = [],
     onSelectionChanged = (_) => {}
@@ -163,7 +163,7 @@ function CountryPicker() {
     }
 
     return (
-        <_CountryPicker
+        <CountryPickerFragment
             countryPool={countryPool}
             initialSelectedCountries={selectedCountries}
             onSelectionChanged={onSelectionChanged}

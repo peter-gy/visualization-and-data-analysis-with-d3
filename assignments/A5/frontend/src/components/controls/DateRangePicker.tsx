@@ -17,7 +17,7 @@ type _DateRangePickerProps = {
 
 const inputFormat = 'DD/MM/YYYY';
 
-function _DateRangePicker({
+function DateRangePickerFragment({
     initialDateRange,
     queryBoundaryDateRange,
     onSelectionChange = (_) => {}
@@ -127,7 +127,7 @@ function DateRangePicker() {
         });
     }
     return (
-        <_DateRangePicker
+        <DateRangePickerFragment
             initialDateRange={initialDateRange}
             queryBoundaryDateRange={queryBoundaryDateRange}
             onSelectionChange={handleSelectionChanged}
