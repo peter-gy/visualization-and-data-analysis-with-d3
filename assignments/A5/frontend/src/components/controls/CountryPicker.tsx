@@ -7,7 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Chip from '@mui/material/Chip';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GeoLocation } from '@models/geo-location';
 import { iso31661Alpha3To2 } from '@data/country-iso-codes';
 import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
@@ -46,8 +46,11 @@ function _CountryPicker({
     onSelectionChanged = (_) => {}
 }: _CountryPickerProps) {
     const theme = useTheme();
-    const [selectedCountries, setSelectedCountries] =
-        useState<GeoLocation[]>(initialSelectedCountries);
+    const [selectedCountries, setSelectedCountries] = useState<GeoLocation[]>([]);
+
+    useEffect(() => {
+        setSelectedCountries(initialSelectedCountries);
+    }, [initialSelectedCountries]);
 
     function handleSelection(event: SelectChangeEvent<typeof selectedCountries>) {
         const {
