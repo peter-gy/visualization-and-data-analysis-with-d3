@@ -5,6 +5,9 @@ import { CovidDataItem } from '@models/covid-data-item';
 import { dateFromString } from '@utils/date-utils';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 
+/**
+ * Business logic to retrieve location data for all the countries available in the data set.
+ */
 function useAllGeoLocations() {
     const fetchProps = getCovidDataQueryFetchProps('ALL_GEO_LOCATION');
     const { url, params } = fetchProps;
@@ -15,6 +18,11 @@ function useAllGeoLocations() {
     };
 }
 
+/**
+ * Business logic to retrieve covid data for specific countries in a specific time range.
+ * @param countries the countries to retrieve data for
+ * @param timeRange the time range to retrieve data for
+ */
 function useCovidData(countries: GeoLocation[], timeRange: { start: Date; end: Date }) {
     const fetchProps = getCovidDataQueryFetchProps('DATA_BY_COUNTRIES_AND_TIME_RANGE', {
         countries,
@@ -28,6 +36,9 @@ function useCovidData(countries: GeoLocation[], timeRange: { start: Date; end: D
     };
 }
 
+/**
+ * Convenience hook to retrieve the data for all selected countries in the selected time range.
+ */
 function useCovidDataOfSelectedCountries() {
     const {
         state: { selectedCountries, selectedTimeRange }
@@ -35,6 +46,9 @@ function useCovidDataOfSelectedCountries() {
     return useCovidData(selectedCountries, selectedTimeRange);
 }
 
+/**
+ * Convenience hook to retrieve the data for the selected focus country in the selected time range.
+ */
 function useCovidDataOfSelectedCountry() {
     const {
         state: { selectedCountry, selectedTimeRange }
