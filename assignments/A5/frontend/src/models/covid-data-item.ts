@@ -11,6 +11,7 @@ export type CovidDataItem = {
     new_cases: number;
     positive_rate: number;
     people_vaccinated: number;
+    people_vaccinated_per_hundred: number;
     population: number;
     median_age: number;
     gdp_per_capita: number;

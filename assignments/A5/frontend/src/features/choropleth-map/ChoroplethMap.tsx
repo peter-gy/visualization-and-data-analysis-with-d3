@@ -8,6 +8,8 @@ import { ValueFn } from 'd3';
 import { ColorScheme } from '@models/color-scheme';
 import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
 import { GeoLocation, IsoCode } from '@models/geo-location';
+import { bivariateColorGenerator } from '@services/color-gen-service';
+import { groupBy } from '@utils/collection-utils';
 
 type ChoroplethMapProps = {
     width: number;
@@ -55,11 +57,47 @@ function ChoroplethMap({ width, height, selectedCovidData }: ChoroplethMapProps)
         return selectedCountries.find(({ iso_code }) => iso_code === featureProps.adm0_a3);
     }
 
+    const dataByIsoCode = groupBy<CovidDataItem, IsoCode>(
+        selectedCovidData,
+        ({ geo_location: { iso_code } }) => iso_code
+    );
+
+    const meansByIsoCode = Object.keys(dataByIsoCode)
+        .map((key) => key as IsoCode)
+        .reduce((acc, key) => {
+            const cleanItems = dataByIsoCode[key].filter(
+                ({ positive_rate, people_vaccinated_per_hundred }) =>
+                    positive_rate !== null && people_vaccinated_per_hundred !== null
+            );
+            // No clean data found for the country
+            if (cleanItems.length === 0) {
+                return acc;
+            }
+            const xMean = d3.mean(cleanItems, ({ positive_rate }) => positive_rate) as number;
+            const yMean = d3.mean(
+                cleanItems,
+                ({ people_vaccinated_per_hundred }) => people_vaccinated_per_hundred
+            ) as number;
+            return { ...acc, [key]: { x: xMean, y: yMean } };
+        }, {} as Record<IsoCode, { x: number; y: number }>);
+
+    const bivariateData = Object.keys(meansByIsoCode)
+        .map((key) => key as IsoCode)
+        .reduce(
+            (acc, key) => {
+                const { x, y } = meansByIsoCode[key];
+                return { x: [...acc.x, x], y: [...acc.y, y] };
+            },
+            { x: [], y: [] } as { x: number[]; y: number[] }
+        );
+
     return (
         <ChoroplethMapFragment
             width={width}
             height={height}
             selectedCovidData={selectedCovidData}
+            meansByIsoCode={meansByIsoCode}
+            bivariateData={bivariateData}
             geoData={worldGeoMap}
             colorScheme={colorScheme}
             getCountrySelection={getCountrySelection}
@@ -72,6 +110,8 @@ type ChoroplethMapFragmentProps = {
     width: number;
     height: number;
     selectedCovidData: CovidDataItem[];
+    meansByIsoCode: Record<IsoCode, { x: number; y: number }>;
+    bivariateData: { x: number[]; y: number[] };
     geoData: FeatureCollection;
     colorScheme: ColorScheme;
     getCountrySelection: (featureProps: WorldMapFeatureProps) => undefined | GeoLocation;
@@ -84,6 +124,8 @@ function ChoroplethMapFragment({
     width,
     height,
     selectedCovidData,
+    meansByIsoCode,
+    bivariateData,
     geoData,
     colorScheme,
     getCountrySelection,
@@ -137,12 +179,17 @@ function ChoroplethMapFragment({
         });
     }
 
+    const { gen: colorGen } = bivariateColorGenerator(colorScheme, bivariateData);
+
     function featureFillDefault(featureProps: WorldMapFeatureProps) {
         const countrySelection = getCountrySelection(featureProps);
         if (countrySelection === undefined) {
             return colorScheme.palette.inactive;
+        } else if (meansByIsoCode[countrySelection.iso_code] !== undefined) {
+            const { x, y } = meansByIsoCode[countrySelection.iso_code];
+            return colorGen({ x, y });
         } else {
-            return colorScheme.palette.clicked;
+            return colorScheme.palette.unavailable;
         }
     }
 
