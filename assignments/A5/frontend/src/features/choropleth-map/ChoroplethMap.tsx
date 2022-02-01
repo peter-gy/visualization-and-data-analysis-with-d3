@@ -12,10 +12,10 @@ import { GeoLocation, IsoCode } from '@models/geo-location';
 type ChoroplethMapProps = {
     width: number;
     height: number;
-    covidData: CovidDataItem[];
+    selectedCovidData: CovidDataItem[];
 };
 
-function ChoroplethMap({ width, height, covidData }: ChoroplethMapProps) {
+function ChoroplethMap({ width, height, selectedCovidData }: ChoroplethMapProps) {
     const {
         state: { countryList }
     } = useOCDQueryConfig();
@@ -59,7 +59,7 @@ function ChoroplethMap({ width, height, covidData }: ChoroplethMapProps) {
         <ChoroplethMapFragment
             width={width}
             height={height}
-            data={covidData}
+            selectedCovidData={selectedCovidData}
             geoData={worldGeoMap}
             colorScheme={colorScheme}
             getCountrySelection={getCountrySelection}
@@ -71,7 +71,7 @@ function ChoroplethMap({ width, height, covidData }: ChoroplethMapProps) {
 type ChoroplethMapFragmentProps = {
     width: number;
     height: number;
-    data: CovidDataItem[];
+    selectedCovidData: CovidDataItem[];
     geoData: FeatureCollection;
     colorScheme: ColorScheme;
     getCountrySelection: (featureProps: WorldMapFeatureProps) => undefined | GeoLocation;
@@ -83,7 +83,7 @@ type ChoroplethMapFragmentProps = {
 function ChoroplethMapFragment({
     width,
     height,
-    data,
+    selectedCovidData,
     geoData,
     colorScheme,
     getCountrySelection,
@@ -124,7 +124,7 @@ function ChoroplethMapFragment({
             xPos: event.pageX - 50,
             yPos: event.pageY - 50,
             featureProps: featureProps,
-            covidDataItem: data.find(
+            covidDataItem: selectedCovidData.find(
                 ({ geo_location: { iso_code } }) => iso_code === featureProps.adm0_a3
             )
         });
@@ -221,7 +221,7 @@ function ChoroplethMapFragment({
 
         // Cleanup after unmount
         return cleanD3Elements;
-    }, [width, height, data, geoData]);
+    }, [width, height, selectedCovidData, geoData]);
 
     return (
         <>
@@ -255,7 +255,7 @@ function ChoroplethMapTooltip({
             style={{ left: xPos, top: yPos, display: visible ? 'block' : 'none' }}
             className="p-2 absolute rounded-md text-white text-xs bg-blue-500"
         >
-            {covidDataItem && <p>{covidDataItem.geo_location.location}</p>}
+            {covidDataItem && <p>--- {covidDataItem.geo_location.location} ---</p>}
             {!covidDataItem && <p>{featureProps.continent}</p>}
         </div>
     );

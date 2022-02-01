@@ -1,18 +1,13 @@
 import useMuiAppBarHeight from '@hooks/useMuiAppBarHeight';
-import { useMediaQuery } from '@mui/material';
 import { ReactNode, RefObject, useEffect, useRef, useState } from 'react';
 import ChoroplethMap from '@features/choropleth-map/ChoroplethMap';
 import BarChart from '@features/bar-chart/BarChart';
 import LollipopChart from '@features/lollipop-chart/LollipopChart';
 import HeatMap from '@features/heatmap/HeatMap';
 import { useCovidDataOfSelectedCountries } from '@hooks/ocd-query-hooks';
-import { CovidDataItem } from '@models/covid-data-item';
-import CovidDataQueryGuard from '@components/utils/CovidDataQueryGuard';
 
 function MainGrid() {
     const appBarHeight = useMuiAppBarHeight();
-    const matchesLgScreen = useMediaQuery('(min-width:1024px)');
-    const gridItemVariant = matchesLgScreen ? 'half' : 'full';
 
     // All grid items have the same size, hence we track only the first one
     const trackedItemRef = useRef<HTMLDivElement>(null);
@@ -30,7 +25,7 @@ function MainGrid() {
     }
 
     // Access the fetched data
-    const covidData = useCovidDataOfSelectedCountries();
+    const selectedCovidData = useCovidDataOfSelectedCountries();
 
     // Initialize grid item content size
     useEffect(() => {
@@ -61,7 +56,7 @@ function MainGrid() {
                         <ChoroplethMap
                             width={gridItemContentSize.width}
                             height={gridItemContentSize.height}
-                            covidData={covidData}
+                            selectedCovidData={selectedCovidData}
                         />
                     }
                 />
