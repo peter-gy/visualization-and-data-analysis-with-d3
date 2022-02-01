@@ -1,9 +1,9 @@
-import LeftDrawerLayout from '@components/layout/LeftDrawerLayout';
+import LeftDrawerLayout from '@components/layout/drawer/LeftDrawerLayout';
 import { Helmet } from 'react-helmet';
 import DateRangePicker from '@components/controls/DateRangePicker';
 import CountryPicker from '@components/controls/CountryPicker';
-import MainGrid from '@components/layout/MainGrid';
-import DrawerContent from '@components/layout/DrawerContent';
+import MainGrid from '@components/layout/grid/MainGrid';
+import DrawerContent from '@components/layout/drawer/DrawerContent';
 
 function App() {
     return (
