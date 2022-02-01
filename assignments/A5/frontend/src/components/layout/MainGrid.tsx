@@ -1,6 +1,10 @@
 import useMuiAppBarHeight from '@hooks/useMuiAppBarHeight';
 import { useMediaQuery } from '@mui/material';
 import { ReactNode, RefObject, useEffect, useRef, useState } from 'react';
+import ChoroplethMap from '@features/choropleth-map/ChoroplethMap';
+import BarChart from '@features/bar-chart/BarChart';
+import LollipopChart from '@features/lollipop-chart/LollipopChart';
+import HeatMap from '@features/heatmap/HeatMap';
 
 function MainGrid() {
     const appBarHeight = useMuiAppBarHeight();
@@ -47,13 +51,23 @@ function MainGrid() {
                     variant={gridItemVariant}
                     appBarHeight={appBarHeight}
                     contentContainerRef={trackedItemRef}
-                    content={<p>{JSON.stringify(gridItemContentSize)}</p>}
+                    content={
+                        <ChoroplethMap
+                            width={gridItemContentSize.width}
+                            height={gridItemContentSize.height}
+                        />
+                    }
                 />
                 <GridItem
                     title="Bars"
                     variant={gridItemVariant}
                     appBarHeight={appBarHeight}
-                    content={<p>{JSON.stringify(gridItemContentSize)}</p>}
+                    content={
+                        <BarChart
+                            width={gridItemContentSize.width}
+                            height={gridItemContentSize.height}
+                        />
+                    }
                 />
             </div>
             <div className="flex flex-col md:flex-row">
@@ -61,13 +75,23 @@ function MainGrid() {
                     title="Lollipop"
                     variant={gridItemVariant}
                     appBarHeight={appBarHeight}
-                    content={<p>{JSON.stringify(gridItemContentSize)}</p>}
+                    content={
+                        <LollipopChart
+                            width={gridItemContentSize.width}
+                            height={gridItemContentSize.height}
+                        />
+                    }
                 />
                 <GridItem
                     title="Heatmap"
                     variant={gridItemVariant}
                     appBarHeight={appBarHeight}
-                    content={<p>{JSON.stringify(gridItemContentSize)}</p>}
+                    content={
+                        <HeatMap
+                            width={gridItemContentSize.width}
+                            height={gridItemContentSize.height}
+                        />
+                    }
                 />
             </div>
         </div>
