@@ -1,6 +1,7 @@
 import { GeoLocation } from '@models/geo-location';
 import { createContext, ReactNode, useContext, useReducer } from 'react';
 import { initialCountryList, initialTimeRange } from '@data/initial-data';
+import { ColorScheme, colorSchemes } from '@models/color-scheme';
 
 type TimeRange = { start: Date; end: Date };
 
@@ -12,7 +13,8 @@ type Action =
     | { type: 'SET_SELECTED_COUNTRIES'; data: GeoLocation[] }
     | { type: 'ADD_TO_SELECTED_COUNTRIES'; data: GeoLocation }
     | { type: 'REMOVE_FROM_SELECTED_COUNTRIES'; data: GeoLocation }
-    | { type: 'SET_SELECTED_TIME_RANGE'; data: TimeRange };
+    | { type: 'SET_SELECTED_TIME_RANGE'; data: TimeRange }
+    | { type: 'SET_COLOR_SCHEME'; data: ColorScheme };
 
 /**
  * Dispatch callback signature
@@ -35,6 +37,10 @@ type State = {
      * Time range for the data to be displayed
      */
     selectedTimeRange: TimeRange;
+    /**
+     * Color scheme to be used for the charts
+     */
+    colorScheme: ColorScheme;
 };
 
 type UserConfigContextType = {
@@ -73,6 +79,11 @@ function userConfigReducer(state: State, action: Action): State {
                 ...state,
                 selectedTimeRange: action.data
             };
+        case 'SET_COLOR_SCHEME':
+            return {
+                ...state,
+                colorScheme: action.data
+            };
     }
 }
 
@@ -84,7 +95,8 @@ function UserConfigProvider({ children }: UserConfigProviderProps): JSX.Element 
     const [state, dispatch] = useReducer(userConfigReducer, {
         selectedCountry: initialCountryList[0],
         selectedCountries: initialCountryList,
-        selectedTimeRange: initialTimeRange
+        selectedTimeRange: initialTimeRange,
+        colorScheme: colorSchemes[0]
     });
     return (
         <UserConfigContext.Provider value={{ state, dispatch }}>

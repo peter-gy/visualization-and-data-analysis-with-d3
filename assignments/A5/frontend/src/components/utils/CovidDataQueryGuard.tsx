@@ -20,7 +20,11 @@ function CovidDataQueryGuard<T>({ data, isLoading, children }: CovidDataQueryGua
                     <CircularProgress />
                 </div>
             }
-            ErrorElement={<CustomErrorElement />}
+            ErrorElement={
+                <div className="flex justify-center items-center h-screen">
+                    <CustomErrorElement />
+                </div>
+            }
         />
     );
 }

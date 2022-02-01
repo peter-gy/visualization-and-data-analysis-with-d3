@@ -94,11 +94,9 @@ function ChoroplethMapFragment({
             // Handle tooltips
             .on('mouseover', (event, d) => {
                 const featureProps = d.properties as WorldMapFeatureProps;
-                console.log(featureProps, 'mouseover');
             })
             .on('mouseout', (event, d) => {
                 const featureProps = d.properties as WorldMapFeatureProps;
-                console.log(featureProps, 'mouseout');
             });
 
         // Cleanup after unmount
