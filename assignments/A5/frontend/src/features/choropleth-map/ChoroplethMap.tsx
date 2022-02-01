@@ -1,8 +1,6 @@
 import * as d3 from 'd3';
 import { useEffect } from 'react';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
-import { useCovidDataOfSelectedCountries } from '@hooks/ocd-query-hooks';
-import CovidDataQueryGuard from '@components/utils/CovidDataQueryGuard';
 import { CovidDataItem } from '@models/covid-data-item';
 import { FeatureCollection } from 'geojson';
 import worldGeoMap, { WorldMapFeatureProps } from '@data/world-geo-map';
@@ -11,27 +9,21 @@ import { ValueFn } from 'd3';
 type ChoroplethMapProps = {
     width: number;
     height: number;
+    covidData: CovidDataItem[];
 };
 
-function ChoroplethMap({ width, height }: ChoroplethMapProps) {
+function ChoroplethMap({ width, height, covidData }: ChoroplethMapProps) {
     const { dispatch } = useUserConfig();
-    const { data, isLoading } = useCovidDataOfSelectedCountries();
 
     function handleFeatureClick(featureProps: WorldMapFeatureProps) {}
 
     return (
-        <CovidDataQueryGuard<typeof data>
-            data={data}
-            isLoading={isLoading}
-            children={(d) => (
-                <ChoroplethMapFragment
-                    width={width}
-                    height={height}
-                    data={d as CovidDataItem[]}
-                    geoData={worldGeoMap}
-                    onClick={handleFeatureClick}
-                />
-            )}
+        <ChoroplethMapFragment
+            width={width}
+            height={height}
+            data={covidData}
+            geoData={worldGeoMap}
+            onClick={handleFeatureClick}
         />
     );
 }

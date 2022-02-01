@@ -5,6 +5,9 @@ import ChoroplethMap from '@features/choropleth-map/ChoroplethMap';
 import BarChart from '@features/bar-chart/BarChart';
 import LollipopChart from '@features/lollipop-chart/LollipopChart';
 import HeatMap from '@features/heatmap/HeatMap';
+import { useCovidDataOfSelectedCountries } from '@hooks/ocd-query-hooks';
+import { CovidDataItem } from '@models/covid-data-item';
+import CovidDataQueryGuard from '@components/utils/CovidDataQueryGuard';
 
 function MainGrid() {
     const appBarHeight = useMuiAppBarHeight();
@@ -26,10 +29,13 @@ function MainGrid() {
         }
     }
 
+    // Handle data fetching
+    const { data, isLoading } = useCovidDataOfSelectedCountries();
+
     // Initialize grid item content size
     useEffect(() => {
         updateGridItemContentSize();
-    }, [trackedItemRef.current]);
+    }, [trackedItemRef.current, isLoading]);
 
     // Update grid item content size on window resize
     useEffect(() => {
@@ -45,59 +51,71 @@ function MainGrid() {
             }}
             className="bg-amber-100 flex flex-col justify-start items-center overflow-scroll snap-y snap-mandatory md:justify-center"
         >
-            <div className="flex flex-col md:flex-row">
-                <GridItem
-                    className="snap-center"
-                    title="Map"
-                    variant={gridItemVariant}
-                    appBarHeight={appBarHeight}
-                    contentContainerRef={trackedItemRef}
-                    content={
-                        <ChoroplethMap
-                            width={gridItemContentSize.width}
-                            height={gridItemContentSize.height}
-                        />
-                    }
-                />
-                <GridItem
-                    className="snap-center"
-                    title="Bars"
-                    variant={gridItemVariant}
-                    appBarHeight={appBarHeight}
-                    content={
-                        <BarChart
-                            width={gridItemContentSize.width}
-                            height={gridItemContentSize.height}
-                        />
-                    }
-                />
-            </div>
-            <div className="flex flex-col md:flex-row">
-                <GridItem
-                    className="snap-center"
-                    title="Lollipop"
-                    variant={gridItemVariant}
-                    appBarHeight={appBarHeight}
-                    content={
-                        <LollipopChart
-                            width={gridItemContentSize.width}
-                            height={gridItemContentSize.height}
-                        />
-                    }
-                />
-                <GridItem
-                    className="snap-center"
-                    title="Heatmap"
-                    variant={gridItemVariant}
-                    appBarHeight={appBarHeight}
-                    content={
-                        <HeatMap
-                            width={gridItemContentSize.width}
-                            height={gridItemContentSize.height}
-                        />
-                    }
-                />
-            </div>
+            <CovidDataQueryGuard<typeof data>
+                data={data}
+                isLoading={isLoading}
+                children={(d) => {
+                    const covidData = d as CovidDataItem[];
+                    return (
+                        <>
+                            <div className="flex flex-col md:flex-row">
+                                <GridItem
+                                    className="snap-center"
+                                    title="Map"
+                                    variant={gridItemVariant}
+                                    appBarHeight={appBarHeight}
+                                    contentContainerRef={trackedItemRef}
+                                    content={
+                                        <ChoroplethMap
+                                            width={gridItemContentSize.width}
+                                            height={gridItemContentSize.height}
+                                            covidData={covidData}
+                                        />
+                                    }
+                                />
+                                <GridItem
+                                    className="snap-center"
+                                    title="Bars"
+                                    variant={gridItemVariant}
+                                    appBarHeight={appBarHeight}
+                                    content={
+                                        <BarChart
+                                            width={gridItemContentSize.width}
+                                            height={gridItemContentSize.height}
+                                        />
+                                    }
+                                />
+                            </div>
+                            <div className="flex flex-col md:flex-row">
+                                <GridItem
+                                    className="snap-center"
+                                    title="Lollipop"
+                                    variant={gridItemVariant}
+                                    appBarHeight={appBarHeight}
+                                    content={
+                                        <LollipopChart
+                                            width={gridItemContentSize.width}
+                                            height={gridItemContentSize.height}
+                                        />
+                                    }
+                                />
+                                <GridItem
+                                    className="snap-center"
+                                    title="Heatmap"
+                                    variant={gridItemVariant}
+                                    appBarHeight={appBarHeight}
+                                    content={
+                                        <HeatMap
+                                            width={gridItemContentSize.width}
+                                            height={gridItemContentSize.height}
+                                        />
+                                    }
+                                />
+                            </div>
+                        </>
+                    );
+                }}
+            />
         </div>
     );
 }
