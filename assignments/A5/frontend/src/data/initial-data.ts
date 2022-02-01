@@ -43,6 +43,11 @@ const initialCountryList: GeoLocation[] = [
     }
 ];
 
-const initialTimeRange = { start: new Date(2020, 2), end: new Date() };
+const datasetStartDate = new Date(2020, 1);
+const now = new Date();
+const initialTimeRange = {
+    start: datasetStartDate,
+    end: new Date(now.getFullYear(), now.getMonth() + 1)
+};
 
 export { initialCountryList, initialTimeRange };
