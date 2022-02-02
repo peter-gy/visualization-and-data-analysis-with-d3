@@ -113,7 +113,12 @@ function MainGrid() {
             <div className="flex flex-col lg:flex-row">
                 <GridItem
                     className="snap-center"
-                    title="Lollipop"
+                    title="Risk Factor vs. Infection Rate"
+                    description={
+                        <>
+                            <p>Do It</p>
+                        </>
+                    }
                     appBarHeight={appBarHeight}
                     content={
                         <LollipopChart

@@ -246,6 +246,55 @@ function LollipopChartFragment({
             .on('mousemove', (e, d) => handleMouseMove(e, d))
             .on('mouseout', (e, d) => handleMouseOut(e, d));
 
+        // Legend
+        const tileSize = 0.035*chartWidth;
+        svg.selectAll('legend-tile')
+            .data([...colorScheme.palette.scale.keys()])
+            .join('rect')
+            .attr('x', (d) => chartWidth)
+            .attr('y', (d) => d*tileSize)
+            .attr('width', tileSize)
+            .attr('height', tileSize)
+            .attr('fill', (d) => colorScheme.palette.scale[colorScheme.palette.scale.length - 1 - d])
+            .attr('stroke-width', 0.25)
+            .attr('stroke', colorScheme.palette.stroke);
+
+        // Arrow
+        const arrowMarkerId = `${rootId}-legend-arrow-marker`;
+        svg.append('defs')
+            .append('marker')
+            .attr('id', arrowMarkerId)
+            .attr('orient', 'auto')
+            .attr('viewBox', '-10 -5 10 10')
+            .attr('refX', '0')
+            .attr('refY', '0')
+            .attr('markerWidth', '6')
+            .attr('markerHeight', '6')
+            .attr('xoverflow', 'visible')
+            .append('path')
+            .attr('d', 'M0,-5L10,0L0,5')
+            .attr('fill', colorScheme.palette.stroke)
+            .attr('transform', 'rotate(180)')
+
+        svg.append('line')
+            .attr('x1', chartWidth)
+            .attr('y1', -tileSize / 3)
+            .attr('x2', chartWidth)
+            .attr('y2', colorScheme.palette.scale.length * tileSize)
+            .attr('stroke', colorScheme.palette.stroke)
+            .attr('stroke-width', 1.5)
+            .attr('marker-start', `url(#${arrowMarkerId})`);
+
+        svg.append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('x', -0.25*tileSize)
+            .attr('y', chartWidth - 0.25*tileSize)
+            .style('text-anchor', 'end')
+            .style('fill', colorScheme.palette.stroke)
+            .style('font-weight', 'bold')
+            .style('font-size', '0.8em')
+            .text('Infection Rate')
+
         return cleanD3Elements;
     }, [width, height]);
 
