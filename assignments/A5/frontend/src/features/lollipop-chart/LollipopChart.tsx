@@ -174,6 +174,7 @@ function LollipopChartFragment({
     }
 
     useEffect(() => {
+        if (chartWidth < 0 || chartHeight < 0) return;
         // Create the base SVG
         const svg = d3
             .select(`#${rootId}`)

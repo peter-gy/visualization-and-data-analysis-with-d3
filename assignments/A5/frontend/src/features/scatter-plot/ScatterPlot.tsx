@@ -225,6 +225,7 @@ function BarChartFragment({
     }
 
     useEffect(() => {
+        if (plotWidth < 0 || plotHeight < 0) return;
         // Create the SVG element of the map
         const svg = d3
             .select(`#${rootId}`)
