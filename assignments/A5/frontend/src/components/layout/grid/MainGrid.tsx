@@ -119,6 +119,7 @@ function MainGrid() {
                         <LollipopChart
                             width={gridItemContentSize.width}
                             height={gridItemContentSize.height}
+                            selectedCovidData={selectedCovidData}
                         />
                     }
                 />

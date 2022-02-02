@@ -24,4 +24,19 @@ function bivariateColorGenerator(colorScheme: ColorScheme, values: { x: number[]
     };
 }
 
-export { bivariateColorGenerator };
+function univariateColorGenerator(colorScheme: ColorScheme, values: number[]) {
+    const colors = colorScheme.palette.scale;
+    const n = colors.length;
+    const scale = d3
+        .scaleQuantile()
+        .domain([d3.min(values), d3.max(values)])
+        .range(d3.range(n));
+    return {
+        gen: (value: number) => {
+            return colors[scale(value)];
+        },
+        scale
+    };
+}
+
+export { univariateColorGenerator, bivariateColorGenerator };
