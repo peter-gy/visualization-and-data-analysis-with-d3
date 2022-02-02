@@ -68,7 +68,14 @@ function LollipopChart({ width, height, selectedCovidData }: LollipopChartProps)
         <LollipopChartFragment
             width={width}
             height={height}
-            colorScheme={colorScheme}
+            // flatten palette
+            colorScheme={{
+                ...colorScheme,
+                palette: {
+                    ...colorScheme.palette,
+                    scale: [0, 3, 6, 7, 4, 1, 2, 5, 8].map((i) => colorScheme.palette.scale[i])
+                }
+            }}
             lollipopData={lollipopData}
             selectedRiskFactor={selectedRiskFactor}
         />
@@ -247,15 +254,18 @@ function LollipopChartFragment({
             .on('mouseout', (e, d) => handleMouseOut(e, d));
 
         // Legend
-        const tileSize = 0.035*chartWidth;
+        const tileSize = 0.035 * chartWidth;
         svg.selectAll('legend-tile')
             .data([...colorScheme.palette.scale.keys()])
             .join('rect')
             .attr('x', (d) => chartWidth)
-            .attr('y', (d) => d*tileSize)
+            .attr('y', (d) => d * tileSize)
             .attr('width', tileSize)
             .attr('height', tileSize)
-            .attr('fill', (d) => colorScheme.palette.scale[colorScheme.palette.scale.length - 1 - d])
+            .attr(
+                'fill',
+                (d) => colorScheme.palette.scale[colorScheme.palette.scale.length - 1 - d]
+            )
             .attr('stroke-width', 0.25)
             .attr('stroke', colorScheme.palette.stroke);
 
@@ -274,7 +284,7 @@ function LollipopChartFragment({
             .append('path')
             .attr('d', 'M0,-5L10,0L0,5')
             .attr('fill', colorScheme.palette.stroke)
-            .attr('transform', 'rotate(180)')
+            .attr('transform', 'rotate(180)');
 
         svg.append('line')
             .attr('x1', chartWidth)
@@ -287,13 +297,13 @@ function LollipopChartFragment({
 
         svg.append('text')
             .attr('transform', 'rotate(-90)')
-            .attr('x', -0.25*tileSize)
-            .attr('y', chartWidth - 0.25*tileSize)
+            .attr('x', -0.25 * tileSize)
+            .attr('y', chartWidth - 0.25 * tileSize)
             .style('text-anchor', 'end')
             .style('fill', colorScheme.palette.stroke)
             .style('font-weight', 'bold')
             .style('font-size', '0.8em')
-            .text('Infection Rate')
+            .text('Infection Rate');
 
         return cleanD3Elements;
     }, [width, height]);
