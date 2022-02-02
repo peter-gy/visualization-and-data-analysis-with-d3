@@ -2,7 +2,8 @@ import BarChart from '@features/bar-chart/BarChart';
 import ChoroplethMap from '@features/choropleth-map/ChoroplethMap';
 import HeatMap from '@features/heatmap/HeatMap';
 import LollipopChart from '@features/lollipop-chart/LollipopChart';
-import { ReactNode, RefObject, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import GridItem from '@components/layout/grid/GridItem';
 import { useCovidDataOfSelectedCountries } from '@hooks/ocd-query-hooks';
 import useMuiAppBarHeight from '@hooks/useMuiAppBarHeight';
 
@@ -49,7 +50,16 @@ function MainGrid() {
             <div className="flex flex-col lg:flex-row">
                 <GridItem
                     className="snap-center"
-                    title="Map"
+                    title="Vaccination Rate vs. Infection Rate"
+                    description={
+                        <>
+                            <p>This map shows the distribution of confirmed cases in the world.</p>
+                            <p>
+                                The color of the countries is based on the number of confirmed
+                                cases.
+                            </p>
+                        </>
+                    }
                     appBarHeight={appBarHeight}
                     contentContainerRef={trackedItemRef}
                     content={
@@ -95,44 +105,6 @@ function MainGrid() {
                         />
                     }
                 />
-            </div>
-        </div>
-    );
-}
-
-type GridItemProps = {
-    title: string;
-    appBarHeight: number;
-    content?: ReactNode;
-    contentContainerRef?: RefObject<HTMLDivElement>;
-    className?: string;
-};
-
-function GridItem({
-    title,
-    appBarHeight,
-    content = <div />,
-    contentContainerRef,
-    className = ''
-}: GridItemProps) {
-    const gridItemId = `grid-item-${title}`.toLowerCase();
-    return (
-        <div
-            style={{
-                height: 'calc(50vh - ' + appBarHeight / 1.25 + 'px)'
-            }}
-            className={
-                'm-2 bg-white rounded-lg shadow-lg hover:shadow-2xl w-[95vw] lg:w-[47.5vw] flex flex-col justify-start items-center ' +
-                className
-            }
-        >
-            <h1 className="text-xl font-bold text-center my-2">{title}</h1>
-            <div
-                ref={contentContainerRef}
-                id={gridItemId}
-                className="grow flex justify-center items-center w-[100%]"
-            >
-                {content}
             </div>
         </div>
     );
