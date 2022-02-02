@@ -2,6 +2,7 @@ import ColorSchemePicker from '@components/controls/ColorSchemePicker';
 import ControlContainer from '@components/controls/ControlContainer';
 import CountryPicker from '@components/controls/CountryPicker';
 import DateRangePicker from '@components/controls/DateRangePicker';
+import RiskFactorPicker from '@components/controls/RiskFactorPicker';
 import UserConfigResetButton from '@components/controls/UserConfigResetButton';
 
 const controlComponentData = [
@@ -22,7 +23,13 @@ const controlComponentData = [
         ControlComponent: <CountryPicker />
     },
     {
-        title: 'Color Scheme Picker',
+        title: 'Risk Factor Selector',
+        description:
+            'You can select a risk factor of your choice to be displayed on the lollipop chart.',
+        ControlComponent: <RiskFactorPicker />
+    },
+    {
+        title: 'Color Scheme Selector',
         description: 'You can select a color scheme of your choice.',
         ControlComponent: <ColorSchemePicker />
     }

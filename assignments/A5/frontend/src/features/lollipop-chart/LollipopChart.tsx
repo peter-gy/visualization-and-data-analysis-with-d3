@@ -3,14 +3,11 @@ import { CovidDataItem, RiskFactor } from '@models/covid-data-item';
 import { GeoLocation, IsoCode } from '@models/geo-location';
 import { univariateColorGenerator } from '@services/color-gen-service';
 import { groupBy } from '@utils/collection-utils';
+import { snakeCaseToCapitalCase } from '@utils/string-utils';
 import * as d3 from 'd3';
 import { useEffect, useMemo, useState } from 'react';
-import { useFetchedCovidData } from '@contexts/fetched-covid-data/FetchedCovidDataContext';
 import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
-
-// max number of lollipops
-const maxCountryCount = 12;
 
 type LollipopDataPoint = { country: GeoLocation; positive_rate: number; risk_factor_value: number };
 
@@ -101,22 +98,19 @@ function LollipopChartFragment({
         visible: false,
         xPos: 0,
         yPos: 0,
-        lollipopDataPoint: lollipopData[0]
+        lollipopDataPoint: undefined
     });
 
     const chartWidth = width - 6 * margin;
     const chartHeight = height - 3 * margin;
 
     const rootElement = () => d3.select(`#${rootId}`);
-    const plotGroupId = `${rootId}-plot-group`;
     const xAxisGroupId = `${rootId}-x-axis-group`;
     const yAxisGroupId = `${rootId}-y-axis-group`;
     const lollipopGroupId = `${rootId}-lollipop-group`;
     const gXElement = () => rootElement().select(`#${xAxisGroupId}`);
     const gYElement = () => rootElement().select(`#${yAxisGroupId}`);
     const lollipopLineId = (isoCode: IsoCode) => `${lollipopGroupId}-line-${isoCode}`.toLowerCase();
-    const lollipopLineElement = (isoCode: IsoCode) =>
-        rootElement().select(`#${lollipopLineId(isoCode)}`);
     const lollipopCircleId = (isoCode: IsoCode) =>
         `${lollipopGroupId}-circle-${isoCode}`.toLowerCase();
     const lollipopCircleElement = (isoCode: IsoCode) =>
@@ -221,7 +215,7 @@ function LollipopChartFragment({
             .style('text-anchor', 'end')
             .style('fill', colorScheme.palette.stroke)
             .style('font-weight', 'bold')
-            .text(selectedRiskFactor);
+            .text(snakeCaseToCapitalCase(selectedRiskFactor));
 
         // Lines
         svg.selectAll('lollipop-line')
@@ -271,7 +265,7 @@ type LollipopChartTooltipProps = {
     visible: boolean;
     xPos: number;
     yPos: number;
-    lollipopDataPoint: LollipopDataPoint;
+    lollipopDataPoint?: LollipopDataPoint;
 };
 
 function LollipopChartTooltip({
@@ -285,7 +279,7 @@ function LollipopChartTooltip({
             style={{ left: xPos, top: yPos, display: visible ? 'block' : 'none' }}
             className="p-2 absolute rounded-md text-white text-xs bg-blue-500"
         >
-            <p>{lollipopDataPoint.country.location}</p>
+            <p>{lollipopDataPoint && lollipopDataPoint.country.location}</p>
         </div>
     );
 }
