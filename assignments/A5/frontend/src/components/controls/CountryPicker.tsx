@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 import { iso31661Alpha3To2 } from '@data/country-iso-codes';
+import ClearIcon from '@mui/icons-material/Clear';
+import FlagIcon from '@mui/icons-material/Flag';
+import { Button } from '@mui/material';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import FormControl from '@mui/material/FormControl';
@@ -34,17 +37,21 @@ function getStyles(isSelected: boolean, theme: Theme) {
     };
 }
 
-type _CountryPickerProps = {
+type CountryPickerFragmentProps = {
     countryPool: GeoLocation[];
     initialSelectedCountries?: GeoLocation[];
     onSelectionChanged?: (countries: GeoLocation[]) => void;
+    onSelectAll?: () => void;
+    onClear?: () => void;
 };
 
 function CountryPickerFragment({
     countryPool,
     initialSelectedCountries = [],
-    onSelectionChanged = (_) => {}
-}: _CountryPickerProps) {
+    onSelectionChanged = (_) => {},
+    onSelectAll = () => {},
+    onClear = () => {}
+}: CountryPickerFragmentProps) {
     const theme = useTheme();
     const [selectedCountries, setSelectedCountries] = useState<GeoLocation[]>([]);
 
@@ -85,62 +92,76 @@ function CountryPickerFragment({
     }
 
     return (
-        <FormControl sx={{ m: 1, width: 300 }}>
-            <InputLabel id="country-picker-label">{INPUT_LABEL}</InputLabel>
-            <Select
-                labelId="country-picker-label"
-                multiple
-                value={selectedCountries}
-                onChange={handleSelection}
-                input={<OutlinedInput label={INPUT_LABEL} />}
-                renderValue={(selected) => (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {selected.map((value) => (
-                            <Chip
-                                key={value.iso_code}
-                                label={
-                                    <div>
-                                        <span className="mr-1">{value.location}</span>
-                                        <CountryFlag
-                                            isoAlpha2={iso31661Alpha3To2(value.iso_code)}
-                                        />
-                                    </div>
-                                }
-                                {
-                                    /* Empty delete action to show the (x) button */ ...{}
-                                }
-                                onDelete={() => {}}
-                                {
-                                    /* Empty delete action to show the (x) button */ ...{}
-                                }
-                                onMouseDown={() => handleDelete(value)}
-                            />
-                        ))}
-                    </Box>
-                )}
-                MenuProps={MenuProps}
-            >
-                {countryPool.map((country) => {
-                    const isoAlpha2 = iso31661Alpha3To2(country.iso_code);
-                    const isSelected =
-                        selectedCountries.find((c) => c.iso_code === country.iso_code) !==
-                        undefined;
-                    return (
-                        // @ts-ignore
-                        <MenuItem
-                            key={country.iso_code}
-                            value={country}
-                            style={getStyles(isSelected, theme)}
-                        >
-                            <div>
-                                <span className="mr-1">{country.location}</span>
-                                <CountryFlag isoAlpha2={isoAlpha2} />
-                            </div>
-                        </MenuItem>
-                    );
-                })}
-            </Select>
-        </FormControl>
+        <div className="flex flex-col">
+            <div className="mb-2 flex justify-start items-center">
+                <div className="mx-1">
+                    <Button variant="outlined" onClick={onSelectAll}>
+                        Select All <FlagIcon />
+                    </Button>
+                </div>
+                <div className="mx-1">
+                    <Button variant="outlined" onClick={onClear}>
+                        Clear <ClearIcon />
+                    </Button>
+                </div>
+            </div>
+            <FormControl sx={{ m: 1, width: 300 }}>
+                <InputLabel id="country-picker-label">{INPUT_LABEL}</InputLabel>
+                <Select
+                    labelId="country-picker-label"
+                    multiple
+                    value={selectedCountries}
+                    onChange={handleSelection}
+                    input={<OutlinedInput label={INPUT_LABEL} />}
+                    renderValue={(selected) => (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                            {selected.map((value) => (
+                                <Chip
+                                    key={value.iso_code}
+                                    label={
+                                        <div>
+                                            <span className="mr-1">{value.location}</span>
+                                            <CountryFlag
+                                                isoAlpha2={iso31661Alpha3To2(value.iso_code)}
+                                            />
+                                        </div>
+                                    }
+                                    {
+                                        /* Empty delete action to show the (x) button */ ...{}
+                                    }
+                                    onDelete={() => {}}
+                                    {
+                                        /* Empty delete action to show the (x) button */ ...{}
+                                    }
+                                    onMouseDown={() => handleDelete(value)}
+                                />
+                            ))}
+                        </Box>
+                    )}
+                    MenuProps={MenuProps}
+                >
+                    {countryPool.map((country) => {
+                        const isoAlpha2 = iso31661Alpha3To2(country.iso_code);
+                        const isSelected =
+                            selectedCountries.find((c) => c.iso_code === country.iso_code) !==
+                            undefined;
+                        return (
+                            // @ts-ignore
+                            <MenuItem
+                                key={country.iso_code}
+                                value={country}
+                                style={getStyles(isSelected, theme)}
+                            >
+                                <div>
+                                    <span className="mr-1">{country.location}</span>
+                                    <CountryFlag isoAlpha2={isoAlpha2} />
+                                </div>
+                            </MenuItem>
+                        );
+                    })}
+                </Select>
+            </FormControl>
+        </div>
     );
 }
 
@@ -162,11 +183,21 @@ function CountryPicker() {
         userConfigDispatch({ type: 'SET_SELECTED_COUNTRIES', data: countries });
     }
 
+    function onClear() {
+        userConfigDispatch({ type: 'SET_SELECTED_COUNTRIES', data: [] });
+    }
+
+    function onSelectAll() {
+        userConfigDispatch({ type: 'SET_SELECTED_COUNTRIES', data: countryPool });
+    }
+
     return (
         <CountryPickerFragment
             countryPool={countryPool}
             initialSelectedCountries={selectedCountries}
             onSelectionChanged={onSelectionChanged}
+            onSelectAll={onSelectAll}
+            onClear={onClear}
         />
     );
 }
