@@ -53,8 +53,12 @@ function ChoroplethMap({ width, height, selectedCovidData }: ChoroplethMapProps)
         }
     }
 
-    function getCountrySelection(featureProps: WorldMapFeatureProps) {
+    function selectedCountry(featureProps: WorldMapFeatureProps) {
         return selectedCountries.find(({ iso_code }) => iso_code === featureProps.adm0_a3);
+    }
+
+    function supportedCountry(featureProps: WorldMapFeatureProps) {
+        return countryList.find(({ iso_code }) => iso_code === featureProps.adm0_a3);
     }
 
     const dataByIsoCode = groupBy<CovidDataItem, IsoCode>(
@@ -100,7 +104,8 @@ function ChoroplethMap({ width, height, selectedCovidData }: ChoroplethMapProps)
             bivariateData={bivariateData}
             geoData={worldGeoMap}
             colorScheme={colorScheme}
-            getCountrySelection={getCountrySelection}
+            selectedCountry={selectedCountry}
+            supportedCountry={supportedCountry}
             onClick={handleFeatureClick}
         />
     );
@@ -114,11 +119,17 @@ type ChoroplethMapFragmentProps = {
     bivariateData: { x: number[]; y: number[] };
     geoData: FeatureCollection;
     colorScheme: ColorScheme;
-    getCountrySelection: (featureProps: WorldMapFeatureProps) => undefined | GeoLocation;
+    selectedCountry: (featureProps: WorldMapFeatureProps) => undefined | GeoLocation;
+    supportedCountry: (featureProps: WorldMapFeatureProps) => undefined | GeoLocation;
     rootId?: string;
     margin?: number;
     onClick?: (featureProps: WorldMapFeatureProps) => void;
 };
+
+/**
+ * Denotes the data status of a country
+ */
+type CountryStatus = 'notInDataSet' | 'notSelected' | 'selected' | 'dataUnavailable';
 
 function ChoroplethMapFragment({
     width,
@@ -128,7 +139,8 @@ function ChoroplethMapFragment({
     bivariateData,
     geoData,
     colorScheme,
-    getCountrySelection,
+    selectedCountry,
+    supportedCountry,
     rootId = 'choropleth-map',
     margin = 10,
     onClick = (featureProps) => console.log(featureProps, 'clicked')
@@ -138,8 +150,16 @@ function ChoroplethMapFragment({
         xPos: 0,
         yPos: 0,
         featureProps: {} as WorldMapFeatureProps,
-        covidDataItem: undefined
+        covidDataItem: undefined,
+        countryStatus: 'notInDataSet'
     });
+    // @ts-ignore
+    const countryStatusCache: Record<IsoCode, CountryStatus> = {};
+    const statusPalette = {
+        notInDataSet: colorScheme.palette.unavailable,
+        notSelected: colorScheme.palette.inactive,
+        dataUnavailable: colorScheme.palette.unavailable
+    };
 
     const mapWidth = width - 2 * margin;
     const mapHeight = height - 2 * margin;
@@ -159,6 +179,16 @@ function ChoroplethMapFragment({
         return d3.select(`#${countryPathId(isoCode)}`);
     };
 
+    // Constructs a unique ID for the legend
+    const legendId = () => {
+        return `${rootId}-legend`.toLowerCase();
+    };
+
+    // Returns the actual legend element
+    const legendElement = () => {
+        return d3.select(`#${legendId()}`);
+    };
+
     function showTooltip(event: MouseEvent, featureProps: WorldMapFeatureProps) {
         // Show tooltip
         setTooltipProps({
@@ -168,7 +198,8 @@ function ChoroplethMapFragment({
             featureProps: featureProps,
             covidDataItem: selectedCovidData.find(
                 ({ geo_location: { iso_code } }) => iso_code === featureProps.adm0_a3
-            )
+            ),
+            countryStatus: countryStatusCache[featureProps.adm0_a3]
         });
     }
 
@@ -181,16 +212,33 @@ function ChoroplethMapFragment({
 
     const { gen: colorGen } = bivariateColorGenerator(colorScheme, bivariateData);
 
-    function featureFillDefault(featureProps: WorldMapFeatureProps) {
-        const countrySelection = getCountrySelection(featureProps);
-        if (countrySelection === undefined) {
-            return colorScheme.palette.inactive;
-        } else if (meansByIsoCode[countrySelection.iso_code] !== undefined) {
-            const { x, y } = meansByIsoCode[countrySelection.iso_code];
-            return colorGen({ x, y });
-        } else {
-            return colorScheme.palette.unavailable;
+    function determineCountryStatus(featureProps: WorldMapFeatureProps): CountryStatus {
+        // The country is not supported by the data set
+        if (supportedCountry(featureProps) === undefined) {
+            return 'notInDataSet';
         }
+        const countrySelection = selectedCountry(featureProps);
+        // The country is supported, but not selected
+        if (countrySelection === undefined) {
+            return 'notSelected';
+        }
+        // The country is supported, selected & has data for this time range
+        if (meansByIsoCode[countrySelection.iso_code] !== undefined) {
+            return 'selected';
+        }
+        // The country is supported, but has no data for this time range
+        return 'dataUnavailable';
+    }
+
+    function featureFillDefault(featureProps: WorldMapFeatureProps) {
+        const status =
+            countryStatusCache[featureProps.adm0_a3] || determineCountryStatus(featureProps);
+        if (countryStatusCache[featureProps.adm0_a3] === undefined) {
+            countryStatusCache[featureProps.adm0_a3] = status;
+        }
+        return status === 'selected'
+            ? colorGen(meansByIsoCode[featureProps.adm0_a3])
+            : statusPalette[status];
     }
 
     function handleFeatureClick(event: MouseEvent, featureProps: WorldMapFeatureProps) {
@@ -256,7 +304,7 @@ function ChoroplethMapFragment({
         }
 
         svg.append('g')
-            .attr('id', 'legend')
+            .attr('id', legendId())
             .selectAll('rect')
             .data(grid)
             .enter()
@@ -269,9 +317,11 @@ function ChoroplethMapFragment({
             .attr('coord', ([i, j]) => `[${i};${j}]`)
             .attr('transform', `translate(${tileSize / 2}, ${mapHeight - totalH - tileSize / 2})`);
 
+        const arrowMarkerId = `${rootId}-legend-arrow-marker`;
+
         svg.append('defs')
             .append('marker')
-            .attr('id', 'arrow')
+            .attr('id', arrowMarkerId)
             .attr('orient', 'auto')
             .attr('viewBox', '0 -5 10 10')
             .attr('refX', '0')
@@ -283,17 +333,23 @@ function ChoroplethMapFragment({
             .attr('d', 'M0,-5L10,0L0,5')
             .attr('fill', colorScheme.palette.stroke);
 
+        // Element dimensions
+        const legendArrowShift = 0.025 * tileSize;
+        const legendArrowExtraLength = 0.25 * tileSize;
+        const legendSquareSize = 3 * tileSize;
+
         // Horizontal line
-        d3.select('#legend')
+        legendElement()
             .append('line')
-            .attr('x1', tileSize / 2 - 0.025 * tileSize)
-            .attr('y1', mapHeight - tileSize / 2 + 0.025 * tileSize)
-            .attr('x2', tileSize / 2 + 3 * tileSize + 0.25 * tileSize)
-            .attr('y2', mapHeight - totalH - tileSize / 2 + 3 * tileSize + 0.025 * tileSize)
+            .attr('x1', tileSize / 2 - legendArrowShift)
+            .attr('y1', mapHeight - tileSize / 2 + legendArrowShift)
+            .attr('x2', tileSize / 2 + legendSquareSize + legendArrowExtraLength)
+            .attr('y2', mapHeight - totalH - tileSize / 2 + legendSquareSize + legendArrowShift)
             .attr('stroke', colorScheme.palette.stroke)
             .attr('stroke-width', 1.5)
-            .attr('marker-end', 'url(#arrow)');
-        d3.select('#legend')
+            .attr('marker-end', `url(#${arrowMarkerId})`);
+        // Horizontal axis label
+        legendElement()
             .append('text')
             .attr('x', 2 * tileSize)
             .attr('y', mapHeight)
@@ -303,19 +359,20 @@ function ChoroplethMapFragment({
             .text('Positive Rate');
 
         // Vertical line
-        d3.select('#legend')
+        legendElement()
             .append('line')
-            .attr('x1', tileSize / 2 - 0.025 * tileSize)
-            .attr('y1', mapHeight - tileSize / 2 + 0.025 * tileSize)
-            .attr('x2', tileSize / 2 - 0.025 * tileSize)
-            .attr('y2', mapHeight - totalH - tileSize / 2 - 0.25 * tileSize)
+            .attr('x1', tileSize / 2 - legendArrowShift)
+            .attr('y1', mapHeight - tileSize / 2 + legendArrowShift)
+            .attr('x2', tileSize / 2 - legendArrowShift)
+            .attr('y2', mapHeight - totalH - tileSize / 2 - legendArrowExtraLength)
             .attr('stroke', colorScheme.palette.stroke)
             .attr('stroke-width', 1.5)
-            .attr('marker-end', 'url(#arrow)');
-        d3.select('#legend')
+            .attr('marker-end', `url(#${arrowMarkerId})`);
+        // Vertical axis label
+        legendElement()
             .append('text')
             .attr('x', -mapHeight + 2 * tileSize)
-            .attr('y', 0.25 * tileSize)
+            .attr('y', legendArrowExtraLength)
             .attr('text-anchor', 'middle')
             .attr('font-size', width >= 600 ? '0.8em' : '0.5em')
             .attr('fill', colorScheme.palette.stroke)
@@ -381,6 +438,7 @@ type ChoroplethMapTooltipProps = {
     xPos: number;
     yPos: number;
     featureProps: WorldMapFeatureProps;
+    countryStatus: CountryStatus;
     covidDataItem?: CovidDataItem;
 };
 
@@ -389,6 +447,7 @@ function ChoroplethMapTooltip({
     xPos,
     yPos,
     featureProps,
+    countryStatus,
     covidDataItem
 }: ChoroplethMapTooltipProps) {
     return (
@@ -396,7 +455,11 @@ function ChoroplethMapTooltip({
             style={{ left: xPos, top: yPos, display: visible ? 'block' : 'none' }}
             className="p-2 absolute rounded-md text-white text-xs bg-blue-500"
         >
-            {covidDataItem && <p>--- {covidDataItem.geo_location.location} ---</p>}
+            {covidDataItem && (
+                <p>
+                    --- {covidDataItem.geo_location.location}: {countryStatus} ---
+                </p>
+            )}
             {!covidDataItem && <p>{featureProps.continent}</p>}
         </div>
     );
