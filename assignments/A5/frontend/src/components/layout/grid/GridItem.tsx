@@ -59,9 +59,12 @@ function GridItem({
             >
                 <DialogTitle>{`${title} Information`}</DialogTitle>
                 <DialogContent>
-                    <DialogContentText id="alert-dialog-slide-description">
-                        {description}
-                    </DialogContentText>
+                    {typeof description === 'string' && (
+                        <DialogContentText id="alert-dialog-slide-description">
+                            {description}
+                        </DialogContentText>
+                    )}
+                    {typeof description === 'object' && description}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Ok</Button>
