@@ -1,4 +1,4 @@
-import { GeoLocation } from '@models/geo-location';
+import { GeoLocation, IsoCode } from '@models/geo-location';
 import { ReactNode, createContext, useContext, useEffect, useReducer } from 'react';
 import CovidDataQueryGuard from '@components/utils/CovidDataQueryGuard';
 import { initialCountryList, initialTimeRange } from '@data/initial-data';
@@ -30,6 +30,10 @@ type State = {
      * The time range which can be configured by the user
      */
     timeRange: TimeRange;
+    /**
+     * Quick lookup by iso code
+     */
+    countriesByIsoCode: Record<IsoCode, GeoLocation>;
 };
 
 type OCDQueryConfigContextType = {
@@ -42,7 +46,14 @@ const OCDQueryConfigContext = createContext<OCDQueryConfigContextType | undefine
 function ocdQueryConfigReducer(state: State, action: Action): State {
     switch (action.type) {
         case 'SET_COUNTRY_LIST':
-            return { ...state, countryList: action.data };
+            return {
+                ...state,
+                countryList: action.data,
+                countriesByIsoCode: action.data.reduce(
+                    (acc, country) => ({ ...acc, [country.iso_code]: country }),
+                    {} as Record<IsoCode, GeoLocation>
+                )
+            };
         case 'SET_TIME_RANGE':
             return { ...state, timeRange: action.data };
     }
@@ -55,7 +66,8 @@ type CovidDataProviderProps = {
 function OCDQueryConfigProvider({ children }: CovidDataProviderProps): JSX.Element {
     const [state, dispatch] = useReducer(ocdQueryConfigReducer, {
         countryList: initialCountryList,
-        timeRange: initialTimeRange
+        timeRange: initialTimeRange,
+        countriesByIsoCode: {} as Record<IsoCode, GeoLocation>
     });
     const { data, isLoading } = useAllGeoLocations();
 

@@ -6,7 +6,7 @@ import { groupBy } from '@utils/collection-utils';
 import * as d3 from 'd3';
 import { ValueFn } from 'd3';
 import { FeatureCollection } from 'geojson';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 import worldGeoMap, { WorldMapFeatureProps } from '@data/world-geo-map';
@@ -17,25 +17,47 @@ type ChoroplethMapProps = {
     selectedCovidData: CovidDataItem[];
 };
 
+function getAggregatedData(covidData: CovidDataItem[]) {
+    const dataByIsoCode = groupBy<CovidDataItem, IsoCode>(
+        covidData,
+        ({ geo_location: { iso_code } }) => iso_code
+    );
+
+    return Object.keys(dataByIsoCode)
+        .map((key) => key as IsoCode)
+        .reduce((acc, key) => {
+            const cleanItems = dataByIsoCode[key].filter(
+                ({ positive_rate, people_vaccinated_per_hundred }) =>
+                    positive_rate !== null && people_vaccinated_per_hundred !== null
+            );
+            // No clean data found for the country
+            if (cleanItems.length === 0) {
+                return acc;
+            }
+            const xMean = d3.mean(cleanItems, ({ positive_rate }) => positive_rate) as number;
+            const yMean = d3.mean(
+                cleanItems,
+                ({ people_vaccinated_per_hundred }) => people_vaccinated_per_hundred
+            ) as number;
+            return { ...acc, [key]: { x: xMean, y: yMean } };
+        }, {} as Record<IsoCode, { x: number; y: number }>);
+}
+
 function ChoroplethMap({ width, height, selectedCovidData }: ChoroplethMapProps) {
     const {
-        state: { countryList }
+        state: { countriesByIsoCode }
     } = useOCDQueryConfig();
     const {
-        state: { colorScheme, selectedCountries },
+        state: { colorScheme, selectedCountriesByIsoCode },
         dispatch
     } = useUserConfig();
 
     function handleFeatureClick(featureProps: WorldMapFeatureProps) {
         // Check if the country is already selected
-        const selection = selectedCountries.find(
-            ({ iso_code }) => iso_code === featureProps.adm0_a3
-        );
+        const selection = selectedCountriesByIsoCode[featureProps.adm0_a3];
         // If it is not selected, then query the GeoLocation object from the country pool
         if (selection === undefined) {
-            const countryToSelect = countryList.find(
-                ({ iso_code }) => iso_code === featureProps.adm0_a3
-            );
+            const countryToSelect = countriesByIsoCode[featureProps.adm0_a3];
             // If the country is not in the pool, then shown an alert
             if (countryToSelect === undefined) {
                 alert(`No data is available for ${JSON.stringify(featureProps)}`);
@@ -54,37 +76,13 @@ function ChoroplethMap({ width, height, selectedCovidData }: ChoroplethMapProps)
     }
 
     function selectedCountry(featureProps: WorldMapFeatureProps) {
-        return selectedCountries.find(({ iso_code }) => iso_code === featureProps.adm0_a3);
+        return selectedCountriesByIsoCode[featureProps.adm0_a3];
     }
 
     function supportedCountry(featureProps: WorldMapFeatureProps) {
-        return countryList.find(({ iso_code }) => iso_code === featureProps.adm0_a3);
+        return countriesByIsoCode[featureProps.adm0_a3];
     }
-
-    const dataByIsoCode = groupBy<CovidDataItem, IsoCode>(
-        selectedCovidData,
-        ({ geo_location: { iso_code } }) => iso_code
-    );
-
-    const meansByIsoCode = Object.keys(dataByIsoCode)
-        .map((key) => key as IsoCode)
-        .reduce((acc, key) => {
-            const cleanItems = dataByIsoCode[key].filter(
-                ({ positive_rate, people_vaccinated_per_hundred }) =>
-                    positive_rate !== null && people_vaccinated_per_hundred !== null
-            );
-            // No clean data found for the country
-            if (cleanItems.length === 0) {
-                return acc;
-            }
-            const xMean = d3.mean(cleanItems, ({ positive_rate }) => positive_rate) as number;
-            const yMean = d3.mean(
-                cleanItems,
-                ({ people_vaccinated_per_hundred }) => people_vaccinated_per_hundred
-            ) as number;
-            return { ...acc, [key]: { x: xMean, y: yMean } };
-        }, {} as Record<IsoCode, { x: number; y: number }>);
-
+    const meansByIsoCode = useMemo(() => getAggregatedData(selectedCovidData), [selectedCovidData]);
     const bivariateData = Object.keys(meansByIsoCode)
         .map((key) => key as IsoCode)
         .reduce(

@@ -90,6 +90,7 @@ function parseCovidDataItem(data: any): CovidDataItem {
         positive_rate: data['positive_rate'],
         people_vaccinated: data['people_vaccinated'],
         people_vaccinated_per_hundred: data['people_vaccinated_per_hundred'],
+        people_fully_vaccinated_per_hundred: data['people_fully_vaccinated_per_hundred'],
         population: data['population'],
         median_age: data['median_age'],
         gdp_per_capita: data['gdp_per_capita'],

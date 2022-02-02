@@ -1,7 +1,7 @@
-import BarChart from '@features/bar-chart/BarChart';
 import ChoroplethMap from '@features/choropleth-map/ChoroplethMap';
 import HeatMap from '@features/heatmap/HeatMap';
 import LollipopChart from '@features/lollipop-chart/LollipopChart';
+import ScatterPlot from '@features/scatter-plot/ScatterPlot';
 import { useEffect, useRef, useState } from 'react';
 import GridItem from '@components/layout/grid/GridItem';
 import { useCovidDataOfSelectedCountries } from '@hooks/ocd-query-hooks';
@@ -53,18 +53,19 @@ function MainGrid() {
                     title="Vaccination Rate vs. Infection Rate"
                     description={
                         <>
-                            <p className='my-1'>
-                                This map gives an overview of the correlation between
-                                vaccination rate and infection rate around the world,{' '}
+                            <p className="my-1">
+                                This map gives an overview of the correlation between vaccination
+                                rate and infection rate around the world,{' '}
                                 <strong>averaged over the selected time range</strong>.
                             </p>
-                            <p className='my-1'>
-                                <strong>Vaccination Rate</strong> stands for the number of COVID-19 vaccination doses
-                                administered per 100 people in the total population.
+                            <p className="my-1">
+                                <strong>Vaccination Rate</strong> stands for the number of COVID-19
+                                vaccination doses administered per 100 people in the total
+                                population.
                             </p>
-                            <p className='my-1'>
-                                <strong>Positive Rate</strong> stands for the share of COVID-19 tests that are
-                                positive, given as a rolling 7-day average.
+                            <p className="my-1">
+                                <strong>Positive Rate</strong> stands for the share of COVID-19
+                                tests that are positive, given as a rolling 7-day average.
                             </p>
                         </>
                     }
@@ -80,12 +81,13 @@ function MainGrid() {
                 />
                 <GridItem
                     className="snap-center"
-                    title="Bars"
+                    title="Full Vaccination Rate vs. Infection Rate"
                     appBarHeight={appBarHeight}
                     content={
-                        <BarChart
+                        <ScatterPlot
                             width={gridItemContentSize.width}
                             height={gridItemContentSize.height}
+                            selectedCovidData={selectedCovidData}
                         />
                     }
                 />

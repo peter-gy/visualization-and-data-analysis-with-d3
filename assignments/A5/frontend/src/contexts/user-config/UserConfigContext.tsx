@@ -1,5 +1,5 @@
 import { ColorScheme, colorSchemes } from '@models/color-scheme';
-import { GeoLocation } from '@models/geo-location';
+import { GeoLocation, IsoCode } from '@models/geo-location';
 import { ReactNode, createContext, useContext, useReducer } from 'react';
 import { initialCountryList, initialTimeRange } from '@data/initial-data';
 
@@ -42,6 +42,10 @@ export type State = {
      * Color scheme to be used for the charts
      */
     colorScheme: ColorScheme;
+    /**
+     * Quick lookup by iso code
+     */
+    selectedCountriesByIsoCode: Record<IsoCode, GeoLocation>;
 };
 
 type UserConfigContextType = {
@@ -56,19 +60,31 @@ function userConfigReducer(state: State, action: Action): State {
         case 'ADD_TO_SELECTED_COUNTRIES':
             return {
                 ...state,
-                selectedCountries: [...state.selectedCountries, action.data]
+                selectedCountries: [...state.selectedCountries, action.data],
+                selectedCountriesByIsoCode: {
+                    ...state.selectedCountriesByIsoCode,
+                    [action.data.iso_code]: action.data
+                }
             };
         case 'SET_SELECTED_COUNTRIES':
             return {
                 ...state,
-                selectedCountries: action.data
+                selectedCountries: action.data,
+                selectedCountriesByIsoCode: action.data.reduce(
+                    (acc, curr) => ({ ...acc, [curr.iso_code]: curr }),
+                    {} as Record<IsoCode, GeoLocation>
+                )
             };
         case 'REMOVE_FROM_SELECTED_COUNTRIES':
             return {
                 ...state,
                 selectedCountries: state.selectedCountries.filter(
                     (country) => country.iso_code !== action.data.iso_code
-                )
+                ),
+                selectedCountriesByIsoCode: {
+                    ...state.selectedCountriesByIsoCode,
+                    [action.data.iso_code]: undefined
+                }
             };
         case 'SET_SELECTED_COUNTRY':
             return {
@@ -100,7 +116,11 @@ const defaultState = {
     selectedCountry: initialCountryList[0],
     selectedCountries: initialCountryList,
     selectedTimeRange: initialTimeRange,
-    colorScheme: colorSchemes[0]
+    colorScheme: colorSchemes[0],
+    selectedCountriesByIsoCode: initialCountryList.reduce(
+        (acc, country) => ({ ...acc, [country.iso_code]: country }),
+        {} as Record<IsoCode, GeoLocation>
+    )
 };
 
 function UserConfigProvider({ children }: UserConfigProviderProps): JSX.Element {
