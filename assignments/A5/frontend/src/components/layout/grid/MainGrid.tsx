@@ -130,12 +130,18 @@ function MainGrid() {
                 />
                 <GridItem
                     className="snap-center"
-                    title="Heatmap"
+                    title="Risk Factors vs. Infection Development"
+                    description={
+                        <>
+                            <p>This heatmap gives an overview of...</p>
+                        </>
+                    }
                     appBarHeight={appBarHeight}
                     content={
                         <HeatMap
                             width={gridItemContentSize.width}
                             height={gridItemContentSize.height}
+                            selectedCovidData={selectedCovidData}
                         />
                     }
                 />

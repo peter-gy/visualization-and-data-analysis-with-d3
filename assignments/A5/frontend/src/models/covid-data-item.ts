@@ -37,3 +37,5 @@ export type RiskFactor =
     | 'female_smokers'
     | 'male_smokers'
     | 'handwashing_facilities';
+
+export type InfectionIndicator = 'new_cases' | 'positive_rate';

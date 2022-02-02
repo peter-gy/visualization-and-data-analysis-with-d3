@@ -1,7 +1,7 @@
 import { RiskFactor } from '@models/covid-data-item';
 import { useEffect, useState } from 'react';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
-import riskFactorData from '@data/risk-factor-data';
+import { riskFactorData } from '@data/indicator-data';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 

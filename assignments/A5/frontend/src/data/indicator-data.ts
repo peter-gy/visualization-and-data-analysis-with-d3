@@ -1,4 +1,4 @@
-import { RiskFactor } from '@models/covid-data-item';
+import { InfectionIndicator, RiskFactor } from '@models/covid-data-item';
 import { snakeCaseToCapitalCase } from '@utils/string-utils';
 
 const riskFactors = {
@@ -36,4 +36,22 @@ const riskFactorData: Record<RiskFactor, { capitalized: string; description: str
         };
     }, {} as Record<RiskFactor, { capitalized: string; description: string }>);
 
-export default riskFactorData;
+const infectionIndicators = {
+    new_cases: { description: '' },
+    positive_rate: { description: '' }
+};
+
+const infectionIndicatorData: Record<
+    InfectionIndicator,
+    { capitalized: string; description: string }
+> = Object.keys(infectionIndicators).reduce((acc, curr) => {
+    return {
+        ...acc,
+        [curr as InfectionIndicator]: {
+            capitalized: snakeCaseToCapitalCase(curr),
+            description: infectionIndicators[curr as InfectionIndicator].description
+        }
+    };
+}, {} as Record<InfectionIndicator, { capitalized: string; description: string }>);
+
+export { riskFactorData, infectionIndicatorData };
