@@ -1,9 +1,10 @@
 import { ColorScheme } from '@models/color-scheme';
 import { CovidDataItem, RiskFactor } from '@models/covid-data-item';
 import { GeoLocation, IsoCode } from '@models/geo-location';
+import { univariateColorGenerator } from '@services/color-gen-service';
 import { groupBy } from '@utils/collection-utils';
 import * as d3 from 'd3';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFetchedCovidData } from '@contexts/fetched-covid-data/FetchedCovidDataContext';
 import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
@@ -96,8 +97,15 @@ function LollipopChartFragment({
     rootId = 'lollipop-chart',
     margin = 15
 }: LollipopChartFragmentProps) {
+    const [tooltipProps, setTooltipProps] = useState<LollipopChartTooltipProps>({
+        visible: false,
+        xPos: 0,
+        yPos: 0,
+        lollipopDataPoint: lollipopData[0]
+    });
+
     const chartWidth = width - 6 * margin;
-    const chartHeight = height - 2 * margin;
+    const chartHeight = height - 3 * margin;
 
     const rootElement = () => d3.select(`#${rootId}`);
     const plotGroupId = `${rootId}-plot-group`;
@@ -106,15 +114,63 @@ function LollipopChartFragment({
     const lollipopGroupId = `${rootId}-lollipop-group`;
     const gXElement = () => rootElement().select(`#${xAxisGroupId}`);
     const gYElement = () => rootElement().select(`#${yAxisGroupId}`);
+    const lollipopLineId = (isoCode: IsoCode) => `${lollipopGroupId}-line-${isoCode}`.toLowerCase();
+    const lollipopLineElement = (isoCode: IsoCode) =>
+        rootElement().select(`#${lollipopLineId(isoCode)}`);
+    const lollipopCircleId = (isoCode: IsoCode) =>
+        `${lollipopGroupId}-circle-${isoCode}`.toLowerCase();
+    const lollipopCircleElement = (isoCode: IsoCode) =>
+        rootElement().select(`#${lollipopCircleId(isoCode)}`);
 
     // Rates for the univariate color generator & scales
-    const bubbleValues = lollipopData.map(({ positive_rate }) => positive_rate).sort();
-    const yValues = lollipopData.map(({ risk_factor_value }) => risk_factor_value).sort();
+    const positiveRateValues = lollipopData.map(({ positive_rate }) => positive_rate);
+    const riskFactorValues = lollipopData.map(({ risk_factor_value }) => risk_factor_value);
 
     const cleanD3Elements = () => {
         // Make sure that the only SVG tag inside the root div is the map
         d3.select(`#${rootId}`).selectAll('*').remove();
     };
+
+    const { gen: circleColorGen } = univariateColorGenerator(colorScheme, positiveRateValues);
+
+    function getLollipopCircleFill(lollipopDataPoint: LollipopDataPoint) {
+        return circleColorGen(lollipopDataPoint.positive_rate);
+    }
+
+    function showTooltip(event: MouseEvent, lollipopDataPoint: LollipopDataPoint) {
+        // Show tooltip
+        setTooltipProps({
+            visible: true,
+            xPos: event.pageX - 60,
+            yPos: event.pageY - 60,
+            lollipopDataPoint: lollipopDataPoint
+        });
+    }
+
+    function hideTooltip() {
+        setTooltipProps({
+            ...tooltipProps,
+            visible: false
+        });
+    }
+
+    function handleMouseOver(event: MouseEvent, lollipopDataPoint: LollipopDataPoint) {
+        lollipopCircleElement(lollipopDataPoint.country.iso_code)
+            .transition()
+            .attr('fill', colorScheme.palette.hovered);
+        showTooltip(event, lollipopDataPoint);
+    }
+
+    function handleMouseMove(event: MouseEvent, lollipopDataPoint: LollipopDataPoint) {
+        showTooltip(event, lollipopDataPoint);
+    }
+
+    function handleMouseOut(event: MouseEvent, lollipopDataPoint: LollipopDataPoint) {
+        lollipopCircleElement(lollipopDataPoint.country.iso_code)
+            .transition()
+            .attr('fill', getLollipopCircleFill(lollipopDataPoint));
+        hideTooltip();
+    }
 
     useEffect(() => {
         // Create the base SVG
@@ -124,7 +180,7 @@ function LollipopChartFragment({
             .attr('width', `${width}px`)
             .attr('height', `${height}px`)
             .append('g')
-            .attr('transform', `translate(${3.5 * margin}, ${margin})`);
+            .attr('transform', `translate(${3.5 * margin}, ${2 * margin})`);
 
         // x-axis
         const xScale = d3
@@ -133,8 +189,6 @@ function LollipopChartFragment({
             .domain(
                 lollipopData
                     .map(({ country: { location } }) => location)
-                    .reverse()
-                    .slice(0, maxCountryCount)
                     .sort((a, b) => a.localeCompare(b))
             )
             .padding(1);
@@ -152,7 +206,7 @@ function LollipopChartFragment({
         // y-axis
         const yScale = d3
             .scaleLinear()
-            .domain([yValues[yValues.length - 1], yValues[0]])
+            .domain([0, 1.1 * (d3.max(riskFactorValues) as number)])
             .range([chartHeight - 55, 0]);
         svg.append('g').attr('id', yAxisGroupId).call(d3.axisLeft(yScale).ticks(8));
         gYElement().select('.domain').attr('stroke', colorScheme.palette.stroke);
@@ -169,6 +223,35 @@ function LollipopChartFragment({
             .style('font-weight', 'bold')
             .text(selectedRiskFactor);
 
+        // Lines
+        svg.selectAll('lollipop-line')
+            .data(lollipopData)
+            .enter()
+            .append('line')
+            .attr('id', (d) => lollipopLineId(d.country.iso_code))
+            // @ts-ignore
+            .attr('x1', (d) => xScale(d.country.location))
+            // @ts-ignore
+            .attr('x2', (d) => xScale(d.country.location))
+            .attr('y1', (d) => yScale(d.risk_factor_value))
+            .attr('y2', yScale(0))
+            .attr('stroke', colorScheme.palette.stroke);
+
+        // Circles
+        svg.selectAll('lollipop-circles')
+            .data(lollipopData)
+            .join('circle')
+            .attr('id', (d) => lollipopCircleId(d.country.iso_code))
+            // @ts-ignore
+            .attr('cx', (d) => xScale(d.country.location))
+            .attr('cy', (d) => yScale(d.risk_factor_value))
+            .attr('r', 10)
+            .attr('fill', getLollipopCircleFill)
+            .attr('stroke', colorScheme.palette.stroke)
+            .on('mouseover', (e, d) => handleMouseOver(e, d))
+            .on('mousemove', (e, d) => handleMouseMove(e, d))
+            .on('mouseout', (e, d) => handleMouseOut(e, d));
+
         return cleanD3Elements;
     }, [width, height]);
 
@@ -179,7 +262,31 @@ function LollipopChartFragment({
                 style={{ backgroundColor: colorScheme.palette.background }}
                 className="rounded-b-lg"
             />
+            <LollipopChartTooltip {...tooltipProps} />
         </>
+    );
+}
+
+type LollipopChartTooltipProps = {
+    visible: boolean;
+    xPos: number;
+    yPos: number;
+    lollipopDataPoint: LollipopDataPoint;
+};
+
+function LollipopChartTooltip({
+    visible,
+    xPos,
+    yPos,
+    lollipopDataPoint
+}: LollipopChartTooltipProps) {
+    return (
+        <div
+            style={{ left: xPos, top: yPos, display: visible ? 'block' : 'none' }}
+            className="p-2 absolute rounded-md text-white text-xs bg-blue-500"
+        >
+            <p>{lollipopDataPoint.country.location}</p>
+        </div>
     );
 }
 
