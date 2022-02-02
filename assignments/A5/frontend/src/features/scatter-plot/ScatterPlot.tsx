@@ -3,10 +3,11 @@ import { CountryStatus, CovidDataItem } from '@models/covid-data-item';
 import { GeoLocation, IsoCode } from '@models/geo-location';
 import { groupBy } from '@utils/collection-utils';
 import * as d3 from 'd3';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFetchedCovidData } from '@contexts/fetched-covid-data/FetchedCovidDataContext';
 import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
+import { WorldMapFeatureProps } from '@data/world-geo-map';
 
 type ScatterPlotProps = {
     width: number;
@@ -45,7 +46,8 @@ function ScatterPlot({ width, height, selectedCovidData }: ScatterPlotProps) {
         state: { countriesByIsoCode }
     } = useOCDQueryConfig();
     const {
-        state: { colorScheme, selectedCountriesByIsoCode }
+        state: { colorScheme, selectedCountriesByIsoCode },
+        dispatch: userConfigDispatch
     } = useUserConfig();
     const {
         state: { covidDataItems }
@@ -63,6 +65,13 @@ function ScatterPlot({ width, height, selectedCovidData }: ScatterPlotProps) {
     const countryHasData = (isoCode: IsoCode) => meansByIsoCode[isoCode] !== undefined;
     const countryIsInDataSet = (isoCode: IsoCode) => countriesByIsoCode[isoCode] !== undefined;
 
+    function addToSelectedCountries(country: GeoLocation) {
+        userConfigDispatch({
+            type: 'ADD_TO_SELECTED_COUNTRIES',
+            data: country
+        });
+    }
+
     return (
         <BarChartFragment
             width={width}
@@ -71,6 +80,7 @@ function ScatterPlot({ width, height, selectedCovidData }: ScatterPlotProps) {
             countryIsSelected={countryIsSelected}
             countryHasData={countryHasData}
             countryIsInDataSet={countryIsInDataSet}
+            onCountryClick={addToSelectedCountries}
             colorScheme={colorScheme}
         />
     );
@@ -86,6 +96,7 @@ type ScatterPlotFragmentProps = {
     countryIsSelected: (isoCode: IsoCode) => boolean;
     countryHasData: (isoCode: IsoCode) => boolean;
     countryIsInDataSet: (isoCode: IsoCode) => boolean;
+    onCountryClick: (country: GeoLocation) => void;
     rootId?: string;
     margin?: number;
 };
@@ -98,9 +109,18 @@ function BarChartFragment({
     countryIsSelected,
     countryHasData,
     countryIsInDataSet,
+    onCountryClick,
     rootId = 'scatter-plot',
     margin = 15
 }: ScatterPlotFragmentProps) {
+    const [tooltipProps, setTooltipProps] = useState<ScatterPlotTooltipProps>({
+        visible: false,
+        xPos: 0,
+        yPos: 0,
+        scatterPoint: undefined,
+        countryStatus: 'notInDataSet'
+    });
+
     const plotWidth = width - 6 * margin;
     const plotHeight = height - 2 * margin;
 
@@ -132,7 +152,7 @@ function BarChartFragment({
     const yAxisGroupId = `${rootId}-y-axis-group`;
     const scatterGroupId = `${rootId}-scatter-group`;
     const scatterCircleId = (country: GeoLocation) => {
-        return `${rootId}-scatter-circle-${country.iso_code}`;
+        return `${rootId}-scatter-circle-${country.iso_code}`.toLowerCase();
     };
     const scatterCircleElement = (country: GeoLocation) =>
         rootElement().select(`#${scatterCircleId(country)}`);
@@ -169,13 +189,41 @@ function BarChartFragment({
         return statusPalette[status];
     }
 
-    function handleCircleMouseOver(event: MouseEvent, scatterPoint: ScatterPoint) {}
+    function showTooltip(event: MouseEvent, scatterPoint: ScatterPoint) {
+        // Show tooltip
+        setTooltipProps({
+            visible: true,
+            xPos: event.pageX - 60,
+            yPos: event.pageY - 60,
+            scatterPoint: scatterPoint,
+            countryStatus: countryStatusCache[scatterPoint.country.iso_code]
+        });
+    }
 
-    function handleCircleMouseMove(event: MouseEvent, scatterPoint: ScatterPoint) {}
+    function hideTooltip() {
+        setTooltipProps({
+            ...tooltipProps,
+            visible: false
+        });
+    }
 
-    function handleCircleMouseOut(event: MouseEvent, scatterPoint: ScatterPoint) {}
+    function handleCircleClick(event: MouseEvent, scatterPoint: ScatterPoint) {
+        onCountryClick(scatterPoint.country);
+    }
 
-    function handleCircleClick(event: MouseEvent, scatterPoint: ScatterPoint) {}
+    function handleCircleMouseOver(event: MouseEvent, scatterPoint: ScatterPoint) {
+        scatterCircleElement(scatterPoint.country).attr('fill', colorScheme.palette.hovered);
+        showTooltip(event, scatterPoint);
+    }
+
+    function handleCircleMouseMove(event: MouseEvent, scatterPoint: ScatterPoint) {
+        showTooltip(event, scatterPoint);
+    }
+
+    function handleCircleMouseOut(event: MouseEvent, scatterPoint: ScatterPoint) {
+        scatterCircleElement(scatterPoint.country).attr('fill', getCircleFill(scatterPoint));
+        hideTooltip();
+    }
 
     useEffect(() => {
         // Create the SVG element of the map
@@ -238,7 +286,7 @@ function BarChartFragment({
             .attr('cx', ({ x }) => xScale(x))
             .attr('cy', ({ y }) => yScale(y))
             .attr('r', 5)
-            .style('fill', (d) => getCircleFill(d))
+            .attr('fill', (d) => getCircleFill(d))
             .attr('stroke', colorScheme.palette.stroke)
             .attr('stroke-width', 1)
             .on('click', (event, d) => handleCircleClick(event, d))
@@ -256,7 +304,34 @@ function BarChartFragment({
                 style={{ backgroundColor: colorScheme.palette.background }}
                 className="rounded-b-lg"
             />
+            <ScatterPlotTooltip {...tooltipProps} />
         </>
+    );
+}
+
+type ScatterPlotTooltipProps = {
+    visible: boolean;
+    xPos: number;
+    yPos: number;
+    scatterPoint?: ScatterPoint;
+    countryStatus: CountryStatus;
+};
+
+function ScatterPlotTooltip({
+    visible,
+    xPos,
+    yPos,
+    scatterPoint,
+    countryStatus
+}: ScatterPlotTooltipProps) {
+    return (
+        <div
+            style={{ left: xPos, top: yPos, display: visible ? 'block' : 'none' }}
+            className="p-2 absolute rounded-md text-white text-xs bg-blue-500"
+        >
+            {scatterPoint && <p>{scatterPoint.country.location}</p>}
+            <p>{countryStatus}</p>
+        </div>
     );
 }
 
