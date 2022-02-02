@@ -53,10 +53,18 @@ function MainGrid() {
                     title="Vaccination Rate vs. Infection Rate"
                     description={
                         <>
-                            <p>This map shows the distribution of confirmed cases in the world.</p>
-                            <p>
-                                The color of the countries is based on the number of confirmed
-                                cases.
+                            <p className='my-1'>
+                                This map gives an overview of the correlation between
+                                vaccination rate and infection rate around the world,{' '}
+                                <strong>averaged over the selected time range</strong>.
+                            </p>
+                            <p className='my-1'>
+                                <strong>Vaccination Rate</strong> stands for the number of COVID-19 vaccination doses
+                                administered per 100 people in the total population.
+                            </p>
+                            <p className='my-1'>
+                                <strong>Positive Rate</strong> stands for the share of COVID-19 tests that are
+                                positive, given as a rolling 7-day average.
                             </p>
                         </>
                     }
