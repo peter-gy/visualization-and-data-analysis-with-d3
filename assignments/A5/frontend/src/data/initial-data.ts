@@ -1,3 +1,4 @@
+import { RiskFactor } from '@models/covid-data-item';
 import { GeoLocation } from '@models/geo-location';
 
 const initialCountryList: GeoLocation[] = [
@@ -50,4 +51,6 @@ const initialTimeRange = {
     end: new Date(now.getFullYear(), now.getMonth())
 };
 
-export { initialCountryList, initialTimeRange };
+const initialRiskFactor: RiskFactor = 'cardiovasc_death_rate';
+
+export { initialCountryList, initialTimeRange, initialRiskFactor };

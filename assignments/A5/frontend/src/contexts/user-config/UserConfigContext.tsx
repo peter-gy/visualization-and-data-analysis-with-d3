@@ -1,7 +1,8 @@
 import { ColorScheme, colorSchemes } from '@models/color-scheme';
+import { RiskFactor } from '@models/covid-data-item';
 import { GeoLocation, IsoCode } from '@models/geo-location';
 import { ReactNode, createContext, useContext, useReducer } from 'react';
-import { initialCountryList, initialTimeRange } from '@data/initial-data';
+import { initialCountryList, initialRiskFactor, initialTimeRange } from '@data/initial-data';
 
 type TimeRange = { start: Date; end: Date };
 
@@ -15,7 +16,8 @@ type Action =
     | { type: 'REMOVE_FROM_SELECTED_COUNTRIES'; data: GeoLocation }
     | { type: 'SET_SELECTED_TIME_RANGE'; data: TimeRange }
     | { type: 'SET_COLOR_SCHEME'; data: ColorScheme }
-    | { type: 'RESET_TO_DEFAULTS' };
+    | { type: 'RESET_TO_DEFAULTS' }
+    | { type: 'SET_SELECTED_RISK_FACTOR'; data: RiskFactor };
 
 /**
  * Dispatch callback signature
@@ -46,6 +48,11 @@ export type State = {
      * Quick lookup by iso code
      */
     selectedCountriesByIsoCode: Record<IsoCode, GeoLocation>;
+
+    /**
+     * The currently selected risk factor
+     */
+    selectedRiskFactor: RiskFactor;
 };
 
 type UserConfigContextType = {
@@ -105,6 +112,11 @@ function userConfigReducer(state: State, action: Action): State {
             return {
                 ...defaultState
             };
+        case 'SET_SELECTED_RISK_FACTOR':
+            return {
+                ...state,
+                selectedRiskFactor: action.data
+            };
     }
 }
 
@@ -120,7 +132,8 @@ const defaultState = {
     selectedCountriesByIsoCode: initialCountryList.reduce(
         (acc, country) => ({ ...acc, [country.iso_code]: country }),
         {} as Record<IsoCode, GeoLocation>
-    )
+    ),
+    selectedRiskFactor: initialRiskFactor
 };
 
 function UserConfigProvider({ children }: UserConfigProviderProps): JSX.Element {

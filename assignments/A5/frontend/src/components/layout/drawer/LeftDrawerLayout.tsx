@@ -111,9 +111,7 @@ function LeftDrawerLayout({
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" noWrap component="div">
-                        <div className='text-sm md:text-lg'>
-                            {title}
-                        </div>
+                        <div className="text-sm md:text-lg">{title}</div>
                     </Typography>
                 </Toolbar>
             </AppBar>

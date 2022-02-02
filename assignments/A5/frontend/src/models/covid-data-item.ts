@@ -28,3 +28,12 @@ export type CovidDataItem = {
  * Denotes the data status of a country
  */
 export type CountryStatus = 'notInDataSet' | 'notSelected' | 'selected' | 'dataUnavailable';
+
+export type RiskFactor =
+    | 'gdp_per_capita'
+    | 'extreme_poverty'
+    | 'cardiovasc_death_rate'
+    | 'diabetes_prevalence'
+    | 'female_smokers'
+    | 'male_smokers'
+    | 'handwashing_facilities';
