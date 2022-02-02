@@ -1,10 +1,10 @@
-import { getCovidDataQueryFetchProps } from '@services/covid-data-service';
-import useFetch from '@hooks/useFetch';
-import { GeoLocation } from '@models/geo-location';
 import { CovidDataItem } from '@models/covid-data-item';
+import { GeoLocation } from '@models/geo-location';
+import { getCovidDataQueryFetchProps } from '@services/covid-data-service';
 import { dateFromString } from '@utils/date-utils';
-import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 import { useFetchedCovidData } from '@contexts/fetched-covid-data/FetchedCovidDataContext';
+import { useUserConfig } from '@contexts/user-config/UserConfigContext';
+import useFetch from '@hooks/useFetch';
 
 /**
  * Business logic to retrieve location data for all the countries available in the data set.

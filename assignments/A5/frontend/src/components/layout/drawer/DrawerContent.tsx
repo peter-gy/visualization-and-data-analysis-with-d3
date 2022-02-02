@@ -1,7 +1,7 @@
-import DateRangePicker from '@components/controls/DateRangePicker';
-import CountryPicker from '@components/controls/CountryPicker';
-import ControlContainer from '@components/controls/ControlContainer';
 import ColorSchemePicker from '@components/controls/ColorSchemePicker';
+import ControlContainer from '@components/controls/ControlContainer';
+import CountryPicker from '@components/controls/CountryPicker';
+import DateRangePicker from '@components/controls/DateRangePicker';
 import UserConfigResetButton from '@components/controls/UserConfigResetButton';
 
 const controlComponentData = [

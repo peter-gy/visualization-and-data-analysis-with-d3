@@ -1,8 +1,8 @@
-import { useReducer, createContext, useContext, ReactNode, useEffect } from 'react';
 import { GeoLocation } from '@models/geo-location';
-import { useAllGeoLocations } from '@hooks/ocd-query-hooks';
-import { initialCountryList, initialTimeRange } from '@data/initial-data';
+import { ReactNode, createContext, useContext, useEffect, useReducer } from 'react';
 import CovidDataQueryGuard from '@components/utils/CovidDataQueryGuard';
+import { initialCountryList, initialTimeRange } from '@data/initial-data';
+import { useAllGeoLocations } from '@hooks/ocd-query-hooks';
 
 type TimeRange = { start: Date; end: Date };
 

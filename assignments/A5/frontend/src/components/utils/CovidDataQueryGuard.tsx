@@ -1,7 +1,7 @@
-import QueryGuard from '@components/utils/QueryGuard';
-import { Alert, AlertTitle, Button, CircularProgress } from '@mui/material';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import { ReactNode } from 'react';
+import QueryGuard from '@components/utils/QueryGuard';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { Alert, AlertTitle, Button, CircularProgress } from '@mui/material';
 
 type CovidDataQueryGuardProps<T> = {
     data: T;

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
-import { Divider, IconButton, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
+import { Divider, IconButton, Tooltip, TooltipProps, tooltipClasses } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 type ControlContainerProps = {

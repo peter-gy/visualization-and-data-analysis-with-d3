@@ -1,7 +1,7 @@
-import { GeoLocation } from '@models/geo-location';
-import { createContext, ReactNode, useContext, useReducer } from 'react';
-import { initialCountryList, initialTimeRange } from '@data/initial-data';
 import { ColorScheme, colorSchemes } from '@models/color-scheme';
+import { GeoLocation } from '@models/geo-location';
+import { ReactNode, createContext, useContext, useReducer } from 'react';
+import { initialCountryList, initialTimeRange } from '@data/initial-data';
 
 type TimeRange = { start: Date; end: Date };
 

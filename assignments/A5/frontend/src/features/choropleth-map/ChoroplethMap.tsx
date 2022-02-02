@@ -1,15 +1,15 @@
-import * as d3 from 'd3';
-import { useEffect, useState } from 'react';
-import { useUserConfig } from '@contexts/user-config/UserConfigContext';
-import { CovidDataItem } from '@models/covid-data-item';
-import { FeatureCollection } from 'geojson';
-import worldGeoMap, { WorldMapFeatureProps } from '@data/world-geo-map';
-import { ValueFn } from 'd3';
 import { ColorScheme } from '@models/color-scheme';
-import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
+import { CovidDataItem } from '@models/covid-data-item';
 import { GeoLocation, IsoCode } from '@models/geo-location';
 import { bivariateColorGenerator } from '@services/color-gen-service';
 import { groupBy } from '@utils/collection-utils';
+import * as d3 from 'd3';
+import { ValueFn } from 'd3';
+import { FeatureCollection } from 'geojson';
+import { useEffect, useState } from 'react';
+import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
+import { useUserConfig } from '@contexts/user-config/UserConfigContext';
+import worldGeoMap, { WorldMapFeatureProps } from '@data/world-geo-map';
 
 type ChoroplethMapProps = {
     width: number;
@@ -179,10 +179,7 @@ function ChoroplethMapFragment({
         });
     }
 
-    const { gen: colorGen, scales: colorScales } = bivariateColorGenerator(
-        colorScheme,
-        bivariateData
-    );
+    const { gen: colorGen } = bivariateColorGenerator(colorScheme, bivariateData);
 
     function featureFillDefault(featureProps: WorldMapFeatureProps) {
         const countrySelection = getCountrySelection(featureProps);

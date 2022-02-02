@@ -1,10 +1,10 @@
+import * as dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
+import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 import { initialTimeRange } from '@data/initial-data';
 import { DatePicker } from '@mui/lab';
 import { Button, TextField } from '@mui/material';
-import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
-import * as dayjs from 'dayjs';
-import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 
 // Use DayJS to pass values to the MUI DatePicker
 type DateRange = { start: dayjs.Dayjs; end: dayjs.Dayjs };

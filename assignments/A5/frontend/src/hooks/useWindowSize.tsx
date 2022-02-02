@@ -1,5 +1,5 @@
 // This hook is based on the following article: https://usehooks.com/useWindowSize/
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 type Size = {
     width: number;

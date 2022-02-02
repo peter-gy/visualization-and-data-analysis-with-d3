@@ -1,10 +1,10 @@
-import useMuiAppBarHeight from '@hooks/useMuiAppBarHeight';
-import { ReactNode, RefObject, useEffect, useRef, useState } from 'react';
-import ChoroplethMap from '@features/choropleth-map/ChoroplethMap';
 import BarChart from '@features/bar-chart/BarChart';
-import LollipopChart from '@features/lollipop-chart/LollipopChart';
+import ChoroplethMap from '@features/choropleth-map/ChoroplethMap';
 import HeatMap from '@features/heatmap/HeatMap';
+import LollipopChart from '@features/lollipop-chart/LollipopChart';
+import { ReactNode, RefObject, useEffect, useRef, useState } from 'react';
 import { useCovidDataOfSelectedCountries } from '@hooks/ocd-query-hooks';
+import useMuiAppBarHeight from '@hooks/useMuiAppBarHeight';
 
 function MainGrid() {
     const appBarHeight = useMuiAppBarHeight();

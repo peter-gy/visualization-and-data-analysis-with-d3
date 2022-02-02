@@ -1,6 +1,6 @@
 /* This generator was inspired by https://observablehq.com/@d3/bivariate-choropleth */
-import * as d3 from 'd3';
 import { ColorScheme } from '@models/color-scheme';
+import * as d3 from 'd3';
 
 function bivariateColorGenerator(colorScheme: ColorScheme, values: { x: number[]; y: number[] }) {
     // Make sure that we'll get a square number

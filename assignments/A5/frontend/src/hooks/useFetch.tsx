@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { constructFetchUrl } from '@utils/fetch-utils';
+import { useEffect, useState } from 'react';
 
 function useFetch(
     url: string,
