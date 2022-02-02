@@ -349,7 +349,7 @@ function ChoroplethMapFragment({
             .attr('text-anchor', 'middle')
             .attr('font-size', width >= 600 ? '0.8em' : '0.5em')
             .attr('fill', colorScheme.palette.stroke)
-            .text('Positive Rate');
+            .text('Infection Rate');
 
         // Vertical line
         legendElement()

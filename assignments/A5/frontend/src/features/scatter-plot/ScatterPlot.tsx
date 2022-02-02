@@ -7,7 +7,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useFetchedCovidData } from '@contexts/fetched-covid-data/FetchedCovidDataContext';
 import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
-import { WorldMapFeatureProps } from '@data/world-geo-map';
 
 type ScatterPlotProps = {
     width: number;
@@ -41,7 +40,7 @@ function getAggregatedData(covidData: CovidDataItem[]) {
         }, {} as Record<IsoCode, { x: number; y: number }>);
 }
 
-function ScatterPlot({ width, height, selectedCovidData }: ScatterPlotProps) {
+function ScatterPlot({ width, height }: ScatterPlotProps) {
     const {
         state: { countriesByIsoCode }
     } = useOCDQueryConfig();
@@ -161,7 +160,7 @@ function BarChartFragment({
     const xValues = scatterData.map(({ x }) => x).sort((a, b) => a - b);
     const yValues = scatterData.map(({ y }) => y).sort((a, b) => a - b);
 
-    function getXScale(plotWidth: number, plotHeight: number) {
+    function getXScale(plotWidth: number, _: number) {
         return d3
             .scaleLinear()
             .domain([xValues[0], xValues[xValues.length - 1]])

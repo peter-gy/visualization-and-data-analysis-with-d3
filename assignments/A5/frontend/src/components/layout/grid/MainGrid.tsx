@@ -64,7 +64,7 @@ function MainGrid() {
                                 population.
                             </p>
                             <p className="my-1">
-                                <strong>Positive Rate</strong> stands for the share of COVID-19
+                                <strong>Infection Rate</strong> stands for the share of COVID-19
                                 tests that are positive, given as a rolling 7-day average.
                             </p>
                         </>
@@ -82,6 +82,24 @@ function MainGrid() {
                 <GridItem
                     className="snap-center"
                     title="Full Vaccination Rate vs. Infection Rate"
+                    description={
+                        <>
+                            <p className="my-1">
+                                This scatter plot gives an overview of the correlation between full
+                                vaccinations and infection rates around the world,{' '}
+                                <strong>averaged over the selected time range</strong>.
+                            </p>
+                            <p className="my-1">
+                                <strong>People Fully Vaccinated / 100</strong> stands for the total
+                                number of people who received all doses prescribed by the
+                                vaccination protocol per 100 people in the total population.
+                            </p>
+                            <p className="my-1">
+                                <strong>Infection Rate</strong> stands for the share of COVID-19
+                                tests that are positive, given as a rolling 7-day average.
+                            </p>
+                        </>
+                    }
                     appBarHeight={appBarHeight}
                     content={
                         <ScatterPlot
