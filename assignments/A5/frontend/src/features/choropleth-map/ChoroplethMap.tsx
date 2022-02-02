@@ -130,7 +130,7 @@ function ChoroplethMapFragment({
     colorScheme,
     getCountrySelection,
     rootId = 'choropleth-map',
-    margin = 7.5,
+    margin = 10,
     onClick = (featureProps) => console.log(featureProps, 'clicked')
 }: ChoroplethMapFragmentProps) {
     const [tooltipProps, setTooltipProps] = useState<ChoroplethMapTooltipProps>({
@@ -179,7 +179,10 @@ function ChoroplethMapFragment({
         });
     }
 
-    const { gen: colorGen } = bivariateColorGenerator(colorScheme, bivariateData);
+    const { gen: colorGen, scales: colorScales } = bivariateColorGenerator(
+        colorScheme,
+        bivariateData
+    );
 
     function featureFillDefault(featureProps: WorldMapFeatureProps) {
         const countrySelection = getCountrySelection(featureProps);
@@ -227,6 +230,100 @@ function ChoroplethMapFragment({
             .attr('height', `${height}px`)
             .append('g')
             .attr('transform', `translate(${margin}, ${margin})`);
+
+        // Legend grid
+        const n = 3;
+        const grid = d3.cross(d3.range(n), d3.range(n));
+
+        // Grid tile sizes
+        const tileSize = 0.04 * width;
+        const tileWidths = d3.range(n).map((_) => tileSize);
+        const tileHeights = d3.range(n).map((_) => tileSize);
+
+        // get the total height of the grid to be used to calculate the y coordinates
+        const totalH = tileHeights.reduce((a, b) => a + b, 0);
+
+        // utility function to get the tile dimensions
+        function dim(i: number, j: number): [w: number, h: number] {
+            return [tileWidths[i], tileHeights[j]];
+        }
+
+        // utility function to get the tile coordinates
+        function coord(i: number, j: number): [x: number, y: number] {
+            // sum of the preceeding tiles' widths
+            const x = tileWidths.slice(0, i).reduce((acc, currW) => acc + currW, 0);
+            // totalH - sum of the preceeding tiles' heights + the current tile's height
+            // (0, 0) is the top left corner of the grid
+            const y = totalH - tileHeights.slice(0, j + 1).reduce((acc, currH) => acc + currH, 0);
+            return [x, y];
+        }
+
+        svg.append('g')
+            .attr('id', 'legend')
+            .selectAll('rect')
+            .data(grid)
+            .enter()
+            .append('rect')
+            .attr('fill', ([i, j]) => colorScheme.palette.scale[j * n + i])
+            .attr('width', ([i, j]) => dim(i, j)[0])
+            .attr('height', ([i, j]) => dim(i, j)[1])
+            .attr('x', ([i, j]) => coord(i, j)[0])
+            .attr('y', ([i, j]) => coord(i, j)[1])
+            .attr('coord', ([i, j]) => `[${i};${j}]`)
+            .attr('transform', `translate(${tileSize / 2}, ${mapHeight - totalH - tileSize / 2})`);
+
+        svg.append('defs')
+            .append('marker')
+            .attr('id', 'arrow')
+            .attr('orient', 'auto')
+            .attr('viewBox', '0 -5 10 10')
+            .attr('refX', '0')
+            .attr('refY', '0')
+            .attr('markerWidth', '6')
+            .attr('markerHeight', '6')
+            .attr('xoverflow', 'visible')
+            .append('path')
+            .attr('d', 'M0,-5L10,0L0,5')
+            .attr('fill', colorScheme.palette.stroke);
+
+        // Horizontal line
+        d3.select('#legend')
+            .append('line')
+            .attr('x1', tileSize / 2 - 0.025 * tileSize)
+            .attr('y1', mapHeight - tileSize / 2 + 0.025 * tileSize)
+            .attr('x2', tileSize / 2 + 3 * tileSize + 0.25 * tileSize)
+            .attr('y2', mapHeight - totalH - tileSize / 2 + 3 * tileSize + 0.025 * tileSize)
+            .attr('stroke', colorScheme.palette.stroke)
+            .attr('stroke-width', 1.5)
+            .attr('marker-end', 'url(#arrow)');
+        d3.select('#legend')
+            .append('text')
+            .attr('x', 2 * tileSize)
+            .attr('y', mapHeight)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', width >= 600 ? '0.8em' : '0.5em')
+            .attr('fill', colorScheme.palette.stroke)
+            .text('Positive Rate');
+
+        // Vertical line
+        d3.select('#legend')
+            .append('line')
+            .attr('x1', tileSize / 2 - 0.025 * tileSize)
+            .attr('y1', mapHeight - tileSize / 2 + 0.025 * tileSize)
+            .attr('x2', tileSize / 2 - 0.025 * tileSize)
+            .attr('y2', mapHeight - totalH - tileSize / 2 - 0.25 * tileSize)
+            .attr('stroke', colorScheme.palette.stroke)
+            .attr('stroke-width', 1.5)
+            .attr('marker-end', 'url(#arrow)');
+        d3.select('#legend')
+            .append('text')
+            .attr('x', -mapHeight + 2 * tileSize)
+            .attr('y', 0.25 * tileSize)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', width >= 600 ? '0.8em' : '0.5em')
+            .attr('fill', colorScheme.palette.stroke)
+            .attr('transform', 'rotate(-90)')
+            .text('Vaccination Rate');
 
         // Create the map projection
         const projection = d3.geoNaturalEarth1().fitSize([mapWidth, mapHeight], geoData);
