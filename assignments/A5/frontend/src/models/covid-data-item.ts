@@ -23,3 +23,8 @@ export type CovidDataItem = {
     male_smokers: number;
     handwashing_facilities: number;
 };
+
+/**
+ * Denotes the data status of a country
+ */
+export type CountryStatus = 'notInDataSet' | 'notSelected' | 'selected' | 'dataUnavailable';

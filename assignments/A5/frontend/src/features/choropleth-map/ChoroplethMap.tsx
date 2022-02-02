@@ -1,5 +1,5 @@
 import { ColorScheme } from '@models/color-scheme';
-import { CovidDataItem } from '@models/covid-data-item';
+import { CountryStatus, CovidDataItem } from '@models/covid-data-item';
 import { GeoLocation, IsoCode } from '@models/geo-location';
 import { bivariateColorGenerator } from '@services/color-gen-service';
 import { groupBy } from '@utils/collection-utils';
@@ -123,11 +123,6 @@ type ChoroplethMapFragmentProps = {
     margin?: number;
     onClick?: (featureProps: WorldMapFeatureProps) => void;
 };
-
-/**
- * Denotes the data status of a country
- */
-type CountryStatus = 'notInDataSet' | 'notSelected' | 'selected' | 'dataUnavailable';
 
 function ChoroplethMapFragment({
     width,

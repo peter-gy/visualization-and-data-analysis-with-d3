@@ -1,9 +1,11 @@
 import { ColorScheme } from '@models/color-scheme';
-import { CovidDataItem } from '@models/covid-data-item';
-import { IsoCode } from '@models/geo-location';
+import { CountryStatus, CovidDataItem } from '@models/covid-data-item';
+import { GeoLocation, IsoCode } from '@models/geo-location';
 import { groupBy } from '@utils/collection-utils';
 import * as d3 from 'd3';
 import { useEffect, useMemo } from 'react';
+import { useFetchedCovidData } from '@contexts/fetched-covid-data/FetchedCovidDataContext';
+import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 
 type ScatterPlotProps = {
@@ -40,16 +42,50 @@ function getAggregatedData(covidData: CovidDataItem[]) {
 
 function ScatterPlot({ width, height, selectedCovidData }: ScatterPlotProps) {
     const {
-        state: { colorScheme }
+        state: { countriesByIsoCode }
+    } = useOCDQueryConfig();
+    const {
+        state: { colorScheme, selectedCountriesByIsoCode }
     } = useUserConfig();
-    const meansByIsoCode = useMemo(() => getAggregatedData(selectedCovidData), [selectedCovidData]);
-    return <BarChartFragment width={width} height={height} colorScheme={colorScheme} />;
+    const {
+        state: { covidDataItems }
+    } = useFetchedCovidData();
+    const meansByIsoCode = useMemo(() => getAggregatedData(covidDataItems), [covidDataItems]);
+
+    const scatterData = Object.keys(meansByIsoCode).reduce((acc, isoCode) => {
+        const country = countriesByIsoCode[isoCode as IsoCode];
+        const { x, y } = meansByIsoCode[isoCode as IsoCode];
+        return [...acc, { country, x, y }];
+    }, [] as { country: GeoLocation; x: number; y: number }[]);
+
+    const countryIsSelected = (isoCode: IsoCode) =>
+        selectedCountriesByIsoCode[isoCode] !== undefined;
+    const countryHasData = (isoCode: IsoCode) => meansByIsoCode[isoCode] !== undefined;
+    const countryIsInDataSet = (isoCode: IsoCode) => countriesByIsoCode[isoCode] !== undefined;
+
+    return (
+        <BarChartFragment
+            width={width}
+            height={height}
+            scatterData={scatterData}
+            countryIsSelected={countryIsSelected}
+            countryHasData={countryHasData}
+            countryIsInDataSet={countryIsInDataSet}
+            colorScheme={colorScheme}
+        />
+    );
 }
+
+type ScatterPoint = { country: GeoLocation; x: number; y: number };
 
 type ScatterPlotFragmentProps = {
     width: number;
     height: number;
     colorScheme: ColorScheme;
+    scatterData: ScatterPoint[];
+    countryIsSelected: (isoCode: IsoCode) => boolean;
+    countryHasData: (isoCode: IsoCode) => boolean;
+    countryIsInDataSet: (isoCode: IsoCode) => boolean;
     rootId?: string;
     margin?: number;
 };
@@ -58,16 +94,88 @@ function BarChartFragment({
     width,
     height,
     colorScheme,
+    scatterData,
+    countryIsSelected,
+    countryHasData,
+    countryIsInDataSet,
     rootId = 'scatter-plot',
-    margin = 10
+    margin = 15
 }: ScatterPlotFragmentProps) {
-    const chartWidth = width - 2 * margin;
-    const chartHeight = height - 2 * margin;
+    const plotWidth = width - 6 * margin;
+    const plotHeight = height - 2 * margin;
+
+    // @ts-ignore
+    const countryStatusCache: Record<IsoCode, CountryStatus> = {};
+    const statusPalette = {
+        notInDataSet: colorScheme.palette.unavailable,
+        selected: colorScheme.palette.clicked,
+        notSelected: colorScheme.palette.inactive,
+        dataUnavailable: colorScheme.palette.unavailable
+    };
+
+    function determineCountryStatus(isoCode: IsoCode): CountryStatus {
+        if (!countryIsInDataSet(isoCode)) {
+            return 'notInDataSet';
+        }
+        if (!countryHasData(isoCode)) {
+            return 'dataUnavailable';
+        }
+        if (!countryIsSelected(isoCode)) {
+            return 'notSelected';
+        }
+        return 'selected';
+    }
+
+    const rootElement = () => d3.select(`#${rootId}`);
+    const plotGroupId = `${rootId}-plot-group`;
+    const xAxisGroupId = `${rootId}-x-axis-group`;
+    const yAxisGroupId = `${rootId}-y-axis-group`;
+    const scatterGroupId = `${rootId}-scatter-group`;
+    const scatterCircleId = (country: GeoLocation) => {
+        return `${rootId}-scatter-circle-${country.iso_code}`;
+    };
+    const scatterCircleElement = (country: GeoLocation) =>
+        rootElement().select(`#${scatterCircleId(country)}`);
+
+    // Sorted x and y values for the axes
+    const xValues = scatterData.map(({ x }) => x).sort((a, b) => a - b);
+    const yValues = scatterData.map(({ y }) => y).sort((a, b) => a - b);
+
+    function getXScale(plotWidth: number, plotHeight: number) {
+        return d3
+            .scaleLinear()
+            .domain([xValues[0], xValues[xValues.length - 1]])
+            .range([0, plotWidth]);
+    }
+
+    function getYScale(plotWidth: number, plotHeight: number) {
+        return d3
+            .scaleLinear()
+            .domain([yValues[0], yValues[yValues.length - 1]])
+            .range([plotHeight - 50, 0]);
+    }
 
     const cleanD3Elements = () => {
         // Make sure that the only SVG tag inside the root div is the map
-        d3.select(`#${rootId}`).selectAll('*').remove();
+        rootElement().selectAll('*').remove();
     };
+
+    function getCircleFill(scatterPoint: ScatterPoint) {
+        const {
+            country: { iso_code }
+        } = scatterPoint;
+        const status = countryStatusCache[iso_code] || determineCountryStatus(iso_code);
+        countryStatusCache[iso_code] = status;
+        return statusPalette[status];
+    }
+
+    function handleCircleMouseOver(event: MouseEvent, scatterPoint: ScatterPoint) {}
+
+    function handleCircleMouseMove(event: MouseEvent, scatterPoint: ScatterPoint) {}
+
+    function handleCircleMouseOut(event: MouseEvent, scatterPoint: ScatterPoint) {}
+
+    function handleCircleClick(event: MouseEvent, scatterPoint: ScatterPoint) {}
 
     useEffect(() => {
         // Create the SVG element of the map
@@ -77,7 +185,66 @@ function BarChartFragment({
             .attr('width', `${width}px`)
             .attr('height', `${height}px`)
             .append('g')
-            .attr('transform', `translate(${margin}, ${margin})`);
+            .attr('id', plotGroupId)
+            .attr('transform', `translate(${3.5 * margin}, ${margin})`);
+
+        // Create scales
+        const xScale = getXScale(plotWidth, plotHeight);
+        const yScale = getYScale(plotWidth, plotHeight);
+
+        // x-axis
+        const xAxis = d3.axisBottom(xScale).tickFormat(d3.format('.0%')).ticks(8);
+        const gX = svg
+            .append('g')
+            .attr('id', xAxisGroupId)
+            .attr('transform', `translate(0, ${plotHeight - 50})`)
+            .call(xAxis);
+        gX.select('.domain').attr('stroke', colorScheme.palette.stroke);
+        gX.selectAll('line').attr('stroke', colorScheme.palette.stroke);
+        gX.selectAll('text').attr('fill', colorScheme.palette.stroke);
+        // x-axis label
+        gX.append('text')
+            .attr('x', plotWidth)
+            .attr('y', 40)
+            .style('text-anchor', 'end')
+            .style('fill', colorScheme.palette.stroke)
+            .style('font-weight', 'bold')
+            .text('Infection Rate');
+
+        // y-axis
+        const yAxis = d3.axisLeft(yScale).ticks(8);
+        const gY = svg.append('g').attr('id', yAxisGroupId).call(yAxis);
+        gY.select('.domain').attr('stroke', colorScheme.palette.stroke);
+        gY.selectAll('line').attr('stroke', colorScheme.palette.stroke);
+        gY.selectAll('text').attr('fill', colorScheme.palette.stroke);
+        // y-axis label
+        gY.append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('x', 0)
+            .attr('y', -30)
+            .style('text-anchor', 'end')
+            .style('fill', colorScheme.palette.stroke)
+            .style('font-weight', 'bold')
+            .text('People Fully Vaccinated / 100');
+
+        svg.append('g')
+            .attr('id', scatterGroupId)
+            .selectAll('circle')
+            .data(scatterData)
+            .enter()
+            .append('circle')
+            .attr('id', ({ country }) => scatterCircleId(country))
+            .attr('class', 'hover:cursor-pointer')
+            .attr('cx', ({ x }) => xScale(x))
+            .attr('cy', ({ y }) => yScale(y))
+            .attr('r', 5)
+            .style('fill', (d) => getCircleFill(d))
+            .attr('stroke', colorScheme.palette.stroke)
+            .attr('stroke-width', 1)
+            .on('click', (event, d) => handleCircleClick(event, d))
+            .on('mouseover', (event, d) => handleCircleMouseOver(event, d))
+            .on('mousemove', (event, d) => handleCircleMouseMove(event, d))
+            .on('mouseout', (event, d) => handleCircleMouseOut(event, d));
 
         return cleanD3Elements;
     }, [width, height, colorScheme]);
