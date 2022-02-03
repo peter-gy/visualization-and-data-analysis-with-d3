@@ -24,9 +24,17 @@ function App() {
             </Helmet>
             <LeftDrawerLayout
                 title={`Covid-19 Dashboard (${formatDate(startDate)} - ${formatDate(endDate)})`}
-                drawerWidth={(windowWidth) =>
-                    windowWidth >= 768 ? 0.5 * windowWidth : windowWidth
-                }
+                drawerWidth={(windowWidth) => {
+                    if (windowWidth >= 1280) {
+                        return windowWidth / 4;
+                    } else if (windowWidth >= 1024) {
+                        return windowWidth / 3;
+                    } else if (windowWidth >= 768) {
+                        return windowWidth / 2;
+                    } else {
+                        return windowWidth;
+                    }
+                }}
                 drawerContent={<DrawerContent />}
                 mainContent={<MainGrid />}
             />
