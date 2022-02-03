@@ -3,7 +3,7 @@ import { CovidDataItem, InfectionIndicator, RiskFactor } from '@models/covid-dat
 import { IsoCode } from '@models/geo-location';
 import { groupBy } from '@utils/collection-utils';
 import * as d3 from 'd3';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFetchedCovidData } from '@contexts/fetched-covid-data/FetchedCovidDataContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 import { infectionIndicatorData, riskFactorData } from '@data/indicator-data';
@@ -91,7 +91,6 @@ function HeatMap({ width, height }: HeatMapProps) {
     } = useFetchedCovidData();
 
     const heatMapData = useMemo(() => getAggregatedData(covidDataItems), [covidDataItems]);
-    console.log(heatMapData);
 
     return (
         <HeatMapFragment
@@ -122,6 +121,12 @@ function HeatMapFragment({
     rootId = 'heatmap',
     margin = 20
 }: HeatMapFragmentProps) {
+    const [tooltipProps, setTooltipProps] = useState<HeatMapTooltipProps>({
+        visible: false,
+        xPos: 0,
+        yPos: 0,
+        mode: 'rect'
+    });
     const plotWidth = width - margin * 6;
     const plotHeight = height - margin * 2;
 
@@ -139,9 +144,69 @@ function HeatMapFragment({
         `${rootId}-heat-rect-${heatMapDataPoint.x}-${heatMapDataPoint.y}`;
     const heatRectElement = (heatMapDataPoint: HeatMapDataPoint) =>
         d3.select(`#${heatRectId(heatMapDataPoint)}`);
+    const focusLineId = `${rootId}-focus-line`;
+    const focusLineElement = () => rootElement().select(`#${focusLineId}`);
 
     const xLabels = heatMapData.map((d) => d.x);
     const yLabels = heatMapData.map((d) => d.y);
+    const legendScale = d3
+        .scaleLinear()
+        .domain([-1, 1])
+        .range([0, 0.85 * plotHeight]);
+
+    function showFocusLine(correlation: number) {
+        const yPos = 0.85 * plotHeight - legendScale(correlation);
+        focusLineElement().style('display', 'block').transition().attr('y1', yPos).attr('y2', yPos);
+    }
+
+    function hideFocusLine() {
+        focusLineElement().style('display', 'none');
+    }
+
+    function showTooltipRect(event: MouseEvent, heatMapDataPoint: HeatMapDataPoint) {
+        setTooltipProps({
+            visible: true,
+            mode: 'rect',
+            xPos: event.clientX - 50,
+            yPos: event.clientY - 50,
+            dataPoint: heatMapDataPoint
+        });
+    }
+
+    function handleRectMouseOver(event: MouseEvent, heatMapDataPoint: HeatMapDataPoint) {
+        const {x, y, correlation} = heatMapDataPoint;
+        heatRectElement(heatMapDataPoint).attr('stroke', colorScheme.palette.hovered);
+        showFocusLine(correlation);
+        showTooltipRect(event, heatMapDataPoint);
+
+        // Label coloring
+        xAxisGroupElement()
+            .selectAll('text')
+            .attr('fill', (d) =>
+                d === x ? colorScheme.palette.hovered : colorScheme.palette.stroke
+            );
+        yAxisGroupElement()
+            .selectAll('text')
+            .attr('fill', (d) =>
+                d === y ? colorScheme.palette.hovered : colorScheme.palette.stroke
+            );
+    }
+
+    function handleRectMouseMove(event: MouseEvent, heatMapDataPoint: HeatMapDataPoint) {
+        showTooltipRect(event, heatMapDataPoint);
+    }
+
+    function handleRectMouseOut(event: MouseEvent, heatMapDataPoint: HeatMapDataPoint) {
+        heatRectElement(heatMapDataPoint).attr('stroke', 'none');
+        hideFocusLine();
+        hideTooltip();
+        xAxisGroupElement().selectAll('text').attr('fill', colorScheme.palette.stroke);
+        yAxisGroupElement().selectAll('text').attr('fill', colorScheme.palette.stroke);
+    }
+
+    function hideTooltip() {
+        setTooltipProps({ ...tooltipProps, visible: false });
+    }
 
     useEffect(() => {
         if (plotWidth < 0 || plotHeight < 0) return;
@@ -213,7 +278,10 @@ function HeatMapFragment({
             .attr('height', yScale.bandwidth())
             .attr('fill', (d) => colorScale(d.correlation))
             .attr('rx', 2)
-            .attr('ry', 2);
+            .attr('ry', 2)
+            .on('mouseover', handleRectMouseOver)
+            .on('mousemove', handleRectMouseMove)
+            .on('mouseout', handleRectMouseOut);
 
         const legendHeight = 0.85 * plotHeight;
         const numStops = 500;
@@ -229,28 +297,40 @@ function HeatMapFragment({
             .attr('width', sliceWidth)
             .attr('height', sliceHeight)
             .attr('fill', (d) => colorScale(d * intervalLength - 1));
+
+        // Sync line for rect hover
+        svg.append('line')
+            .attr('id', focusLineId)
+            .attr('x1', 0.9 * plotWidth)
+            .attr('y1', legendHeight - legendScale(-1))
+            .attr('x2', 0.9 * plotWidth + sliceWidth)
+            .attr('y2', legendHeight - legendScale(-1))
+            .attr('stroke', colorScheme.palette.hovered)
+            .attr('stroke-width', 3)
+            .style('display', 'none');
+
         // Labels
         svg.append('text')
-            .attr('x', -0.6*plotHeight)
-            .attr('y', 0.9*plotWidth - 0.5*sliceWidth)
+            .attr('x', -0.6 * plotHeight)
+            .attr('y', 0.9 * plotWidth - 0.5 * sliceWidth)
             .text('Correlation Value')
             .attr('fill', colorScheme.palette.stroke)
-            .attr('transform', 'rotate(-90)')
+            .attr('transform', 'rotate(-90)');
         svg.append('text')
-            .attr('x', 0.9 * plotWidth + 1.5*sliceWidth)
-            .attr('y', 1.025*legendHeight)
+            .attr('x', 0.9 * plotWidth + 1.5 * sliceWidth)
+            .attr('y', 1.025 * legendHeight)
             .text('-1')
-            .attr('fill', colorScheme.palette.stroke)
+            .attr('fill', colorScheme.palette.stroke);
         svg.append('text')
-            .attr('x', 0.9 * plotWidth + 1.5*sliceWidth)
-            .attr('y', 0.5*legendHeight)
+            .attr('x', 0.9 * plotWidth + 1.5 * sliceWidth)
+            .attr('y', 0.5 * legendHeight)
             .text('0')
-            .attr('fill', colorScheme.palette.stroke)
+            .attr('fill', colorScheme.palette.stroke);
         svg.append('text')
-            .attr('x', 0.9 * plotWidth + 1.5*sliceWidth)
-            .attr('y', 0.025*legendHeight)
+            .attr('x', 0.9 * plotWidth + 1.5 * sliceWidth)
+            .attr('y', 0.025 * legendHeight)
             .text('1')
-            .attr('fill', colorScheme.palette.stroke)
+            .attr('fill', colorScheme.palette.stroke);
 
         return cleanD3Elements;
     }, [plotWidth, plotHeight, heatMapData, colorScheme]);
@@ -262,7 +342,35 @@ function HeatMapFragment({
                 style={{ backgroundColor: colorScheme.palette.background }}
                 className="rounded-b-lg"
             />
+            <HeatMapTooltip {...tooltipProps} />
         </>
+    );
+}
+
+type HeatMapTooltipProps = {
+    visible: boolean;
+    xPos: number;
+    yPos: number;
+    mode: 'rect' | 'risk' | 'development';
+    dataPoint?: HeatMapDataPoint;
+    labelToExplain?: string;
+};
+
+function HeatMapTooltip({
+    visible,
+    xPos,
+    yPos,
+    mode,
+    dataPoint,
+    labelToExplain
+}: HeatMapTooltipProps) {
+    return (
+        <div
+            style={{ left: xPos, top: yPos, display: visible ? 'block' : 'none' }}
+            className="p-2 absolute rounded-md text-white text-xs bg-blue-500"
+        >
+            <p>{mode}</p>
+        </div>
     );
 }
 
