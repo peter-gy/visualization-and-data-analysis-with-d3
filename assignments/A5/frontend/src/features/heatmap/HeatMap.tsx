@@ -215,6 +215,43 @@ function HeatMapFragment({
             .attr('rx', 2)
             .attr('ry', 2);
 
+        const legendHeight = 0.85 * plotHeight;
+        const numStops = 500;
+        const intervalLength = (1 - -1) / numStops;
+        const sliceWidth = 0.5 * xScale.bandwidth();
+        const sliceHeight = legendHeight / numStops;
+        svg.selectAll()
+            .data(d3.range(numStops))
+            .enter()
+            .append('rect')
+            .attr('x', (d) => 0.9 * plotWidth)
+            .attr('y', (d) => legendHeight - sliceHeight * (d + 1))
+            .attr('width', sliceWidth)
+            .attr('height', sliceHeight)
+            .attr('fill', (d) => colorScale(d * intervalLength - 1));
+        // Labels
+        svg.append('text')
+            .attr('x', -0.6*plotHeight)
+            .attr('y', 0.9*plotWidth - 0.5*sliceWidth)
+            .text('Correlation Value')
+            .attr('fill', colorScheme.palette.stroke)
+            .attr('transform', 'rotate(-90)')
+        svg.append('text')
+            .attr('x', 0.9 * plotWidth + 1.5*sliceWidth)
+            .attr('y', 1.025*legendHeight)
+            .text('-1')
+            .attr('fill', colorScheme.palette.stroke)
+        svg.append('text')
+            .attr('x', 0.9 * plotWidth + 1.5*sliceWidth)
+            .attr('y', 0.5*legendHeight)
+            .text('0')
+            .attr('fill', colorScheme.palette.stroke)
+        svg.append('text')
+            .attr('x', 0.9 * plotWidth + 1.5*sliceWidth)
+            .attr('y', 0.025*legendHeight)
+            .text('1')
+            .attr('fill', colorScheme.palette.stroke)
+
         return cleanD3Elements;
     }, [plotWidth, plotHeight, heatMapData, colorScheme]);
 
