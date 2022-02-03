@@ -399,7 +399,7 @@ function HeatMapTooltip({
     return (
         <div
             style={{ left: xPos, top: yPos, display: visible ? 'block' : 'none' }}
-            className="p-2 absolute rounded-md text-white text-xs bg-blue-500 z-[100000] border-[0.5px]"
+            className="p-2 absolute rounded-md text-white text-xs bg-primary z-[100000] border-[0.5px]"
         >
             {mode === 'rect' && dataPoint !== undefined && (
                 <>
