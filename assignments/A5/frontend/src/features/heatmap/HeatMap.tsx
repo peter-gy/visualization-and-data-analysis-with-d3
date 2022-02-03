@@ -1,10 +1,10 @@
 import { ColorScheme } from '@models/color-scheme';
-import { CovidDataItem, RiskFactor } from '@models/covid-data-item';
+import { CovidDataItem, InfectionIndicator, RiskFactor } from '@models/covid-data-item';
 import { IsoCode } from '@models/geo-location';
 import { groupBy } from '@utils/collection-utils';
 import * as d3 from 'd3';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
-import { riskFactorData } from '@data/indicator-data';
+import { infectionIndicatorData, riskFactorData } from '@data/indicator-data';
 
 type HeatMapProps = {
     width: number;
@@ -46,6 +46,38 @@ function getAggregatedData(covidData: CovidDataItem[]) {
             [curr]: valuesPerCountry
         };
     }, {} as Record<RiskFactor, number[]>);
+
+    const infectionIndicators = Object.keys(infectionIndicatorData) as InfectionIndicator[];
+    const infectionIndicatorsPerCountry = infectionIndicators.reduce((acc, curr) => {
+        const valuesPerCountry = Object.values(dataByIsoCode)
+            .map((list) =>
+                list.find(
+                    (item) => (item as any)[curr] !== undefined && (item as any)[curr] !== null
+                )
+            )
+            .filter((item) => item !== undefined)
+            .map((item) => (item as any)[curr] as number);
+        return {
+            ...acc,
+            [curr]: valuesPerCountry
+        };
+    }, {} as Record<InfectionIndicator, number[]>);
+    // Return correlation matrix
+    return Object.keys(riskFactorValuesPerCountry).reduce((outerAcc, outerCurr) => {
+        const riskFactorValues = riskFactorValuesPerCountry[outerCurr as RiskFactor];
+        const row = Object.keys(infectionIndicatorsPerCountry).reduce((innerAcc, innerCurr) => {
+            const indicatorValues = infectionIndicatorsPerCountry[innerCurr as InfectionIndicator];
+            return [
+                ...innerAcc,
+                {
+                    x: outerCurr as RiskFactor,
+                    y: innerCurr as InfectionIndicator,
+                    correlation: pearsonCorrelation(riskFactorValues, indicatorValues)
+                }
+            ];
+        }, [] as HeatMapDataPoint[]);
+        return [...outerAcc, ...row];
+    }, [] as HeatMapDataPoint[]);
 }
 
 function HeatMap({ width, height, selectedCovidData }: HeatMapProps) {
@@ -53,8 +85,8 @@ function HeatMap({ width, height, selectedCovidData }: HeatMapProps) {
         state: { colorScheme }
     } = useUserConfig();
 
-    getAggregatedData(selectedCovidData);
-    const heatMapData = [] as HeatMapDataPoint[];
+    const heatMapData = getAggregatedData(selectedCovidData);
+    console.log(heatMapData);
 
     return (
         <HeatMapFragment
@@ -66,7 +98,7 @@ function HeatMap({ width, height, selectedCovidData }: HeatMapProps) {
     );
 }
 
-type HeatMapDataPoint = { x: RiskFactor; y: RiskFactor; correlation: number };
+type HeatMapDataPoint = { x: RiskFactor; y: InfectionIndicator; correlation: number };
 
 type HeatMapFragmentProps = {
     width: number;
