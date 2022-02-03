@@ -48,7 +48,7 @@ const initialCountryList: GeoLocation[] = [
 
 const now = new Date();
 const initialTimeRange = {
-    start: dayjs(now).subtract(2, 'month').toDate(),
+    start: dayjs(now).subtract(2, 'week').toDate(),
     end: now
 };
 
