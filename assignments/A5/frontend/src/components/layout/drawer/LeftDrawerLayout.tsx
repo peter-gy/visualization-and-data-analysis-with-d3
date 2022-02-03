@@ -4,7 +4,7 @@ import useMuiAppBarHeight from '@hooks/useMuiAppBarHeight';
 import useWindowSize from '@hooks/useWindowSize';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import MenuIcon from '@mui/icons-material/Menu';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { AppBar } from '@mui/material';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -99,7 +99,7 @@ function LeftDrawerLayout({
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
-            <AppBar position="fixed" open={open}>
+            <AppBar position="fixed" open={open} >
                 <Toolbar>
                     <IconButton
                         color="inherit"
@@ -108,7 +108,7 @@ function LeftDrawerLayout({
                         edge="start"
                         sx={{ mr: 2, ...(open && { display: 'none' }) }}
                     >
-                        <MenuIcon />
+                        <SettingsIcon />
                     </IconButton>
                     <Typography variant="h6" noWrap component="div">
                         <div className="text-sm md:text-lg">{title}</div>

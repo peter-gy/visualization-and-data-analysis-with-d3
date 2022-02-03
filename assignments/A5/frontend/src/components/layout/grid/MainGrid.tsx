@@ -6,9 +6,11 @@ import { useEffect, useRef, useState } from 'react';
 import GridItem from '@components/layout/grid/GridItem';
 import { useCovidDataOfSelectedCountries } from '@hooks/ocd-query-hooks';
 import useMuiAppBarHeight from '@hooks/useMuiAppBarHeight';
+import useSelectedRiskFactorData from '@hooks/useSelectedRiskFactorData';
 
 function MainGrid() {
     const appBarHeight = useMuiAppBarHeight();
+    const selectedRiskFactorData = useSelectedRiskFactorData();
 
     // All grid items have the same size, hence we track only the first one
     const trackedItemRef = useRef<HTMLDivElement>(null);
@@ -116,7 +118,21 @@ function MainGrid() {
                     title="Risk Factor vs. Infection Rate"
                     description={
                         <>
-                            <p>Do It</p>
+                            <p className="my-1">
+                                This lollipop chart visualizes the relationship between the selected
+                                risk factor and the infection rate among countries.
+                            </p>
+                            <p className="my-1">
+                                You can set the selected risk factor in the control settings.
+                            </p>
+                            <p className="my-1">
+                                <strong>{selectedRiskFactorData.capitalized}</strong>:{' '}
+                                {selectedRiskFactorData.description}
+                            </p>
+                            <p className="my-1">
+                                <strong>Infection Rate</strong> stands for the share of COVID-19
+                                tests that are positive, given as a rolling 7-day average.
+                            </p>
                         </>
                     }
                     appBarHeight={appBarHeight}
@@ -133,7 +149,20 @@ function MainGrid() {
                     title="Risk Factors vs. Infection Development"
                     description={
                         <>
-                            <p>This heatmap gives an overview of...</p>
+                            <p className="my-1">
+                                This heatmap gives an overview of the correlation between global
+                                risk factors and infection development indicators.
+                            </p>
+                            <div className="my-1">
+                                The correlation between the values is calculated using the{' '}
+                                <a
+                                    href="https://en.wikipedia.org/wiki/Pearson_correlation_coefficient"
+                                    target="_blank"
+                                    className="underline text-blue-500 hover:text-blue-700"
+                                >
+                                    Pearson correlation coefficient
+                                </a>.
+                            </div>
                         </>
                     }
                     appBarHeight={appBarHeight}
