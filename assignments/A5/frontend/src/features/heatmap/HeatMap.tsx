@@ -3,13 +3,14 @@ import { CovidDataItem, InfectionIndicator, RiskFactor } from '@models/covid-dat
 import { IsoCode } from '@models/geo-location';
 import { groupBy } from '@utils/collection-utils';
 import * as d3 from 'd3';
+import { useMemo } from 'react';
+import { useFetchedCovidData } from '@contexts/fetched-covid-data/FetchedCovidDataContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 import { infectionIndicatorData, riskFactorData } from '@data/indicator-data';
 
 type HeatMapProps = {
     width: number;
     height: number;
-    selectedCovidData: CovidDataItem[];
 };
 
 function pearsonCorrelation(x: number[], y: number[]) {
@@ -80,12 +81,15 @@ function getAggregatedData(covidData: CovidDataItem[]) {
     }, [] as HeatMapDataPoint[]);
 }
 
-function HeatMap({ width, height, selectedCovidData }: HeatMapProps) {
+function HeatMap({ width, height }: HeatMapProps) {
     const {
         state: { colorScheme }
     } = useUserConfig();
+    const {
+        state: { covidDataItems }
+    } = useFetchedCovidData();
 
-    const heatMapData = getAggregatedData(selectedCovidData);
+    const heatMapData = useMemo(() => getAggregatedData(covidDataItems), [covidDataItems]);
     console.log(heatMapData);
 
     return (

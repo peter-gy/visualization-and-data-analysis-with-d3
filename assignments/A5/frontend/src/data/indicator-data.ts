@@ -40,14 +40,34 @@ const riskFactorData: Record<RiskFactor, { capitalized: string; description: str
     }, {} as Record<RiskFactor, { capitalized: string; description: string }>);
 
 const infectionIndicators = {
-    positive_rate: { description: '' },
-    reproduction_rate: { description: '' },
-    total_deaths_per_million: { description: '' },
-    total_cases_per_million: { description: '' },
-    new_cases_smoothed_per_million: { description: '' },
-    new_deaths_smoothed_per_million: { description: '' },
-    weekly_icu_admissions_per_million: { description: '' },
-    weekly_hosp_admissions_per_million: { description: '' }
+    positive_rate: {
+        description:
+            'The share of COVID-19 tests that are positive, given as a rolling 7-day average (this is the inverse of tests_per_case)'
+    },
+    reproduction_rate: {
+        description:
+            'Real-time estimate of the effective reproduction rate (R) of COVID-19. See https://github.com/crondonm/TrackingR/tree/main/Estimates-Database'
+    },
+    total_deaths_per_million: {
+        description: 'Total deaths attributed to COVID-19 per 1,000,000 people'
+    },
+    total_cases_per_million: {
+        description: 'Total confirmed cases of COVID-19 per 1,000,000 people'
+    },
+    new_cases_smoothed_per_million: {
+        description: 'New confirmed cases of COVID-19 (7-day smoothed) per 1,000,000 people'
+    },
+    new_deaths_smoothed_per_million: {
+        description: 'New deaths attributed to COVID-19 (7-day smoothed) per 1,000,000 people'
+    },
+    weekly_icu_admissions_per_million: {
+        description:
+            'Number of COVID-19 patients newly admitted to intensive care units (ICUs) in a given week per 1,000,000 people'
+    },
+    weekly_hosp_admissions_per_million: {
+        description:
+            'Number of COVID-19 patients newly admitted to hospitals in a given week per 1,000,000 people'
+    }
 };
 
 const infectionIndicatorData: Record<

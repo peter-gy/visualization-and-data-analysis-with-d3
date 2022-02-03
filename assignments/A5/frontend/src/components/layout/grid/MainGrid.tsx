@@ -141,7 +141,6 @@ function MainGrid() {
                         <HeatMap
                             width={gridItemContentSize.width}
                             height={gridItemContentSize.height}
-                            selectedCovidData={selectedCovidData}
                         />
                     }
                 />
