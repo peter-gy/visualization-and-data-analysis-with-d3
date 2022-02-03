@@ -2,7 +2,14 @@ module.exports = {
     mode: 'jit',
     content: ['./index.html', './src/**/*.{ts,jsx,tsx}'],
     theme: {
-        extend: {},
+        extend: {
+            colors: {
+                primary: '#2A6595'
+            },
+            fontFamily: {
+                code: ['Menlo', 'Monaco', 'Lucida Console', 'Liberation Mono']
+            }
+        },
         screens: {
             sm: '600px',
             // => @media (min-width: 600px) { ... }

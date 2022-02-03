@@ -2,10 +2,11 @@ import * as React from 'react';
 import { useState } from 'react';
 import useMuiAppBarHeight from '@hooks/useMuiAppBarHeight';
 import useWindowSize from '@hooks/useWindowSize';
+import { GitHub } from '@mui/icons-material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { AppBar } from '@mui/material';
+import { AppBar, Tooltip } from '@mui/material';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -99,20 +100,34 @@ function LeftDrawerLayout({
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
-            <AppBar position="fixed" open={open} >
+            <AppBar position="fixed" open={open}>
                 <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={handleDrawerOpen}
-                        edge="start"
-                        sx={{ mr: 2, ...(open && { display: 'none' }) }}
-                    >
-                        <SettingsIcon />
-                    </IconButton>
-                    <Typography variant="h6" noWrap component="div">
-                        <div className="text-sm md:text-lg">{title}</div>
-                    </Typography>
+                    <div className="flex grow justify-between items-center">
+                        <div className="flex items-center">
+                            <IconButton
+                                color="inherit"
+                                aria-label="open drawer"
+                                onClick={handleDrawerOpen}
+                                edge="start"
+                                sx={{ mr: 2, ...(open && { display: 'none' }) }}
+                            >
+                                <SettingsIcon />
+                            </IconButton>
+                            <Typography variant="h6" noWrap component="div">
+                                <div className="text-sm md:text-lg">{title}</div>
+                            </Typography>
+                        </div>
+                        <div className="hidden sm:block">
+                            <a
+                                href="https://github.com/peter-gy/visualization-and-data-analysis-with-d3/tree/main/assignments/A5"
+                                target="_blank"
+                            >
+                                <Tooltip title='Project Source Code'>
+                                    <GitHub />
+                                </Tooltip>
+                            </a>
+                        </div>
+                    </div>
                 </Toolbar>
             </AppBar>
             <Drawer

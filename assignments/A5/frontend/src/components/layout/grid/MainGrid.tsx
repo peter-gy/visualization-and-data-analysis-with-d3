@@ -47,7 +47,7 @@ function MainGrid() {
                 marginTop: appBarHeight,
                 height: 'calc(100vh - ' + appBarHeight + 'px)'
             }}
-            className="bg-amber-100 flex flex-col justify-start items-center overflow-scroll snap-y snap-mandatory lg:justify-center"
+            className="bg-primary flex flex-col justify-start items-center overflow-scroll snap-y snap-mandatory lg:justify-center"
         >
             <div className="flex flex-col lg:flex-row">
                 <GridItem
@@ -161,7 +161,8 @@ function MainGrid() {
                                     className="underline text-blue-500 hover:text-blue-700"
                                 >
                                     Pearson correlation coefficient
-                                </a>.
+                                </a>
+                                .
                             </div>
                         </>
                     }
