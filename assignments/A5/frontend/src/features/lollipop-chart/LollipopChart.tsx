@@ -155,11 +155,29 @@ function LollipopChartFragment({
         });
     }
 
+    function focusLegend(lollipopDataPoint: LollipopDataPoint) {
+        const color = circleColorGen(lollipopDataPoint.positive_rate);
+        const idx = colorScheme.palette.scale.indexOf(color);
+        rootElement()
+            .selectAll('rect')
+            .filter((d) => d === idx)
+            .attr('stroke', colorScheme.palette.hovered)
+            .attr('stroke-width', 2);
+    }
+
+    function unfocusLegend() {
+        rootElement()
+            .selectAll('rect')
+            .attr('stroke', colorScheme.palette.stroke)
+            .attr('stroke-width', 0.1);
+    }
+
     function handleMouseOver(event: MouseEvent, lollipopDataPoint: LollipopDataPoint) {
         lollipopCircleElement(lollipopDataPoint.country.iso_code)
             .transition()
             .attr('fill', colorScheme.palette.hovered);
         showTooltip(event, lollipopDataPoint);
+        focusLegend(lollipopDataPoint);
     }
 
     function handleMouseMove(event: MouseEvent, lollipopDataPoint: LollipopDataPoint) {
@@ -171,6 +189,7 @@ function LollipopChartFragment({
             .transition()
             .attr('fill', getLollipopCircleFill(lollipopDataPoint));
         hideTooltip();
+        unfocusLegend();
     }
 
     useEffect(() => {
@@ -256,19 +275,6 @@ function LollipopChartFragment({
 
         // Legend
         const tileSize = 0.035 * chartWidth;
-        svg.selectAll('legend-tile')
-            .data([...colorScheme.palette.scale.keys()])
-            .join('rect')
-            .attr('x', (d) => chartWidth)
-            .attr('y', (d) => d * tileSize)
-            .attr('width', tileSize)
-            .attr('height', tileSize)
-            .attr(
-                'fill',
-                (d) => colorScheme.palette.scale[colorScheme.palette.scale.length - 1 - d]
-            )
-            .attr('stroke-width', 0.25)
-            .attr('stroke', colorScheme.palette.stroke);
 
         // Arrow
         const arrowMarkerId = `${rootId}-legend-arrow-marker`;
@@ -305,6 +311,20 @@ function LollipopChartFragment({
             .style('font-weight', 'bold')
             .style('font-size', '0.8em')
             .text('Infection Rate');
+
+        svg.selectAll('legend-tile')
+            .data([...colorScheme.palette.scale.keys()])
+            .join('rect')
+            .attr('x', (d) => chartWidth)
+            .attr('y', (d) => d * tileSize)
+            .attr('width', tileSize)
+            .attr('height', tileSize)
+            .attr(
+                'fill',
+                (d) => colorScheme.palette.scale[colorScheme.palette.scale.length - 1 - d]
+            )
+            .attr('stroke-width', 0.1)
+            .attr('stroke', colorScheme.palette.stroke);
 
         return cleanD3Elements;
     }, [width, height]);
