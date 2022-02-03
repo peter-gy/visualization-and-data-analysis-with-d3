@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useFetchedCovidData } from '@contexts/fetched-covid-data/FetchedCovidDataContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 import { infectionIndicatorData, riskFactorData } from '@data/indicator-data';
+import { snakeCaseToCapitalCase } from '@utils/string-utils';
 
 type HeatMapProps = {
     width: number;
@@ -147,8 +148,8 @@ function HeatMapFragment({
     const focusLineId = `${rootId}-focus-line`;
     const focusLineElement = () => rootElement().select(`#${focusLineId}`);
 
-    const xLabels = heatMapData.map((d) => d.x);
-    const yLabels = heatMapData.map((d) => d.y);
+    const xLabels = heatMapData.map((d) => (d.x));
+    const yLabels = heatMapData.map((d) => (d.y));
     const legendScale = d3
         .scaleLinear()
         .domain([-1, 1])
@@ -188,12 +189,12 @@ function HeatMapFragment({
         xAxisGroupElement()
             .selectAll('text')
             .attr('fill', (d) =>
-                d === x ? colorScheme.palette.hovered : colorScheme.palette.stroke
+                d === (x) ? colorScheme.palette.hovered : colorScheme.palette.stroke
             );
         yAxisGroupElement()
             .selectAll('text')
             .attr('fill', (d) =>
-                d === y ? colorScheme.palette.hovered : colorScheme.palette.stroke
+                d === (y) ? colorScheme.palette.hovered : colorScheme.palette.stroke
             );
     }
 
@@ -252,7 +253,7 @@ function HeatMapFragment({
         svg.append('g')
             .attr('id', xAxisGroupId)
             .attr('transform', `translate(${transX}, ${plotHeight - 50})`)
-            .call(d3.axisBottom(xScale))
+            .call(d3.axisBottom(xScale).tickFormat(snakeCaseToCapitalCase))
             .selectAll('text')
             .attr('transform', 'rotate(-30)')
             .style('text-anchor', 'end')
@@ -273,7 +274,7 @@ function HeatMapFragment({
         svg.append('g')
             .attr('id', yAxisGroupId)
             .attr('transform', `translate(${transX}, 0)`)
-            .call(d3.axisLeft(yScale))
+            .call(d3.axisLeft(yScale).tickFormat(snakeCaseToCapitalCase))
             .selectAll('text')
             .attr('transform', 'rotate(-30)')
             .style('text-anchor', 'end')
