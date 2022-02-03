@@ -492,7 +492,7 @@ function ChoroplethMapTooltip({
                 <p>{countryName} is not supported by the data set.</p>
             )}
             {countryStatus === 'dataUnavailable' && (
-                <p>Data is currently unavailable for {countryName}.</p>
+                <p>Data is unavailable for {countryName} in the selected time range.</p>
             )}
             {countryStatus === 'notSelected' && <p>Click on this country to select it!</p>}
         </div>

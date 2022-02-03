@@ -346,7 +346,10 @@ function ScatterPlotTooltip({
                 <p>{scatterPoint.country.location} is not supported by the data set.</p>
             )}
             {countryStatus === 'dataUnavailable' && (
-                <p>Data is currently unavailable for {scatterPoint.country.location}.</p>
+                <p>
+                    Data is unavailable for {scatterPoint.country.location} in the selected time
+                    range.
+                </p>
             )}
         </div>
     );

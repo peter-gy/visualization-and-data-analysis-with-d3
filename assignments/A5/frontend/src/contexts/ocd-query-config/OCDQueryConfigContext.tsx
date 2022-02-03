@@ -66,7 +66,7 @@ type CovidDataProviderProps = {
 function OCDQueryConfigProvider({ children }: CovidDataProviderProps): JSX.Element {
     const [state, dispatch] = useReducer(ocdQueryConfigReducer, {
         countryList: initialCountryList,
-        timeRange: initialTimeRange,
+        timeRange: { start: new Date(2021, 0), end: new Date() },
         countriesByIsoCode: {} as Record<IsoCode, GeoLocation>
     });
     const { data, isLoading } = useAllGeoLocations();

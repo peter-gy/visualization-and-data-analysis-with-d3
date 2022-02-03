@@ -1,6 +1,7 @@
 import { colorSchemes } from '@models/color-scheme';
 import { RiskFactor } from '@models/covid-data-item';
 import { GeoLocation } from '@models/geo-location';
+import dayjs from 'dayjs';
 
 const initialCountryList: GeoLocation[] = [
     {
@@ -45,11 +46,10 @@ const initialCountryList: GeoLocation[] = [
     }
 ];
 
-const startDate = new Date(2022, 0);
 const now = new Date();
 const initialTimeRange = {
-    start: startDate,
-    end: new Date(now.getFullYear(), now.getMonth())
+    start: dayjs(now).subtract(2, 'month').toDate(),
+    end: now
 };
 
 const initialColorScheme = colorSchemes[0];
