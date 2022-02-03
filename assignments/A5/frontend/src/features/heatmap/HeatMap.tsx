@@ -173,8 +173,8 @@ function HeatMapFragment({
         setTooltipProps({
             visible: true,
             mode: 'rect',
-            xPos: event.clientX - 50,
-            yPos: event.clientY - 50,
+            xPos: event.clientX - 70,
+            yPos: event.clientY - 70,
             dataPoint: heatMapDataPoint
         });
     }
@@ -214,8 +214,8 @@ function HeatMapFragment({
         setTooltipProps({
             visible: true,
             mode: 'risk',
-            xPos: event.clientX - 50,
-            yPos: event.clientY - 50,
+            xPos: event.clientX - 100,
+            yPos: event.clientY - 100,
             labelToExplain: riskFactor
         });
     }
@@ -224,8 +224,8 @@ function HeatMapFragment({
         setTooltipProps({
             visible: true,
             mode: 'development',
-            xPos: event.clientX - 50,
-            yPos: event.clientY - 50,
+            xPos: event.clientX - 100,
+            yPos: event.clientY - 100,
             labelToExplain: infectionIndicator
         });
     }
@@ -399,9 +399,30 @@ function HeatMapTooltip({
     return (
         <div
             style={{ left: xPos, top: yPos, display: visible ? 'block' : 'none' }}
-            className="p-2 absolute rounded-md text-white text-xs bg-blue-500"
+            className="p-2 absolute rounded-md text-white text-xs bg-blue-500 z-[100000] border-[0.5px]"
         >
-            <p>{mode}</p>
+            {mode === 'rect' && dataPoint !== undefined && (
+                <>
+                    <p className="font-bold">Pearson Corr. Coeff.: </p>{' '}
+                    <p>{d3.format('.3')(dataPoint.correlation)}</p>
+                </>
+            )}
+            {mode === 'risk' && labelToExplain !== undefined && (
+                <>
+                    <p className="font-bold">{snakeCaseToCapitalCase(labelToExplain)}:</p>
+                    <p className="max-w-[200px] text-[0.8em]">
+                        {riskFactorData[labelToExplain as RiskFactor].description}
+                    </p>
+                </>
+            )}
+            {mode === 'development' && labelToExplain !== undefined && (
+                <>
+                    <p className="font-bold">{snakeCaseToCapitalCase(labelToExplain)}:</p>
+                    <p className="text-[0.8em]">
+                        {infectionIndicatorData[labelToExplain as InfectionIndicator].description}
+                    </p>
+                </>
+            )}
         </div>
     );
 }

@@ -4,6 +4,7 @@ import { GeoLocation, IsoCode } from '@models/geo-location';
 import { groupBy } from '@utils/collection-utils';
 import * as d3 from 'd3';
 import { useEffect, useMemo, useState } from 'react';
+import { CountryFlagIso3 } from '@components/utils/CountryFlag';
 import { useFetchedCovidData } from '@contexts/fetched-covid-data/FetchedCovidDataContext';
 import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
@@ -192,8 +193,8 @@ function ScatterPlotFragment({
         // Show tooltip
         setTooltipProps({
             visible: true,
-            xPos: event.pageX - 60,
-            yPos: event.pageY - 60,
+            xPos: event.pageX - 95,
+            yPos: event.pageY - 95,
             scatterPoint: scatterPoint,
             countryStatus: countryStatusCache[scatterPoint.country.iso_code]
         });
@@ -324,13 +325,27 @@ function ScatterPlotTooltip({
     scatterPoint,
     countryStatus
 }: ScatterPlotTooltipProps) {
+    if (scatterPoint === undefined) return <span />;
     return (
         <div
             style={{ left: xPos, top: yPos, display: visible ? 'block' : 'none' }}
-            className="p-2 absolute rounded-md text-white text-xs bg-blue-500"
+            className="p-2 absolute rounded-md text-white text-xs bg-blue-500 z-[100000] border-[0.5px]"
         >
-            {scatterPoint && <p>{scatterPoint.country.location}</p>}
-            <p>{countryStatus}</p>
+            <div className="flex justify-between p-1 items-center">
+                <p className="font-bold">{scatterPoint.country.location}</p>
+                <CountryFlagIso3 iso31661={scatterPoint.country.iso_code} />
+            </div>
+            <>
+                <p>Infection rate: {d3.format('.2')(scatterPoint.x)}</p>
+                <p>Full Vaccination rate: {d3.format('.2')(scatterPoint.y)}</p>
+            </>
+            {countryStatus === 'notSelected' && <p className="italic">(Not Selected)</p>}
+            {countryStatus === 'notInDataSet' && (
+                <p>{scatterPoint.country.location} is not supported by the data set.</p>
+            )}
+            {countryStatus === 'dataUnavailable' && (
+                <p>Data is currently unavailable for {scatterPoint.country.location}.</p>
+            )}
         </div>
     );
 }

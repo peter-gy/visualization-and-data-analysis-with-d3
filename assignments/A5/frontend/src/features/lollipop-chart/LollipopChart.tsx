@@ -6,6 +6,7 @@ import { groupBy } from '@utils/collection-utils';
 import { snakeCaseToCapitalCase } from '@utils/string-utils';
 import * as d3 from 'd3';
 import { useEffect, useMemo, useState } from 'react';
+import { CountryFlagIso3 } from '@components/utils/CountryFlag';
 import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 
@@ -105,6 +106,7 @@ function LollipopChartFragment({
         visible: false,
         xPos: 0,
         yPos: 0,
+        riskFactor: selectedRiskFactor,
         lollipopDataPoint: undefined
     });
 
@@ -141,9 +143,10 @@ function LollipopChartFragment({
     function showTooltip(event: MouseEvent, lollipopDataPoint: LollipopDataPoint) {
         // Show tooltip
         setTooltipProps({
+            ...tooltipProps,
             visible: true,
-            xPos: event.pageX - 60,
-            yPos: event.pageY - 60,
+            xPos: event.pageX - 90,
+            yPos: event.pageY - 90,
             lollipopDataPoint: lollipopDataPoint
         });
     }
@@ -345,6 +348,7 @@ type LollipopChartTooltipProps = {
     visible: boolean;
     xPos: number;
     yPos: number;
+    riskFactor: RiskFactor;
     lollipopDataPoint?: LollipopDataPoint;
 };
 
@@ -352,14 +356,24 @@ function LollipopChartTooltip({
     visible,
     xPos,
     yPos,
+    riskFactor,
     lollipopDataPoint
 }: LollipopChartTooltipProps) {
+    if (lollipopDataPoint === undefined) return <span />;
     return (
         <div
             style={{ left: xPos, top: yPos, display: visible ? 'block' : 'none' }}
-            className="p-2 absolute rounded-md text-white text-xs bg-blue-500"
+            className="p-2 absolute rounded-md text-white text-xs bg-blue-500 z-[100000] border-[0.5px]"
         >
-            <p>{lollipopDataPoint && lollipopDataPoint.country.location}</p>
+            <div className="flex justify-between p-1 items-center">
+                <p className="font-bold">{lollipopDataPoint.country.location}</p>
+                <CountryFlagIso3 iso31661={lollipopDataPoint.country.iso_code} />
+            </div>
+            <p>
+                {snakeCaseToCapitalCase(riskFactor)}:{' '}
+                {d3.format('.2')(lollipopDataPoint.risk_factor_value)}
+            </p>
+            <p>Infection Rate: {d3.format('.2')(lollipopDataPoint.positive_rate)}</p>
         </div>
     );
 }

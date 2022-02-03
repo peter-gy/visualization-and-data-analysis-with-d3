@@ -186,7 +186,7 @@ function ChoroplethMapFragment({
     function showTooltip(event: MouseEvent, featureProps: WorldMapFeatureProps) {
         // Show tooltip
         const data = meansByIsoCode[featureProps.adm0_a3];
-        const offset = 100
+        const offset = 100;
         setTooltipProps({
             visible: true,
             xPos: event.pageX - offset,
@@ -474,7 +474,7 @@ function ChoroplethMapTooltip({
     return (
         <div
             style={{ left: xPos, top: yPos, display: visible ? 'block' : 'none' }}
-            className="p-2 absolute rounded-md text-white text-xs bg-blue-500"
+            className="p-2 absolute rounded-md text-white text-xs bg-blue-500 z-[100000] border-[0.5px]"
         >
             <div className="flex justify-between p-1 items-center">
                 <p className="font-bold">{countryName}</p>
@@ -492,9 +492,7 @@ function ChoroplethMapTooltip({
             {countryStatus === 'dataUnavailable' && (
                 <p>Data is currently unavailable for {countryName}.</p>
             )}
-            {countryStatus === 'notSelected' && (
-                <p>Click on this country to select it!</p>
-            )}
+            {countryStatus === 'notSelected' && <p>Click on this country to select it!</p>}
         </div>
     );
 }
