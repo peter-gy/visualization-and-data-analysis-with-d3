@@ -65,11 +65,18 @@ function ScatterPlot({ width, height }: ScatterPlotProps) {
     const countryHasData = (isoCode: IsoCode) => meansByIsoCode[isoCode] !== undefined;
     const countryIsInDataSet = (isoCode: IsoCode) => countriesByIsoCode[isoCode] !== undefined;
 
-    function addToSelectedCountries(country: GeoLocation) {
-        userConfigDispatch({
-            type: 'ADD_TO_SELECTED_COUNTRIES',
-            data: country
-        });
+    function toggleCountrySelection(country: GeoLocation) {
+        if (countryIsSelected(country.iso_code)) {
+            userConfigDispatch({
+                type: 'REMOVE_FROM_SELECTED_COUNTRIES',
+                data: country
+            });
+        } else {
+            userConfigDispatch({
+                type: 'ADD_TO_SELECTED_COUNTRIES',
+                data: country
+            });
+        }
     }
 
     return (
@@ -80,7 +87,7 @@ function ScatterPlot({ width, height }: ScatterPlotProps) {
             countryIsSelected={countryIsSelected}
             countryHasData={countryHasData}
             countryIsInDataSet={countryIsInDataSet}
-            onCountryClick={addToSelectedCountries}
+            onCountryClick={toggleCountrySelection}
             colorScheme={colorScheme}
         />
     );
