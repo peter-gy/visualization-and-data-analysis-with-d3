@@ -223,12 +223,17 @@ function ChoroplethMapFragment({
         return 'dataUnavailable';
     }
 
-    function featureFillDefault(featureProps: WorldMapFeatureProps) {
+    const countryStatus = (featureProps: WorldMapFeatureProps) => {
         const status =
             countryStatusCache[featureProps.adm0_a3] || determineCountryStatus(featureProps);
         if (countryStatusCache[featureProps.adm0_a3] === undefined) {
             countryStatusCache[featureProps.adm0_a3] = status;
         }
+        return status;
+    };
+
+    function featureFillDefault(featureProps: WorldMapFeatureProps) {
+        const status = countryStatus(featureProps);
         return status === 'selected'
             ? colorGen(meansByIsoCode[featureProps.adm0_a3])
             : statusPalette[status];
@@ -243,12 +248,32 @@ function ChoroplethMapFragment({
         showTooltip(event, featureProps);
     }
 
+    function focusLegend(featureProps: WorldMapFeatureProps) {
+        const status = countryStatus(featureProps);
+        if (status === 'selected') {
+            const color = colorGen(meansByIsoCode[featureProps.adm0_a3]);
+            legendElement()
+                .selectAll('rect')
+                .filter((d) => {
+                    const [i, j] = d as number[];
+                    return colorScheme.palette.scale[j * 3 + i] === color;
+                })
+                .attr('stroke', colorScheme.palette.hovered)
+                .attr('stroke-width', 2);
+        }
+    }
+
+    function unfocusLegend() {
+        legendElement().selectAll('rect').attr('stroke', 'none');
+    }
+
     function handleFeatureMouseover(event: MouseEvent, featureProps: WorldMapFeatureProps) {
         // Set fill
         countryPathElement(featureProps.adm0_a3)
             .transition()
             .style('fill', colorScheme.palette.hovered);
         showTooltip(event, featureProps);
+        focusLegend(featureProps);
     }
 
     function handleFeatureMouseout(event: MouseEvent, featureProps: WorldMapFeatureProps) {
@@ -257,6 +282,7 @@ function ChoroplethMapFragment({
             .transition()
             .style('fill', featureFillDefault(featureProps));
         hideTooltip();
+        unfocusLegend();
     }
 
     useEffect(() => {
