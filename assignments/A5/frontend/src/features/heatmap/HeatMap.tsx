@@ -156,7 +156,12 @@ function HeatMapFragment({
 
     function showFocusLine(correlation: number) {
         const yPos = 0.85 * plotHeight - legendScale(correlation);
-        focusLineElement().style('display', 'block').transition().attr('y1', yPos).attr('y2', yPos);
+        focusLineElement()
+            .style('display', 'block')
+            .transition()
+            .duration(250)
+            .attr('y1', yPos)
+            .attr('y2', yPos);
     }
 
     function hideFocusLine() {
@@ -174,7 +179,7 @@ function HeatMapFragment({
     }
 
     function handleRectMouseOver(event: MouseEvent, heatMapDataPoint: HeatMapDataPoint) {
-        const {x, y, correlation} = heatMapDataPoint;
+        const { x, y, correlation } = heatMapDataPoint;
         heatRectElement(heatMapDataPoint).attr('stroke', colorScheme.palette.hovered);
         showFocusLine(correlation);
         showTooltipRect(event, heatMapDataPoint);
@@ -202,6 +207,26 @@ function HeatMapFragment({
         hideTooltip();
         xAxisGroupElement().selectAll('text').attr('fill', colorScheme.palette.stroke);
         yAxisGroupElement().selectAll('text').attr('fill', colorScheme.palette.stroke);
+    }
+
+    function showTooltipRisk(event: MouseEvent, riskFactor: RiskFactor) {
+        setTooltipProps({
+            visible: true,
+            mode: 'risk',
+            xPos: event.clientX - 50,
+            yPos: event.clientY - 50,
+            labelToExplain: riskFactor
+        });
+    }
+
+    function showTooltipDevelopment(event: MouseEvent, infectionIndicator: InfectionIndicator) {
+        setTooltipProps({
+            visible: true,
+            mode: 'development',
+            xPos: event.clientX - 50,
+            yPos: event.clientY - 50,
+            labelToExplain: infectionIndicator
+        });
     }
 
     function hideTooltip() {
@@ -232,7 +257,10 @@ function HeatMapFragment({
             .attr('transform', 'rotate(-30)')
             .style('text-anchor', 'end')
             .style('font-size', '0.95em')
-            .attr('fill', colorScheme.palette.stroke);
+            .attr('fill', colorScheme.palette.stroke)
+            .on('mouseover', (e, d) => showTooltipRisk(e, d as RiskFactor))
+            .on('mousemove', (e, d) => showTooltipRisk(e, d as RiskFactor))
+            .on('mouseout', (_) => hideTooltip());
         // Hide the actual axis
         xAxisGroupElement().select('.domain').attr('stroke', colorScheme.palette.background);
         xAxisGroupElement().selectAll('line').attr('stroke', colorScheme.palette.background);
@@ -250,7 +278,10 @@ function HeatMapFragment({
             .attr('transform', 'rotate(-30)')
             .style('text-anchor', 'end')
             .style('font-size', '0.95em')
-            .attr('fill', colorScheme.palette.stroke);
+            .attr('fill', colorScheme.palette.stroke)
+            .on('mouseover', (e, d) => showTooltipDevelopment(e, d as InfectionIndicator))
+            .on('mousemove', (e, d) => showTooltipDevelopment(e, d as InfectionIndicator))
+            .on('mouseout', (_) => hideTooltip());
         // Hide the actual axis
         yAxisGroupElement().select('.domain').attr('stroke', colorScheme.palette.background);
         yAxisGroupElement().selectAll('line').attr('stroke', colorScheme.palette.background);
