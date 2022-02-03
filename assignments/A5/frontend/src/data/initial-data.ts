@@ -10,29 +10,9 @@ const initialCountryList: GeoLocation[] = [
         location: 'Austria'
     },
     {
-        iso_code: 'FRA',
-        continent: 'Europe',
-        location: 'France'
-    },
-    {
         iso_code: 'DEU',
         continent: 'Europe',
         location: 'Germany'
-    },
-    {
-        iso_code: 'HUN',
-        continent: 'Europe',
-        location: 'Hungary'
-    },
-    {
-        iso_code: 'ITA',
-        continent: 'Europe',
-        location: 'Italy'
-    },
-    {
-        iso_code: 'ESP',
-        continent: 'Europe',
-        location: 'Spain'
     },
     {
         iso_code: 'GBR',
