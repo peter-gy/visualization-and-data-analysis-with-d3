@@ -20,24 +20,6 @@ function useAllGeoLocations() {
 }
 
 /**
- * Business logic to retrieve covid data for specific countries in a specific time range.
- * @param countries the countries to retrieve data for
- * @param timeRange the time range to retrieve data for
- */
-function useCovidData(countries: GeoLocation[], timeRange: { start: Date; end: Date }) {
-    const fetchProps = getCovidDataQueryFetchProps('DATA_BY_COUNTRIES_AND_TIME_RANGE', {
-        countries,
-        timeRange
-    });
-    const { url, params } = fetchProps;
-    const { data, isLoading, hasError } = useFetch(url, params);
-    return {
-        data: isLoading || hasError ? undefined : (data as any[]).map(parseCovidDataItem),
-        isLoading
-    };
-}
-
-/**
  * Business logic to retrieve covid data for all countries in a specific time range.
  * @param timeRange the time range to retrieve data for
  */

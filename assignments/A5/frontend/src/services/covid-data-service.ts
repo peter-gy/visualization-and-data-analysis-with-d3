@@ -1,10 +1,6 @@
-import { GeoLocation } from '@models/geo-location';
 import { dateToString } from '@utils/date-utils';
 
-type CovidDataQuery =
-    | 'ALL_GEO_LOCATION'
-    | 'DATA_BY_COUNTRIES_AND_TIME_RANGE'
-    | 'ALL_DATA_BY_TIME_RANGE';
+type CovidDataQuery = 'ALL_GEO_LOCATION' | 'ALL_DATA_BY_TIME_RANGE';
 
 // data can be queried by pinging the /owid_covid_data endpoint
 const API_URL = `${import.meta.env.VITE_OCD_API_HOST}/owid_covid_data`;
@@ -32,44 +28,6 @@ const geoLocationDataFetchProps: FetchProps = {
         ...buildSelectionParams(['iso_code', 'continent', 'location'])
     }
 };
-
-function dataByCountriesAndTimeRangeFetchProps(
-    countries: GeoLocation[],
-    timeRange: { start: Date; end: Date }
-): FetchProps {
-    const isoCodeRegexParam = countries.map((country) => country.iso_code).join('|');
-    const dateIsAfterParam = dateToString(timeRange.start);
-    const dateIsBeforeParam = dateToString(timeRange.end);
-    return {
-        url: API_URL,
-        params: {
-            iso_code_regex: `${isoCodeRegexParam}`,
-            date_isBefore: `${dateIsBeforeParam}`,
-            date_isAfter: `${dateIsAfterParam}`,
-            ...buildSelectionParams([
-                'iso_code',
-                'continent',
-                'location',
-                'date',
-                'total_cases',
-                'new_cases',
-                'positive_rate',
-                'people_vaccinated',
-                'people_vaccinated_per_hundred',
-                'people_fully_vaccinated_per_hundred',
-                'population',
-                'median_age',
-                'gdp_per_capita',
-                'extreme_poverty',
-                'cardiovasc_death_rate',
-                'diabetes_prevalence',
-                'female_smokers',
-                'male_smokers',
-                'handwashing_facilities'
-            ])
-        }
-    };
-}
 
 function dataForAllCountriesByTimeRangeFetchProps(timeRange: {
     start: Date;
@@ -114,13 +72,6 @@ export function getCovidDataQueryFetchProps(query: CovidDataQuery, params: any =
     switch (query) {
         case 'ALL_GEO_LOCATION':
             return geoLocationDataFetchProps;
-        case 'DATA_BY_COUNTRIES_AND_TIME_RANGE':
-            const dataByCountriesAndTimeRangeParams = params as {
-                countries: GeoLocation[];
-                timeRange: { start: Date; end: Date };
-            };
-            const { countries, timeRange } = dataByCountriesAndTimeRangeParams;
-            return dataByCountriesAndTimeRangeFetchProps(countries, timeRange);
         case 'ALL_DATA_BY_TIME_RANGE':
             const allDataByTimeRangeParams = params as {
                 timeRange: { start: Date; end: Date };

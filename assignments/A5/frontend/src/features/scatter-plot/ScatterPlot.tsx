@@ -72,7 +72,7 @@ function ScatterPlot({ width, height }: ScatterPlotProps) {
     }
 
     return (
-        <BarChartFragment
+        <ScatterPlotFragment
             width={width}
             height={height}
             scatterData={scatterData}
@@ -100,7 +100,7 @@ type ScatterPlotFragmentProps = {
     margin?: number;
 };
 
-function BarChartFragment({
+function ScatterPlotFragment({
     width,
     height,
     colorScheme,
