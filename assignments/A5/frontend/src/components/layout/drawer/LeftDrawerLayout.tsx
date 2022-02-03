@@ -122,7 +122,7 @@ function LeftDrawerLayout({
                                 href="https://github.com/peter-gy/visualization-and-data-analysis-with-d3/tree/main/assignments/A5"
                                 target="_blank"
                             >
-                                <Tooltip title='Project Source Code'>
+                                <Tooltip title="Project Source Code">
                                     <GitHub />
                                 </Tooltip>
                             </a>

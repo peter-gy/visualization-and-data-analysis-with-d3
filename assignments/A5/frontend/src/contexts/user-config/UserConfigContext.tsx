@@ -2,7 +2,12 @@ import { ColorScheme, colorSchemes } from '@models/color-scheme';
 import { RiskFactor } from '@models/covid-data-item';
 import { GeoLocation, IsoCode } from '@models/geo-location';
 import { ReactNode, createContext, useContext, useReducer } from 'react';
-import { initialCountryList, initialRiskFactor, initialTimeRange } from '@data/initial-data';
+import {
+    initialColorScheme,
+    initialCountryList,
+    initialRiskFactor,
+    initialTimeRange
+} from '@data/initial-data';
 
 type TimeRange = { start: Date; end: Date };
 
@@ -128,7 +133,7 @@ const defaultState = {
     selectedCountry: initialCountryList[0],
     selectedCountries: initialCountryList,
     selectedTimeRange: initialTimeRange,
-    colorScheme: colorSchemes[0],
+    colorScheme: initialColorScheme,
     selectedCountriesByIsoCode: initialCountryList.reduce(
         (acc, country) => ({ ...acc, [country.iso_code]: country }),
         {} as Record<IsoCode, GeoLocation>

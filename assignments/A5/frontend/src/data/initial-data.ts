@@ -1,3 +1,4 @@
+import { colorSchemes } from '@models/color-scheme';
 import { RiskFactor } from '@models/covid-data-item';
 import { GeoLocation } from '@models/geo-location';
 
@@ -44,13 +45,15 @@ const initialCountryList: GeoLocation[] = [
     }
 ];
 
-const startDate = new Date(2021, 0);
+const startDate = new Date(2022, 0);
 const now = new Date();
 const initialTimeRange = {
     start: startDate,
     end: new Date(now.getFullYear(), now.getMonth())
 };
 
+const initialColorScheme = colorSchemes[0];
+
 const initialRiskFactor: RiskFactor = 'cardiovasc_death_rate';
 
-export { initialCountryList, initialTimeRange, initialRiskFactor };
+export { initialCountryList, initialTimeRange, initialColorScheme, initialRiskFactor };

@@ -19,7 +19,7 @@ export type ColorScheme = {
 export const colorSchemes: ColorScheme[] = [
     {
         name: 'RdBu',
-        description: 'Nice scheme',
+        description: 'Dark, semi-vivid colors',
         palette: {
             scale: [
                 '#e8e8e8',
@@ -32,17 +32,17 @@ export const colorSchemes: ColorScheme[] = [
                 '#627f8c',
                 '#574249'
             ],
-            hovered: '#35ff00',
+            hovered: '#DBD56E',
             clicked: '#ffc285',
             inactive: '#3e3e3e',
-            unavailable: '#000000',
-            background: '#494949',
-            stroke: '#ff0069'
+            unavailable: '#0B2027',
+            background: '#403D58',
+            stroke: '#FC7753'
         }
     },
     {
         name: 'BuPu',
-        description: 'Nice scheme',
+        description: 'Light, sharp colors',
         palette: {
             scale: [
                 '#e8e8e8',
@@ -55,17 +55,17 @@ export const colorSchemes: ColorScheme[] = [
                 '#8c62aa',
                 '#3b4994'
             ],
-            hovered: '#35ff00',
-            clicked: '#ffc285',
-            inactive: '#3e3e3e',
-            unavailable: '#000000',
-            background: '#494949',
-            stroke: '#942351'
+            hovered: '#EB4B98',
+            clicked: '#5158BB',
+            inactive: '#F6F0ED',
+            unavailable: '#272D2D',
+            background: '#ffffff',
+            stroke: '#A846A0'
         }
     },
     {
         name: 'GnBu',
-        description: 'Nice scheme',
+        description: 'Darker, less saturated colors',
         palette: {
             scale: [
                 '#e8e8e8',
@@ -78,17 +78,17 @@ export const colorSchemes: ColorScheme[] = [
                 '#5a9178',
                 '#2a5a5b'
             ],
-            hovered: '#35ff00',
-            clicked: '#ffc285',
+            hovered: '#EFC88B',
+            clicked: '#B6CCA1',
             inactive: '#3e3e3e',
-            unavailable: '#000000',
-            background: '#494949',
-            stroke: '#942351'
+            unavailable: '#30011E',
+            background: '#050517',
+            stroke: '#CF5C36'
         }
     },
     {
         name: 'PuOr',
-        description: 'Nice scheme',
+        description: 'Darker, more saturated colors',
         palette: {
             scale: [
                 '#e8e8e8',
@@ -101,12 +101,12 @@ export const colorSchemes: ColorScheme[] = [
                 '#976b82',
                 '#804d36'
             ],
-            hovered: '#35ff00',
-            clicked: '#ffc285',
-            inactive: '#3e3e3e',
-            unavailable: '#000000',
-            background: '#494949',
-            stroke: '#942351'
+            hovered: '#B6465F',
+            clicked: '#E56B70',
+            inactive: '#361134',
+            unavailable: '#6B0F1A',
+            background: '#2C0703',
+            stroke: '#B0228C'
         }
     }
 ];
