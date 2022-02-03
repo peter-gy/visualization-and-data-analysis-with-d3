@@ -2,12 +2,12 @@ import { ColorScheme } from '@models/color-scheme';
 import { CovidDataItem, InfectionIndicator, RiskFactor } from '@models/covid-data-item';
 import { IsoCode } from '@models/geo-location';
 import { groupBy } from '@utils/collection-utils';
+import { snakeCaseToCapitalCase } from '@utils/string-utils';
 import * as d3 from 'd3';
 import { useEffect, useMemo, useState } from 'react';
 import { useFetchedCovidData } from '@contexts/fetched-covid-data/FetchedCovidDataContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 import { infectionIndicatorData, riskFactorData } from '@data/indicator-data';
-import { snakeCaseToCapitalCase } from '@utils/string-utils';
 
 type HeatMapProps = {
     width: number;
@@ -148,8 +148,8 @@ function HeatMapFragment({
     const focusLineId = `${rootId}-focus-line`;
     const focusLineElement = () => rootElement().select(`#${focusLineId}`);
 
-    const xLabels = heatMapData.map((d) => (d.x));
-    const yLabels = heatMapData.map((d) => (d.y));
+    const xLabels = heatMapData.map((d) => d.x);
+    const yLabels = heatMapData.map((d) => d.y);
     const legendScale = d3
         .scaleLinear()
         .domain([-1, 1])
@@ -189,12 +189,12 @@ function HeatMapFragment({
         xAxisGroupElement()
             .selectAll('text')
             .attr('fill', (d) =>
-                d === (x) ? colorScheme.palette.hovered : colorScheme.palette.stroke
+                d === x ? colorScheme.palette.hovered : colorScheme.palette.stroke
             );
         yAxisGroupElement()
             .selectAll('text')
             .attr('fill', (d) =>
-                d === (y) ? colorScheme.palette.hovered : colorScheme.palette.stroke
+                d === y ? colorScheme.palette.hovered : colorScheme.palette.stroke
             );
     }
 
