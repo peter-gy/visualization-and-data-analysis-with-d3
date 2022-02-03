@@ -1,4 +1,6 @@
-import { dateToString } from '@utils/date-utils';
+import { CovidDataItem } from '@models/covid-data-item';
+import { GeoLocation } from '@models/geo-location';
+import { dateFromString, dateToString } from '@utils/date-utils';
 
 type CovidDataQuery = 'ALL_GEO_LOCATION' | 'ALL_DATA_BY_TIME_RANGE';
 
@@ -48,13 +50,10 @@ function dataForAllCountriesByTimeRangeFetchProps(timeRange: {
                 'continent',
                 'location',
                 'date',
-                'total_cases',
-                'new_cases',
                 'positive_rate',
-                'people_vaccinated',
                 'people_vaccinated_per_hundred',
                 'people_fully_vaccinated_per_hundred',
-                'population',
+                'aged_65_older',
                 'median_age',
                 'gdp_per_capita',
                 'extreme_poverty',
@@ -62,13 +61,52 @@ function dataForAllCountriesByTimeRangeFetchProps(timeRange: {
                 'diabetes_prevalence',
                 'female_smokers',
                 'male_smokers',
-                'handwashing_facilities'
+                'reproduction_rate',
+                'total_deaths_per_million',
+                'total_cases_per_million',
+                'new_cases_smoothed_per_million',
+                'new_deaths_smoothed_per_million',
+                'weekly_icu_admissions_per_million',
+                'weekly_hosp_admissions_per_million'
             ])
         }
     };
 }
 
-export function getCovidDataQueryFetchProps(query: CovidDataQuery, params: any = null): FetchProps {
+function parseGeoLocation(data: any): GeoLocation {
+    return {
+        iso_code: data['iso_code'],
+        continent: data['continent'],
+        location: data['location']
+    };
+}
+
+function parseCovidDataItem(data: any): CovidDataItem {
+    return {
+        geo_location: parseGeoLocation(data),
+        date: dateFromString(data['date']),
+        positive_rate: data['positive_rate'],
+        people_vaccinated_per_hundred: data['people_vaccinated_per_hundred'],
+        people_fully_vaccinated_per_hundred: data['people_fully_vaccinated_per_hundred'],
+        aged_65_older: data['aged_65_older'],
+        median_age: data['median_age'],
+        gdp_per_capita: data['gdp_per_capita'],
+        extreme_poverty: data['extreme_poverty'],
+        cardiovasc_death_rate: data['cardiovasc_death_rate'],
+        diabetes_prevalence: data['diabetes_prevalence'],
+        female_smokers: data['female_smokers'],
+        male_smokers: data['male_smokers'],
+        reproduction_rate: data['reproduction_rate'],
+        total_deaths_per_million: data['total_deaths_per_million'],
+        total_cases_per_million: data['total_cases_per_million'],
+        new_cases_smoothed_per_million: data['new_cases_smoothed_per_million'],
+        new_deaths_smoothed_per_million: data['new_deaths_smoothed_per_million'],
+        weekly_icu_admissions_per_million: data['weekly_icu_admissions_per_million'],
+        weekly_hosp_admissions_per_million: data['weekly_hosp_admissions_per_million']
+    };
+}
+
+function getCovidDataQueryFetchProps(query: CovidDataQuery, params: any = null): FetchProps {
     switch (query) {
         case 'ALL_GEO_LOCATION':
             return geoLocationDataFetchProps;
@@ -80,3 +118,5 @@ export function getCovidDataQueryFetchProps(query: CovidDataQuery, params: any =
             return dataForAllCountriesByTimeRangeFetchProps(allDataByTimeRangeTimeRange);
     }
 }
+
+export { getCovidDataQueryFetchProps, parseGeoLocation, parseCovidDataItem };

@@ -1,7 +1,8 @@
-import { CovidDataItem } from '@models/covid-data-item';
-import { GeoLocation } from '@models/geo-location';
-import { getCovidDataQueryFetchProps } from '@services/covid-data-service';
-import { dateFromString } from '@utils/date-utils';
+import {
+    getCovidDataQueryFetchProps,
+    parseCovidDataItem,
+    parseGeoLocation
+} from '@services/covid-data-service';
 import { useFetchedCovidData } from '@contexts/fetched-covid-data/FetchedCovidDataContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 import useFetch from '@hooks/useFetch';
@@ -53,36 +54,6 @@ function useCovidDataOfSelectedCountries() {
                 ({ iso_code: selectedIsoCode }) => selectedIsoCode === iso_code
             ) !== undefined
     );
-}
-
-function parseGeoLocation(data: any): GeoLocation {
-    return {
-        iso_code: data['iso_code'],
-        continent: data['continent'],
-        location: data['location']
-    };
-}
-
-function parseCovidDataItem(data: any): CovidDataItem {
-    return {
-        geo_location: parseGeoLocation(data),
-        date: dateFromString(data['date']),
-        total_cases: data['total_cases'],
-        new_cases: data['new_cases'],
-        positive_rate: data['positive_rate'],
-        people_vaccinated: data['people_vaccinated'],
-        people_vaccinated_per_hundred: data['people_vaccinated_per_hundred'],
-        people_fully_vaccinated_per_hundred: data['people_fully_vaccinated_per_hundred'],
-        population: data['population'],
-        median_age: data['median_age'],
-        gdp_per_capita: data['gdp_per_capita'],
-        extreme_poverty: data['extreme_poverty'],
-        cardiovasc_death_rate: data['cardiovasc_death_rate'],
-        diabetes_prevalence: data['diabetes_prevalence'],
-        female_smokers: data['female_smokers'],
-        male_smokers: data['male_smokers'],
-        handwashing_facilities: data['handwashing_facilities']
-    };
 }
 
 export { useCovidDataForAllCountries, useAllGeoLocations, useCovidDataOfSelectedCountries };
