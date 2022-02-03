@@ -80,7 +80,7 @@ function GridItem({
                 }
             >
                 <div className="flex justify-center items-center">
-                    <h1 className="text-xl font-bold text-center my-2">{title}</h1>
+                    <h1 className="text-md sm:text-xl font-bold text-center my-2">{title}</h1>
                     <div className="ml-1">
                         <IconButton onClick={handleClickOpen}>
                             <HelpIcon />

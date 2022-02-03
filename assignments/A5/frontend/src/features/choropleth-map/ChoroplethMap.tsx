@@ -375,7 +375,7 @@ function ChoroplethMapFragment({
             .attr('x', 2 * tileSize)
             .attr('y', mapHeight)
             .attr('text-anchor', 'middle')
-            .attr('font-size', width >= 600 ? '0.8em' : '0.5em')
+            .attr('font-size', width >= 600 ? '0.8em' : '0.4em')
             .attr('fill', colorScheme.palette.stroke)
             .text('Infection Rate');
 
@@ -395,7 +395,7 @@ function ChoroplethMapFragment({
             .attr('x', -mapHeight + 2 * tileSize)
             .attr('y', legendArrowExtraLength)
             .attr('text-anchor', 'middle')
-            .attr('font-size', width >= 600 ? '0.8em' : '0.5em')
+            .attr('font-size', width >= 600 ? '0.8em' : '0.4em')
             .attr('fill', colorScheme.palette.stroke)
             .attr('transform', 'rotate(-90)')
             .text('Vaccination Rate');
@@ -440,7 +440,7 @@ function ChoroplethMapFragment({
 
         // Cleanup after unmount
         return cleanD3Elements;
-    }, [width, height, selectedCovidData, geoData]);
+    }, [width, height, selectedCovidData, geoData, colorScheme]);
 
     return (
         <>

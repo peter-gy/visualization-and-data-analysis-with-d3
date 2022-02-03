@@ -312,7 +312,7 @@ function LollipopChartFragment({
             .style('text-anchor', 'end')
             .style('fill', colorScheme.palette.stroke)
             .style('font-weight', 'bold')
-            .style('font-size', '0.8em')
+            .attr('font-size', width >= 600 ? '1.2em' : '0.75em')
             .text('Infection Rate');
 
         svg.selectAll('legend-tile')
@@ -330,7 +330,7 @@ function LollipopChartFragment({
             .attr('stroke', colorScheme.palette.stroke);
 
         return cleanD3Elements;
-    }, [width, height]);
+    }, [width, height, lollipopData, selectedRiskFactor, colorScheme]);
 
     return (
         <>

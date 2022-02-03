@@ -296,7 +296,7 @@ function ScatterPlotFragment({
             .on('mouseout', (event, d) => handleCircleMouseOut(event, d));
 
         return cleanD3Elements;
-    }, [width, height, colorScheme]);
+    }, [width, height, scatterData, colorScheme]);
 
     return (
         <>

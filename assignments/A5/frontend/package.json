@@ -3,9 +3,10 @@
     "version": "0.0.0",
     "scripts": {
         "dev": "vite",
-        "build": "tsc && vite build",
+        "build": "tsc && vite build --base=/~gyarmatip41/VIS21W/A5/",
         "preview": "vite preview",
-        "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc.json --ignore-path ./.prettierignore"
+        "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc.json --ignore-path ./.prettierignore",
+        "deploy": "npm run build && scp -r ./dist/* almighty:~/public_html/VIS21W/A5 && ssh almighty \"chmod -R 755 ~/public_html/VIS21W/A5\""
     },
     "dependencies": {
         "@emotion/react": "^11.7.1",

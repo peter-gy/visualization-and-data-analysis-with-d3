@@ -245,11 +245,15 @@ function HeatMapFragment({
             .attr('height', `${height}px`)
             .append('g')
             .attr('id', plotGroupId)
-            .attr('transform', `translate(${4 * margin}, ${margin})`);
+            .attr('transform', `translate(${3 * margin}, ${margin})`);
 
-        const transX = 0.3 * plotWidth;
+        const transX = 0.275 * plotWidth;
 
-        const xScale = d3.scaleBand().domain(xLabels).range([0, plotHeight]).padding(0.01);
+        const xScale = d3
+            .scaleBand()
+            .domain(xLabels)
+            .range([0, 0.6 * plotWidth])
+            .padding(0.01);
         svg.append('g')
             .attr('id', xAxisGroupId)
             .attr('transform', `translate(${transX}, ${plotHeight - 50})`)
@@ -257,7 +261,7 @@ function HeatMapFragment({
             .selectAll('text')
             .attr('transform', 'rotate(-30)')
             .style('text-anchor', 'end')
-            .style('font-size', '0.95em')
+            .attr('font-size', width >= 600 ? '0.9em' : '0.7em')
             .attr('fill', colorScheme.palette.stroke)
             .on('mouseover', (e, d) => showTooltipRisk(e, d as RiskFactor))
             .on('mousemove', (e, d) => showTooltipRisk(e, d as RiskFactor))
@@ -278,7 +282,7 @@ function HeatMapFragment({
             .selectAll('text')
             .attr('transform', 'rotate(-30)')
             .style('text-anchor', 'end')
-            .style('font-size', '0.95em')
+            .attr('font-size', width >= 600 ? '0.9em' : '0.7em')
             .attr('fill', colorScheme.palette.stroke)
             .on('mouseover', (e, d) => showTooltipDevelopment(e, d as InfectionIndicator))
             .on('mousemove', (e, d) => showTooltipDevelopment(e, d as InfectionIndicator))
@@ -324,7 +328,7 @@ function HeatMapFragment({
             .data(d3.range(numStops))
             .enter()
             .append('rect')
-            .attr('x', (d) => 0.9 * plotWidth)
+            .attr('x', (d) => 0.975 * plotWidth)
             .attr('y', (d) => legendHeight - sliceHeight * (d + 1))
             .attr('width', sliceWidth)
             .attr('height', sliceHeight)
@@ -333,9 +337,9 @@ function HeatMapFragment({
         // Sync line for rect hover
         svg.append('line')
             .attr('id', focusLineId)
-            .attr('x1', 0.9 * plotWidth)
+            .attr('x1', 0.975 * plotWidth)
             .attr('y1', legendHeight - legendScale(-1))
-            .attr('x2', 0.9 * plotWidth + sliceWidth)
+            .attr('x2', 0.975 * plotWidth + sliceWidth)
             .attr('y2', legendHeight - legendScale(-1))
             .attr('stroke', colorScheme.palette.hovered)
             .attr('stroke-width', 3)
@@ -344,28 +348,29 @@ function HeatMapFragment({
         // Labels
         svg.append('text')
             .attr('x', -0.6 * plotHeight)
-            .attr('y', 0.9 * plotWidth - 0.5 * sliceWidth)
+            .attr('y', 0.975 * plotWidth - 0.5 * sliceWidth)
             .text('Correlation Value')
+            .attr('font-size', width >= 600 ? '1.2em' : '0.9em')
             .attr('fill', colorScheme.palette.stroke)
             .attr('transform', 'rotate(-90)');
         svg.append('text')
-            .attr('x', 0.9 * plotWidth + 1.5 * sliceWidth)
+            .attr('x', 0.975 * plotWidth + 1.5 * sliceWidth)
             .attr('y', 1.025 * legendHeight)
             .text('-1')
             .attr('fill', colorScheme.palette.stroke);
         svg.append('text')
-            .attr('x', 0.9 * plotWidth + 1.5 * sliceWidth)
+            .attr('x', 0.975 * plotWidth + 1.5 * sliceWidth)
             .attr('y', 0.5 * legendHeight)
             .text('0')
             .attr('fill', colorScheme.palette.stroke);
         svg.append('text')
-            .attr('x', 0.9 * plotWidth + 1.5 * sliceWidth)
+            .attr('x', 0.975 * plotWidth + 1.5 * sliceWidth)
             .attr('y', 0.025 * legendHeight)
             .text('1')
             .attr('fill', colorScheme.palette.stroke);
 
         return cleanD3Elements;
-    }, [plotWidth, plotHeight, heatMapData, colorScheme]);
+    }, [width, height, heatMapData, colorScheme]);
 
     return (
         <>
