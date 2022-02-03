@@ -12,7 +12,7 @@ function ColorSchemePicker() {
             {colorSchemes.map((scheme) => (
                 <Tooltip key={scheme.name} title={scheme.description}>
                     <div
-                        className={`w-[35px] h-[35px] sm:w-[55px] sm:h-[55px] mx-4 rounded-full border-2 border-black cursor-pointer ${
+                        className={`w-[35px] h-[35px] sm:w-[55px] sm:h-[55px] mx-4 rounded-full border-4 border-black cursor-pointer ${
                             scheme.name === colorScheme.name ? 'border-dashed' : ''
                         }`}
                         style={{ backgroundColor: scheme.palette.scale[5] }}

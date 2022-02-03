@@ -245,6 +245,7 @@ function LollipopChartFragment({
             .style('text-anchor', 'end')
             .style('fill', colorScheme.palette.stroke)
             .style('font-weight', 'bold')
+            .attr('font-size', width >= 600 ? '1.25em' : '0.75em')
             .text(snakeCaseToCapitalCase(selectedRiskFactor));
 
         // Lines
@@ -307,12 +308,12 @@ function LollipopChartFragment({
 
         svg.append('text')
             .attr('transform', 'rotate(-90)')
-            .attr('x', -0.25 * tileSize)
-            .attr('y', chartWidth - 0.25 * tileSize)
+            .attr('x', -2 * tileSize)
+            .attr('y', chartWidth - 0.45 * tileSize)
             .style('text-anchor', 'end')
             .style('fill', colorScheme.palette.stroke)
+            .attr('font-size', width >= 600 ? '1em' : '0.75em')
             .style('font-weight', 'bold')
-            .attr('font-size', width >= 600 ? '1.2em' : '0.75em')
             .text('Infection Rate');
 
         svg.selectAll('legend-tile')

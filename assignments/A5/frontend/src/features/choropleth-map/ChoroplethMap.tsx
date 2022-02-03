@@ -376,6 +376,7 @@ function ChoroplethMapFragment({
             .attr('y', mapHeight)
             .attr('text-anchor', 'middle')
             .attr('font-size', width >= 600 ? '0.8em' : '0.4em')
+            .style('font-weight', 'bold')
             .attr('fill', colorScheme.palette.stroke)
             .text('Infection Rate');
 
@@ -396,6 +397,7 @@ function ChoroplethMapFragment({
             .attr('y', legendArrowExtraLength)
             .attr('text-anchor', 'middle')
             .attr('font-size', width >= 600 ? '0.8em' : '0.4em')
+            .style('font-weight', 'bold')
             .attr('fill', colorScheme.palette.stroke)
             .attr('transform', 'rotate(-90)')
             .text('Vaccination Rate');

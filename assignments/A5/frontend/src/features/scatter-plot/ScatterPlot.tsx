@@ -257,6 +257,7 @@ function ScatterPlotFragment({
             .attr('y', 40)
             .style('text-anchor', 'end')
             .style('fill', colorScheme.palette.stroke)
+            .attr('font-size', width >= 600 ? '1.2em' : '0.9em')
             .style('font-weight', 'bold')
             .text('Infection Rate');
 
@@ -273,6 +274,7 @@ function ScatterPlotFragment({
             .attr('y', -30)
             .style('text-anchor', 'end')
             .style('fill', colorScheme.palette.stroke)
+            .attr('font-size', width >= 600 ? '1.2em' : '0.9em')
             .style('font-weight', 'bold')
             .text('People Fully Vaccinated / 100');
 

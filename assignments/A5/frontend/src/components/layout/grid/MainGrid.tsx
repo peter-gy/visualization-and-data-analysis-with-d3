@@ -115,7 +115,7 @@ function MainGrid() {
             <div className="flex flex-col lg:flex-row">
                 <GridItem
                     className="snap-center"
-                    title="Risk Factor vs. Infection Rate"
+                    title={`${selectedRiskFactorData.capitalized} vs. Infection Rate`}
                     description={
                         <>
                             <p className="my-1">

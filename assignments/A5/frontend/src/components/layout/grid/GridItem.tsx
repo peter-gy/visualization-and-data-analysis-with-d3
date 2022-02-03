@@ -83,14 +83,14 @@ function GridItem({
                     <h1 className="text-md sm:text-xl font-bold text-center my-2">{title}</h1>
                     <div className="ml-1">
                         <IconButton onClick={handleClickOpen}>
-                            <HelpIcon />
+                            <HelpIcon className="text-primary" />
                         </IconButton>
                     </div>
                 </div>
                 <div
                     ref={contentContainerRef}
                     id={gridItemId}
-                    className="grow flex justify-center items-center w-[100%]"
+                    className="grow flex justify-center items-center w-[100%] border-t-2 border-black"
                 >
                     {content}
                 </div>
