@@ -1,9 +1,9 @@
 import { GeoLocation } from '@models/geo-location';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import { CountryFlagIso3 } from '@components/utils/CountryFlag';
 import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
-import { iso31661Alpha3To2 } from '@data/country-iso-codes';
 import ClearIcon from '@mui/icons-material/Clear';
 import FlagIcon from '@mui/icons-material/Flag';
 import { Button } from '@mui/material';
@@ -121,9 +121,7 @@ function CountryPickerFragment({
                                     label={
                                         <div>
                                             <span className="mr-1">{value.location}</span>
-                                            <CountryFlag
-                                                isoAlpha2={iso31661Alpha3To2(value.iso_code)}
-                                            />
+                                            <CountryFlagIso3 iso31661={value.iso_code} />
                                         </div>
                                     }
                                     {
@@ -141,7 +139,6 @@ function CountryPickerFragment({
                     MenuProps={MenuProps}
                 >
                     {countryPool.map((country) => {
-                        const isoAlpha2 = iso31661Alpha3To2(country.iso_code);
                         const isSelected =
                             selectedCountries.find((c) => c.iso_code === country.iso_code) !==
                             undefined;
@@ -154,7 +151,7 @@ function CountryPickerFragment({
                             >
                                 <div>
                                     <span className="mr-1">{country.location}</span>
-                                    <CountryFlag isoAlpha2={isoAlpha2} />
+                                    <CountryFlagIso3 iso31661={country.iso_code} />
                                 </div>
                             </MenuItem>
                         );
@@ -163,10 +160,6 @@ function CountryPickerFragment({
             </FormControl>
         </div>
     );
-}
-
-function CountryFlag({ isoAlpha2 }: { isoAlpha2: string }) {
-    return <span className={`flag-icon flag-icon-${isoAlpha2.toLowerCase()}`} />;
 }
 
 function CountryPicker() {

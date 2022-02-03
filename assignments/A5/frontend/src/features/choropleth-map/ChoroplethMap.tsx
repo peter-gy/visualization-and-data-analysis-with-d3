@@ -7,6 +7,7 @@ import * as d3 from 'd3';
 import { ValueFn } from 'd3';
 import { FeatureCollection } from 'geojson';
 import { useEffect, useMemo, useState } from 'react';
+import { CountryFlagIso3 } from '@components/utils/CountryFlag';
 import { useOCDQueryConfig } from '@contexts/ocd-query-config/OCDQueryConfigContext';
 import { useUserConfig } from '@contexts/user-config/UserConfigContext';
 import worldGeoMap, { WorldMapFeatureProps } from '@data/world-geo-map';
@@ -143,7 +144,7 @@ function ChoroplethMapFragment({
         xPos: 0,
         yPos: 0,
         featureProps: {} as WorldMapFeatureProps,
-        covidDataItem: undefined,
+        data: undefined,
         countryStatus: 'notInDataSet'
     });
     // @ts-ignore
@@ -184,14 +185,14 @@ function ChoroplethMapFragment({
 
     function showTooltip(event: MouseEvent, featureProps: WorldMapFeatureProps) {
         // Show tooltip
+        const data = meansByIsoCode[featureProps.adm0_a3];
+        const offset = 100
         setTooltipProps({
             visible: true,
-            xPos: event.pageX - 50,
-            yPos: event.pageY - 50,
+            xPos: event.pageX - offset,
+            yPos: event.pageY - offset,
             featureProps: featureProps,
-            covidDataItem: selectedCovidData.find(
-                ({ geo_location: { iso_code } }) => iso_code === featureProps.adm0_a3
-            ),
+            data: data,
             countryStatus: countryStatusCache[featureProps.adm0_a3]
         });
     }
@@ -459,28 +460,41 @@ type ChoroplethMapTooltipProps = {
     yPos: number;
     featureProps: WorldMapFeatureProps;
     countryStatus: CountryStatus;
-    covidDataItem?: CovidDataItem;
+    data?: { x: number; y: number };
 };
 
 function ChoroplethMapTooltip({
     visible,
     xPos,
     yPos,
-    featureProps,
+    featureProps: { name: countryName, adm0_a3 },
     countryStatus,
-    covidDataItem
+    data
 }: ChoroplethMapTooltipProps) {
     return (
         <div
             style={{ left: xPos, top: yPos, display: visible ? 'block' : 'none' }}
             className="p-2 absolute rounded-md text-white text-xs bg-blue-500"
         >
-            {covidDataItem && (
-                <p>
-                    --- {covidDataItem.geo_location.location}: {countryStatus} ---
-                </p>
+            <div className="flex justify-between p-1 items-center">
+                <p className="font-bold">{countryName}</p>
+                <CountryFlagIso3 iso31661={adm0_a3} />
+            </div>
+            {data && (
+                <>
+                    <p>Infection rate: {d3.format('.2')(data.x)}</p>
+                    <p>Vaccination rate: {d3.format('.2')(data.y)}</p>
+                </>
             )}
-            {!covidDataItem && <p>{featureProps.continent}</p>}
+            {countryStatus === 'notInDataSet' && (
+                <p>{countryName} is not supported by the data set.</p>
+            )}
+            {countryStatus === 'dataUnavailable' && (
+                <p>Data is currently unavailable for {countryName}.</p>
+            )}
+            {countryStatus === 'notSelected' && (
+                <p>Click on this country to select it!</p>
+            )}
         </div>
     );
 }
