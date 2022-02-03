@@ -26,7 +26,7 @@ function ControlContainer({ title, description, ControlComponent }: ControlConta
                 </Divider>
                 <CustomWidthTooltip title={description} placement="right">
                     <IconButton>
-                        <InfoIcon />
+                        <InfoIcon className='text-primary' />
                     </IconButton>
                 </CustomWidthTooltip>
             </div>
