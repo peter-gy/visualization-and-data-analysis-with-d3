@@ -69,13 +69,22 @@ function getAggregatedData(covidData: CovidDataItem[]) {
         const riskFactorValues = riskFactorValuesPerCountry[outerCurr as RiskFactor];
         const row = Object.keys(infectionIndicatorsPerCountry).reduce((innerAcc, innerCurr) => {
             const indicatorValues = infectionIndicatorsPerCountry[innerCurr as InfectionIndicator];
-            const R = pearsonCorrelation(riskFactorValues, indicatorValues);
+            let R = pearsonCorrelation(riskFactorValues, indicatorValues);
+            if (isNaN(R)) {
+                R = 0;
+            }
+            if (R < -1) {
+                R = -1;
+            }
+            if (R > 1) {
+                R = 1;
+            }
             return [
                 ...innerAcc,
                 {
                     x: outerCurr as RiskFactor,
                     y: innerCurr as InfectionIndicator,
-                    correlation: Number.isNaN(R) ? 0 : R
+                    correlation: R
                 }
             ];
         }, [] as HeatMapDataPoint[]);
@@ -342,7 +351,7 @@ function HeatMapFragment({
             .attr('x2', 0.975 * plotWidth + sliceWidth)
             .attr('y2', legendHeight - legendScale(-1))
             .attr('stroke', colorScheme.palette.hovered)
-            .attr('stroke-width', 3)
+            .attr('stroke-width', 4)
             .style('display', 'none');
 
         // Labels
