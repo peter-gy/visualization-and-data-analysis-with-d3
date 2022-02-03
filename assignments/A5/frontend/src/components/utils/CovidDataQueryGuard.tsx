@@ -17,12 +17,12 @@ function CovidDataQueryGuard<T>({ data, isLoading, children }: CovidDataQueryGua
             errorMessage={data === undefined && !isLoading ? 'Error' : undefined}
             children={children}
             LoadingElement={
-                <div className="flex justify-center items-center h-screen bg-amber-100">
+                <div className="flex justify-center items-center h-screen bg-primary">
                     <CustomLoadingElement />
                 </div>
             }
             ErrorElement={
-                <div className="flex justify-center items-center h-screen bg-amber-100">
+                <div className="flex justify-center items-center h-screen bg-primary">
                     <CustomErrorElement />
                 </div>
             }
@@ -32,8 +32,9 @@ function CovidDataQueryGuard<T>({ data, isLoading, children }: CovidDataQueryGua
 
 function CustomLoadingElement() {
     return (
-        <div className="flex flex-col justify-center items-center">
-            <p className="my-4">Fetching the most recent COVID Data...</p>
+        <div className="flex flex-col justify-center items-center bg-white rounded-lg p-8">
+            <h1 className="text-2xl my-4">Fetching the most recent COVID Data...</h1>
+            <p className='my-4 italic'>I am not even kidding, you are contacting the server at this very moment!</p>
             <CircularProgress />
         </div>
     );
@@ -44,7 +45,7 @@ function CustomErrorElement() {
         window.location.reload();
     };
     return (
-        <Alert severity="error" className="border-black border-2">
+        <Alert severity="error" className="border-red-700 border-2">
             <AlertTitle>Error</AlertTitle>
             <strong>The Custom Covid Data Server is not available.</strong>
             <p>(It should be running under {import.meta.env.VITE_OCD_API_HOST})</p>
