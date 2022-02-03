@@ -39,7 +39,7 @@ function DrawerContent() {
     return (
         <div className="flex flex-col justify-start items-start overflow-y-scroll">
             {controlComponentData.map((data) => (
-                <div key={data.title} className="my-2 py-4 border-b-[1px] border-[#e0e0e0] w-full">
+                <div key={data.title} className="mt-1 mb-2 py-4 border-b-[1px] border-[#e0e0e0] w-full">
                     <div className="px-4">
                         <ControlContainer {...data} />
                     </div>
