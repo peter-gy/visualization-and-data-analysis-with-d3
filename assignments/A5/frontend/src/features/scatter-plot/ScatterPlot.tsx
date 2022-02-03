@@ -226,7 +226,7 @@ function ScatterPlotFragment({
 
     useEffect(() => {
         if (plotWidth < 0 || plotHeight < 0) return;
-        // Create the SVG element of the map
+        // Create the SVG element of the plot
         const svg = d3
             .select(`#${rootId}`)
             .append('svg')
