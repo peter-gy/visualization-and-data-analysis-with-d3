@@ -7,7 +7,10 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                primary: colors.blue[600]
+                primary: '#2A6595'
+            },
+            fontFamily: {
+                code: ['Menlo', 'Monaco', 'Lucida Console', 'Liberation Mono']
             }
         }
     },
