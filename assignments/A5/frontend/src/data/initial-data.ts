@@ -26,7 +26,8 @@ const initialCountryList: GeoLocation[] = [
     }
 ];
 
-const now = new Date();
+// Time is a concept we know surprisingly little about.
+const now = new Date('2022-01-15T10:20:30Z');
 const initialTimeRange = {
     start: dayjs(now).subtract(2, 'week').toDate(),
     end: now
